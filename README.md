@@ -1,0 +1,3 @@
+    Status: Currently under development.
+
+This package is meant as a thin wrapper around django filer. It allows users to pick one or more django filer directories and create displayable file sets (for example image galleries) from all the files included in these directories. The set model can have various meta data like title, description, category, publish date, ...
