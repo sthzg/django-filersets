@@ -1,8 +1,10 @@
 {% extends 'core/base.html' %}
+{% load smart_load %}
 {% load static %}
 {% load cms_tags %}
 {% load menu_tags %}
 {% load sekizai_tags %}
+{% load thumbnail from sorl.thumbnail as sorl_thumbnail %}
 
 {% comment %}
 This is only a temporary solution to fit within the dev env. Should be a lot
@@ -30,11 +32,21 @@ TODO    Make configurable and very generic
         <!-- Hauptinhalt -->
         <article class="main-content">
             <div class="col-md-18">
-                <h1>{{ fset.title }}</h1>
+                <h1>Filer Set</h1>
 
+                <p class="date">{{ fset.date }}</p>
+                <h2>{{ fset.title }}</h2>
+                <h3>{{ fset.description }}</h3>
+
+                <div class="filersets-item-container">
                 {% for fitem in fitems %}
-                    {{ fitem }}
+                    {% sorl_thumbnail fitem.filer_file.path "845" quality=84 as im %}
+                    <img src="{{ im.url }}"
+                         alt=""
+                         class="img-responsive" />
+                    {% endthumbnail %}
                 {% endfor %}
+                </div>
             </div>
         </article>
         <!-- Ende: Hauptinhalt -->

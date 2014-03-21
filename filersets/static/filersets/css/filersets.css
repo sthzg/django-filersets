@@ -1,3 +1,6 @@
+p.date {
+  font-size: 90%;
+}
 .filer-set-container {
   margin: 20px 0;
   margin-bottom: 0;
@@ -5,16 +8,22 @@
   border-bottom: 2px solid #e6e6e6;
 }
 .filer-set-container p.date {
-  font-size: 90%;
   margin: 0;
 }
-p {
-  font-size: 40px;
+.filer-set-container a,
+.filer-set-container a:visited,
+.filer-set-container a:active,
+.filer-set-container a:hover,
+.filer-set-container a:focus {
+  color: inherit;
+}
+.filersets-item-container img {
+  margin: 20px 0;
 }
 h2 {
   margin-top: 0 !important;
   padding: 0;
 }
 .items-wrapper img {
-  padding: 1px 0;
+  padding: 2px 0;
 }

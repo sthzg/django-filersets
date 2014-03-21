@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.template.context import Context
@@ -36,8 +37,8 @@ class ListView(View):
             request,
             'filersets/list.html',
             {
-                'list_page_title': _('List of Sets'),
-                'list_items': list_items
+                'fset': fset,
+                'fitems': list_items
             }
         )
 
@@ -50,10 +51,36 @@ class SetView(View):
     TODO    Create list and position aware back button handling
     """
 
-    def get(self, request):
+    def get(self, request, set_id=None, set_slug=None):
+        """
+
+        :param set_id: pk of the set
+        :param set_slug: slug of the set
+        """
+
+        if set_id:
+            get_query = {'pk': int(set_id)}
+
+        if set_slug:
+            pass
+
+        try:
+            fset = Set.objects.get(**get_query)
+        except ObjectDoesNotExist:
+            # TODO Cater 404
+            pass
+
+        # TODO  We constantly need this -> Put it on the model manager
+        fitems = (
+            fitem
+            for fitem in Item.objects.filter(set=fset).order_by('order')
+        )
 
         return render(
             request,
-            'filersets/list.html',
-            {}
+            'filersets/set.html',
+            {
+                'fset': fset,
+                'fitems': fitems,
+            }
         )

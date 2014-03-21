@@ -11,7 +11,12 @@ TODO    Make configurable and very generic
 
 <div class="filer-set-container">
     <p class="date">{{ set.date }}</p>
-    <h2>{{ set.title }}</h2>
+    <h2>
+        {% url 'filersets:set_by_id_view' set.pk as set_url %}
+        <a href="{{ set_url }}">
+            {{ set.title }}
+        </a>
+    </h2>
     <h3>{{ set.description }}</h3>
     <div class="items-wrapper">
         {% for item in items %}

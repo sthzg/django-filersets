@@ -16,9 +16,9 @@ urlpatterns = patterns('',
 
     url(  # Show the detail page of a set referenced by its set_id
           # TODO Make detail view back button and list position aware
-        r'fileset/(?P<set_id>\d+)/$',
+        r'filerset/(?P<set_id>\d+)/$',
         views.SetView.as_view(),
-        name='set_view'
+        name='set_by_id_view'
     ),
 
     # TODO  Create view to reference detail page by slug
