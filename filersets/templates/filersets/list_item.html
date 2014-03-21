@@ -1,0 +1,21 @@
+{% load smart_load %}
+{% load thumbnail from easy_thumbnails as easy_thumbnail %}
+
+{% comment %}
+This is only a temporary solution to fit within the dev env. Should be a lot
+more generic and reasonably configurable
+
+TODO    Integrate with I18N (if necessary)
+TODO    Make configurable and very generic
+{% endcomment %}
+
+<div class="filer-set-container">
+    <p class="date">{{ set.date }}</p>
+    <h2>{{ set.title }}</h2>
+    <h3>{{ set.description }}</h3>
+    <div class="items-wrapper">
+        {% for item in items %}
+            <img src="{% easy_thumbnail item.filer_file 48x48 crop %}" />
+        {% endfor %}
+    </div>
+</div>

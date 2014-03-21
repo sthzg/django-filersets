@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load cms_tags %}
+{% load menu_tags %}
+{% load sekizai_tags %}
+
+{% comment %}
+This is only a temporary solution to fit within the dev env. Should be a lot
+more generic and reasonably configurable
+
+TODO    Integrate with I18N
+TODO    Make configurable and very generic
+{% endcomment %}
+
+{% block base_content %}
+
+    <div class="container">
+        <!-- Sidebar Links -->
+        <div class="col-md-6">
+            <ul class="sidebar-nav naked">
+                {% show_menu 1 1 0 0 %}
+            </ul>
+
+            <ul class="sidebar-nav naked">
+                {% show_menu 2 2 0 1 %}
+            </ul>
+        </div>
+        <!-- Ende Sidebar links -->
+
+        <!-- Hauptinhalt -->
+        <article class="main-content">
+            <div class="col-md-18">
+                <h1>{{ list_page_title }}</h1>
+
+                {% for item in list_items %}
+                    {{ item }}
+                {% endfor %}
+            </div>
+        </article>
+        <!-- Ende: Hauptinhalt -->
+    </div>
+
+    {% addtoblock "css" %}
+    <link href="{% static "filersets/css/filersets.css" %}"
+            type="text/css" rel="stylesheet" />
+    {% endaddtoblock %}
+
+{% endblock %}

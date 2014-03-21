@@ -1,0 +1,20 @@
+.filer-set-container {
+  margin: 20px 0;
+  margin-bottom: 0;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e6e6e6;
+}
+.filer-set-container p.date {
+  font-size: 90%;
+  margin: 0;
+}
+p {
+  font-size: 40px;
+}
+h2 {
+  margin-top: 0 !important;
+  padding: 0;
+}
+.items-wrapper img {
+  padding: 1px 0;
+}
