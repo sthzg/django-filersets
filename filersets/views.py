@@ -11,6 +11,7 @@ class ListView(View):
     """
     Show a list of sets using the configured templates
 
+    TODO    Fetch exceptions and handle empty lists
     TODO    Extend to be fully configurable
     TODO    Extend to handle category list views
     TODO    Extend to make use of paging
