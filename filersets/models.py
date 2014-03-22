@@ -21,9 +21,9 @@ class SetManager(models.Manager):
         """ Creates or updates filersets
 
         If ``set_id``is not given, all sets are created/updated. You can pass
-        either no value for ``set_id``, a single IDs or a list of IDs.
+        either no value, a single id or a list of ids.
 
-        :param set_id: Single ID as int, multiple IDs as list or None (= All)
+        :param set_id: Single is as int, multiple ids as list or None (= All)
         """
 
         logsig = str(inspect.stack()[0][3]) + '() '
