@@ -20,7 +20,7 @@ class ListView(View):
     def get(self, request):
 
         list_items = list()
-        for fset in Set.objects.all().order_by('created'):
+        for fset in Set.objects.all().order_by('-date'):
             fitems = (
                 fitem
                 for fitem in Item.objects.filter(set=fset).order_by('order')
