@@ -138,7 +138,7 @@ class Set(TimeStampedModel):
     )
 
     def __unicode__(self):
-        return self.title
+        return u'{}'.format(self.title)
 
 
 class Item(MPTTModel):
@@ -199,4 +199,4 @@ class Item(MPTTModel):
         Item.objects.rebuild()
 
     def __unicode__(self):
-        return 'Set: {}'.format(self.set.title)
+        return u'Set: {}'.format(self.set.title)
