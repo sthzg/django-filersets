@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.template.context import Context
@@ -10,7 +12,7 @@ from filersets.models import Set, Item
 
 class ListView(View):
     """
-    Show a list of sets using the configured templates
+    Show a list of sets using the configured templates.
 
     TODO    Fetch exceptions and handle empty lists
     TODO    Extend to be fully configurable
@@ -45,7 +47,7 @@ class ListView(View):
 
 class SetView(View):
     """
-    Show a detail page for a set
+    Show a detail page for a set.
 
     TODO    Check for set id or slug
     TODO    Create list and position aware back button handling
@@ -83,4 +85,35 @@ class SetView(View):
                 'fset': fset,
                 'fitems': fitems,
             }
+        )
+
+
+class ProcessSetView(View):
+
+    def get(self, request, set_id=None):
+        """
+        Process a set with the given set_id
+
+        Certain GET query parameters can be given:
+        ?redirect=<url> If set, redirects to this url and sets a message
+
+        :param set_id: pk of the set
+        """
+
+        try:
+            op_stats = Set.objects.create_or_update_set(int(set_id))
+        except:
+            # TODO Exception handling
+            pass
+
+        if 'redirect' in request.GET:
+            msg = _('Processed set with id {}').format(set_id)
+            messages.add_message(request, messages.SUCCESS, msg)
+            return HttpResponseRedirect(request.GET['redirect'])
+
+        # TODO  Work on the output
+        return render(
+            request,
+            'filersets/process_set.html',
+            {'op_stats': op_stats}
         )
