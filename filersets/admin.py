@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
+from django.utils.translation import ugettext_lazy as _
 from suit.admin import SortableModelAdmin, SortableTabularInline
 from mptt.admin import MPTTModelAdmin
 from filersets.models import Set, Item
@@ -36,7 +37,23 @@ class SetAdmin(ModelAdmin):
     """
     Administer a single set and show the referenced filer_files in an inline
     """
+
+    def create_or_update_filerset(self, request, queryset):
+        """
+        This is an action that triggers the creation or update process for the
+        selected filersets. It displays in the admin change list.
+
+        TODO    Make the update routine available in different ways. e.g.
+                calling the command, using a celery if enabled, etc.
+        """
+        for fset in queryset:
+            Set.objects.create_or_update_set(fset.id)
+
+    create_or_update_filerset.short_description = _('Create/Update filerset')
+
+    list_display = ('title', 'date', 'is_processed')
     inlines = (ItemInlineAdmin,)
+    actions = [create_or_update_filerset]
 
 
 admin.site.register(Set, SetAdmin)
