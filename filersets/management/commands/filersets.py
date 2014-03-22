@@ -2,10 +2,7 @@
 from __future__ import absolute_import
 import sys
 from django.core.management.base import BaseCommand
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.contenttypes.models import ContentType
-from filer.models import File
-from filersets.models import Set, Item
+from filersets.models import Set
 
 class Command(BaseCommand):
     args = ''
@@ -28,27 +25,15 @@ class Command(BaseCommand):
         TODO    create a way to alternatively handle this logic in a celery task
         """
 
-        for filerset in Set.objects.all():
+        op_stats = Set.objects.create_or_update_set()
 
-            folder_ids = [folder.id for folder in filerset.set_root.all()]
+        self.stdout.write('No change:\n{}'.format(
+            '\n'.join([str(s) for s in op_stats['noop']])))
 
-            for f in File.objects.filter(folder_id__in=folder_ids):
+        self.stdout.write('Updated:\n{}'.format(
+            '\n'.join([str(s) for s in op_stats['updated']])))
 
-                # Check if there is an item already
-                try:
-                    Item.objects.get(set=filerset.pk, filer_file__id=f.id)
-                    msg = '{} in set id {} already exists'
-                    self.stdout.write(msg.format(f.id, filerset.pk))
-
-                except ObjectDoesNotExist:
-                    item = Item()
-                    item.set = filerset
-                    item.ct = ContentType.objects.get(pk=f.polymorphic_ctype_id)
-                    item.filer_file = f
-                    item.order = 1
-                    item.save()
-
-                    msg = '{} saved for set id {}'
-                    self.stdout.write(msg.format(f.id, filerset.pk))
+        self.stdout.write('Added:\n{}'.format(
+            '\n'.join([str(s) for s in op_stats['added']])))
 
         sys.exit(0)
