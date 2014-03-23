@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.template.context import Context
@@ -21,7 +21,9 @@ class ListView(View):
     """
     def get(self, request):
 
+        fset = None
         list_items = list()
+
         for fset in Set.objects.all().order_by('-date'):
             fitems = (
                 fitem
@@ -69,8 +71,7 @@ class SetView(View):
         try:
             fset = Set.objects.get(**get_query)
         except ObjectDoesNotExist:
-            # TODO Cater 404
-            pass
+            raise Http404
 
         # TODO  We constantly need this -> Put it on the model manager
         fitems = (
