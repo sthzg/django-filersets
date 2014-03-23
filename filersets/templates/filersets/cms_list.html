@@ -1,6 +1,8 @@
-{% extends 'filersets/standalone_base.html' %}
-{% load i18n %}
+{% extends 'core/base.html' %}
 {% load static %}
+{% load cms_tags %}
+{% load menu_tags %}
+{% load sekizai_tags %}
 
 {% comment %}
 This is only a temporary solution to fit within the dev env. Should be a lot
@@ -16,15 +18,17 @@ TODO    Make configurable and very generic
         <!-- Sidebar Links -->
         <div class="col-md-6">
             <ul class="sidebar-nav naked">
+                {% show_menu 1 1 0 0 %}
             </ul>
 
             <ul class="sidebar-nav naked">
+                {% show_menu 2 2 0 1 %}
             </ul>
         </div>
         <!-- Ende Sidebar links -->
 
         <!-- Hauptinhalt -->
-        {% if fset %}
+        <article class="main-content">
             <div class="col-md-18">
                 <h1>{{ fset.title }}</h1>
 
@@ -32,16 +36,13 @@ TODO    Make configurable and very generic
                     {{ fitem }}
                 {% endfor %}
             </div>
-        {% else %}
-            {# TODO Make all strings configurable #}
-            {# TODO What's the translation workflow when User changes text? #}
-            {# Maybe better to use DB and model translations in this case #}
-            <h1>{% trans "There are currently no filersets to display." %}</h1>
-        {% endif %}
+        </article>
         <!-- Ende: Hauptinhalt -->
     </div>
 
+    {% addtoblock "css" %}
     <link href="{% static "filersets/css/filersets.css" %}"
             type="text/css" rel="stylesheet" />
+    {% endaddtoblock %}
 
 {% endblock %}

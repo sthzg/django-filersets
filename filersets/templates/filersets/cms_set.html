@@ -1,7 +1,9 @@
-{% extends 'filersets/standalone_base.html' %}
+{% extends 'core/base.html' %}
 {% load smart_load %}
 {% load static %}
-{% load i18n %}
+{% load cms_tags %}
+{% load menu_tags %}
+{% load sekizai_tags %}
 {% load thumbnail from sorl.thumbnail as sorl_thumbnail %}
 
 {% comment %}
@@ -18,9 +20,11 @@ TODO    Make configurable and very generic
         <!-- Sidebar Links -->
         <div class="col-md-6">
             <ul class="sidebar-nav naked">
+                {% show_menu 1 1 0 0 %}
             </ul>
 
             <ul class="sidebar-nav naked">
+                {% show_menu 2 2 0 1 %}
             </ul>
         </div>
         <!-- Ende Sidebar links -->
@@ -48,7 +52,9 @@ TODO    Make configurable and very generic
         <!-- Ende: Hauptinhalt -->
     </div>
 
+    {% addtoblock "css" %}
     <link href="{% static "filersets/css/filersets.css" %}"
             type="text/css" rel="stylesheet" />
+    {% endaddtoblock %}
 
-{% endblock base_content %}
+{% endblock %}
