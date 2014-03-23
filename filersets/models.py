@@ -39,8 +39,7 @@ class SetManager(models.Manager):
             filter_query = {'pk__in': set_id}
 
         else:
-            # TODO Raise exception
-            return
+            raise TypeError()
 
         op_stats = dict({'added': list(), 'updated': list(), 'noop': list()})
         for filerset in Set.objects.filter(**filter_query):
