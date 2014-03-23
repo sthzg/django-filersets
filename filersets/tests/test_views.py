@@ -1,0 +1,178 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import print_function
+import os
+from django.core.urlresolvers import reverse
+# from django.forms.models import modelform_factory
+from django.test import TestCase
+# from django.test.client import Client
+# from django.test.utils import setup_test_environment
+from django.core.files import File as DjangoFile
+from django.utils import translation
+from django.utils.timezone import now
+from filer.models import File, Image, Folder
+from filersets.models import Set
+from filersets.tests.helpers import create_superuser
+
+# TODO  Testing boilerplate for Django CMS should be handled by another class
+#       https://github.com/divio/django-cms/blob/develop/cms/tests/apphooks.py
+#
+#       As long as this is not ready (low priority) the tests will explicitly
+#       use settings without CMS installed
+
+def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
+               set_name='Filerset Tests', media_types=None):
+    """
+    Creates a set with the given `set_name` and uploads all assets of given
+    `media_types` to the filer test directory.
+
+    In order to create this set we need to create dependencies in filer
+
+    1.  Create filer directories: `/Filersets Tests/<filerdir_name>/'
+    2.  Upload media to the newly created directory
+
+    :param filer_root: the root folder for our operations in filer
+    :param filerdir_name: the name of the directory in filer that is created
+    :param set_name: the name of the set to be creted in the test
+    :param media_types: a list of configurable file types to add to the set
+    """
+    if not media_types:
+        media_types = [{'all'}]
+
+    folder_root = Folder(name='Filerset Tests', parent=None)
+    folder_root.save()
+    folder_set = Folder(name=filerdir_name, parent=folder_root)
+    folder_set.save()
+
+    assets_dir = '{}{}'.format(os.path.abspath(os.path.dirname(__file__)),
+                               '/assets/')
+
+    # TODO Make the recursive import a feature
+    parent = folder_set
+    for (dirname, dirnames, filenames) in os.walk(assets_dir):
+        # Create all folders
+        # TODO  Respect the media_types parameter
+        rel_path_tokens = dirname.replace(assets_dir, "").split(os.sep)
+        get_query = {'name': rel_path_tokens[-1], 'parent_id': parent.pk}
+
+        if rel_path_tokens[-1] != '':
+            if Folder.contains_folder(parent, rel_path_tokens[-1]):
+                parent = Folder.objects.get(**get_query)
+            else:
+                parent = Folder.objects.create(**get_query)
+
+        # Save the file objects
+        # TODO  Check file type and create Image or File accordingly
+        for filename in filenames:
+            furl = os.path.join(dirname,filename)
+            file_obj = DjangoFile(open(furl, 'rb'), name=filename)
+            image = Image.objects.create(owner=self.superuser,
+                                         original_filename=filename,
+                                         file=file_obj)
+
+            file = File.objects.get(pk=image.file_ptr_id)
+            file.folder_id = parent.pk
+            file.save()
+
+    fset = Set.objects.create(title=set_name, description='', date=now())
+    Set.objects.create_or_update_set(fset.pk)
+    return fset
+
+
+class SetViewTests(TestCase):
+
+    def setUp(self):
+        translation.activate('en')
+        self.superuser = create_superuser()
+        self.client.login(username='admin', password='secret')
+
+
+    def tearDown(self):
+        self.client.logout()
+        for f in File.objects.all():
+            f.delete()
+        translation.deactivate()
+
+    def test_set_view_with_valid_set_id_200(self):
+        """
+        Check that we get a successful response when hitting the URL of an
+        existing set.
+        """
+        fset = create_set(self, 'Foobar', 'My Foobar')
+        response = self.client.get(reverse('filersets:set_by_id_view',
+                                           kwargs={'set_id': fset.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, fset.title)
+
+    def test_set_view_with_invalid_set_id_404(self):
+        """
+        Check that we get a 404 when hitting the URL of a set that does not
+        exist
+        """
+        id_404 = Set.objects.all().count()
+        response = self.client.get(reverse('filersets:set_by_id_view',
+                                           kwargs={'set_id': id_404}))
+        self.assertEqual(response.status_code, 404)
+
+
+class ListViewTests(TestCase):
+
+    def setUp(self):
+        translation.activate('en')
+        self.superuser = create_superuser()
+        self.client.login(username='admin', password='secret')
+
+    def tearDown(self):
+        self.client.logout()
+        for f in File.objects.all():
+            f.delete()
+        translation.deactivate()
+
+    def test_list_view_with_no_results_200(self):
+        """
+        Check that we get a 200 on an empty list view
+        """
+        response = self.client.get(reverse('filersets:list_view'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_list_view_with_one_result_200(self):
+        """
+        Check that we get a 200 on a list page with one entry
+        """
+        fset = create_set(self, 'Foobar', 'My Foobar')
+        response = self.client.get(reverse('filersets:list_view'))
+        self.assertEqual(response.status_code, 200)
+
+    # TODO  Test pagination
+    # TODO  Test set views by slug
+    # TODO  Test category list views
+    # TODO  Test back button behavior
+
+
+class ProcessViewTests(TestCase):
+
+    def setUp(self):
+        translation.activate('en')
+        self.superuser = create_superuser()
+        self.client.login(username='admin', password='secret')
+
+    def tearDown(self):
+        self.client.logout()
+        for f in File.objects.all():
+            f.delete()
+        translation.deactivate()
+
+    # TODO  Test creation of one unprocessed set
+    # TODO  Test update of one already processed but unchanged set
+    # TODO  Test update of one already processed and changed set
+    # TODO  Test creation of multiple unprocessed sets
+    # TODO  Test update of multiple already processed but unchanged sets
+    # TODO  Test update of multiple already processed and changed sets
+    # TODO  Test invocation of processing with nonexisting set
+    # TODO  Test invocation of processing with no privilidges
+    # TODO  Test invocation of processing through admin actions
+    # TODO  Test invocation of processing through ./manage.py command
+
+
+
+
