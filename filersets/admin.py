@@ -3,34 +3,37 @@ from __future__ import absolute_import
 from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from suit.admin import SortableModelAdmin, SortableTabularInline
+try:
+    from suit.admin import SortableModelAdmin, SortableTabularInline
+    has_suit = True
+except ImportError:
+    has_suit = False
 from mptt.admin import MPTTModelAdmin
 from filersets.models import Set, Item
 
 # TODO  Try to make any use of third party packages like suit and cms optional
 
-class ItemInlineAdmin(SortableTabularInline):
-    """
-    Allows to view filer_files referenced in a set to be sorted in an inline
-    form inside of the SetAdmin.
-    """
-    fields = ('filer_file', 'is_cover')
-    list_display = ('is_cover',)
-    list_editable = ('is_cover',)
-    model = Item
-    sortable = 'order'
-
-
-class ItemAdmin(MPTTModelAdmin, SortableModelAdmin):
-    """
-    Configures the admin page for a single item. This however should only be
-    necessary during development or to take a quick look. In production this
-    admin view should be completely abstracted from the user.
-    """
-    mptt_level_indent = 20
-    list_display = ('set', 'filer_file', 'is_cover',)
-    list_editable = ('is_cover',)
-    sortable = 'order'
+if has_suit:
+    class ItemInlineAdmin(SortableTabularInline):
+        """
+        Allows to view filer_files referenced in a set to be sorted in an inline
+        form inside of the SetAdmin.
+        """
+        fields = ('filer_file', 'is_cover')
+        list_display = ('is_cover',)
+        list_editable = ('is_cover',)
+        model = Item
+        sortable = 'order'
+else:
+    class ItemInlineAdmin(admin.TabularInline):
+        """
+        Allows to view filer_files referenced in a set to be sorted in an inline
+        form inside of the SetAdmin.
+        """
+        fields = ('filer_file', 'is_cover')
+        list_editable = ('is_cover',)
+        list_display = ('is_cover',)
+        model = Item
 
 
 class SetAdmin(admin.ModelAdmin):
@@ -83,4 +86,3 @@ class SetAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Set, SetAdmin)
-admin.site.register(Item, ItemAdmin)
