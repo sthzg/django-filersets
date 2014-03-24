@@ -13,7 +13,7 @@ TODO    Make thumb size configurable
 <div class="filer-set-container">
     <p class="date">{{ set.date }}</p>
     <h2>
-        {% url 'filersets:set_by_id_view' set.pk as set_url %}
+        {% url 'filersets:set_by_slug_view' set.slug as set_url %}
         <a href="{{ set_url }}">
             {{ set.title }}
         </a>

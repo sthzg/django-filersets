@@ -11,17 +11,32 @@ from filersets import views
 urlpatterns = patterns('',
 
     url(  # Show a list page ordered chronologically
-          # TODO Extend list view to handle category lists
         r'^$', views.ListView.as_view(),
+        name='list_view'
+    ),
+
+    url( # Show a category list page referenced by its id
+        r'^category/(?P<cat_id>\d+)/$',
+        views.ListView.as_view(),
+        name='list_view'
+    ),
+
+    url( # Show a category list page referenced by its slug
+        r'^category/(?P<cat_slug>.+?)/$',
+        views.ListView.as_view(),
         name='list_view'
     ),
 
     url(  # Show the detail page of a set referenced by its set_id
           # TODO Make detail view back button and list position aware
-        r'filerset/(?P<set_id>\d+)/$',
+        r'^filerset/(?P<set_id>\d+)/$',
         views.SetView.as_view(),
         name='set_by_id_view'
     ),
 
-    # TODO  Create view to reference detail page by slug
+    url(  # Show the detail page of a set referenced by its slug
+        r'^filerset/(?P<set_slug>[-\w]+)/$',
+        views.SetView.as_view(),
+        name='set_by_slug_view'
+    ),
 )

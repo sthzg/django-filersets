@@ -3,11 +3,12 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
+from django.utils.html import strip_tags
 from django.views.generic.base import View
 from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
-from filersets.models import Set, Item
+from filersets.models import Set, Item, Category
 
 
 class ListView(View):
@@ -18,13 +19,37 @@ class ListView(View):
     TODO    Extend to be fully configurable
     TODO    Extend to handle category list views
     TODO    Extend to make use of paging
+    TODO    Extend to provide sorting
     """
-    def get(self, request):
+    def get(self, request, cat_id=None, cat_slug=None):
 
         fset = None
         list_items = list()
 
-        for fset in Set.objects.all().order_by('-date'):
+        # Fetch sets by category primary key
+        if cat_id:
+            try:
+                cat = Category.objects.get(pk=cat_id)
+            except ObjectDoesNotExist:
+                raise 404
+
+            filter_query = {'category': cat}
+
+        # Fetch sets by slug
+        elif cat_slug:
+            # Asure that the generous url regexp is not explited
+            cat_slug = '{}/'.format(strip_tags(cat_slug))
+            cat = Category.objects.filter(slug_composed=cat_slug)
+            if not cat.exists():
+                raise Http404
+
+            filter_query = {'category': cat}
+
+        # Fetch all sets
+        else:
+            filter_query = {}
+
+        for fset in Set.objects.filter(**filter_query).order_by('-date'):
             fitems = (
                 fitem
                 for fitem in Item.objects.filter(set=fset).order_by('order')
@@ -66,7 +91,7 @@ class SetView(View):
             get_query = {'pk': int(set_id)}
 
         if set_slug:
-            pass
+            get_query = {'slug': set_slug}
 
         try:
             fset = Set.objects.get(**get_query)

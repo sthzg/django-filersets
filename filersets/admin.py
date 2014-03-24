@@ -9,7 +9,7 @@ try:
 except ImportError:
     has_suit = False
 from mptt.admin import MPTTModelAdmin
-from filersets.models import Set, Item
+from filersets.models import Set, Item, Category
 
 # TODO  Try to make any use of third party packages like suit and cms optional
 
@@ -24,6 +24,7 @@ if has_suit:
         list_editable = ('is_cover',)
         model = Item
         sortable = 'order'
+        extra = 0
 else:
     class ItemInlineAdmin(admin.TabularInline):
         """
@@ -34,6 +35,7 @@ else:
         list_editable = ('is_cover',)
         list_display = ('is_cover',)
         model = Item
+        extra = 0
 
 
 class SetAdmin(admin.ModelAdmin):
@@ -85,4 +87,14 @@ class SetAdmin(admin.ModelAdmin):
     readonly_fields = ('is_processed',)
 
 
+class CategoryAdmin(MPTTModelAdmin, SortableModelAdmin):
+    mptt_level_indent = 20
+    list_display = ('name', 'number_of_sets', 'slug', 'is_active',)
+    list_editable = ('is_active',)
+    exclude = ('slug_composed',)
+
+    # Specify name of sortable property
+    sortable = 'order'
+
 admin.site.register(Set, SetAdmin)
+admin.site.register(Category, CategoryAdmin)

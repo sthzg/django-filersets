@@ -9,10 +9,10 @@ from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
 from mptt.fields import TreeManyToManyField, TreeForeignKey
 from mptt.models import MPTTModel
-from filer.models import Folder
 from autoslug import AutoSlugField
-from filer.models import File
+from filer.models import File, Folder
 from filer.fields.file import FilerFileField
+from taggit.managers import TaggableManager
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +108,7 @@ class Set(TimeStampedModel):
 
     slug = AutoSlugField(
         _('Slug'),
+        always_update=True,
         max_length=80,
         blank=True,
         default=None,
@@ -123,8 +124,24 @@ class Set(TimeStampedModel):
     set_root = TreeManyToManyField(
         Folder,
         verbose_name=_('Set folders'),
+        related_name='set_root_foreign',
         help_text=_('Choose the directories you wish to have integrated into '
                     'the current set.')
+    )
+
+    category = TreeManyToManyField(
+        'Category',
+        verbose_name=_('Category'),
+        related_name='category_set',
+        help_text=_('Assign the set to as many categories as you like'),
+        blank=True,
+        default=None,
+        null=True
+    )
+
+    tags = TaggableManager(
+        verbose_name=_('Tags'),
+        blank=True,
     )
 
     # Sets are not directly available for displaying when they are saved. First
@@ -144,7 +161,7 @@ class Item(MPTTModel):
     """
     The item model holds items that are contained within a Set.
 
-    TODO: Mark the combination of ``set`` and ``filer_file`` as unique
+    TODO: Mark the combination of `set` and `filer_file` as unique
     """
 
     set = models.ForeignKey(
@@ -185,13 +202,13 @@ class Item(MPTTModel):
         'self',
         null=True,
         blank=True,
-        related_name='children'
+        related_name='item_children'
     )
 
     order = models.PositiveIntegerField(_('Order'))
 
     class MPTTMeta:
-        order_inseration_by = ['order']
+        order_insertion_by = ['order']
 
     def save(self, *args, **kwargs):
         super(Item, self).save(*args, **kwargs)
@@ -199,3 +216,77 @@ class Item(MPTTModel):
 
     def __unicode__(self):
         return u'Set: {}'.format(self.set.title)
+
+
+class Category(MPTTModel):
+
+    is_active = models.BooleanField(
+        _('Is active?'),
+        null=False,
+        default=False,
+        blank=True
+    )
+
+    name = models.CharField(
+        _('Category name'),
+        max_length=140,
+        blank=False,
+        default=None
+    )
+
+    slug = AutoSlugField(
+        _('Slug'),
+        always_update=True,
+        max_length=80,
+        blank=True,
+        default=None,
+        populate_from='name'
+    )
+
+    slug_composed = models.CharField(
+        _('Composed slug'),
+        max_length=150,
+        blank=True,
+        default=None,
+        null=True
+    )
+
+    description = models.TextField(
+        _('Description'),
+        blank=True,
+        default=None
+    )
+
+    parent = TreeForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        related_name='category_children'
+    )
+
+    order = models.PositiveIntegerField(_('Order'))
+
+    def number_of_sets(self):
+        return Set.objects.filter(category=self).count()
+
+    class MPTTMeta:
+        order_insertion_by = ['order']
+
+    def save(self, *args, **kwargs):
+        super(Category, self).save(*args, **kwargs)
+        Category.objects.rebuild()
+
+        # Providing a composed slug keeps the cost of lookups for category urls
+        # low during runtime, since it only has to check against one string.
+        current_token = [self.slug]
+        ancestor_tokens = [res.slug for res in self.get_ancestors()]
+        composed_list = ancestor_tokens + current_token
+        self.slug_composed = '{}/'.format('/'.join(composed_list))
+        super(Category, self).save(*args, **kwargs)
+        Category.objects.rebuild()
+
+        for child in self.get_children():
+            child.save(force_update=True)
+
+    def __unicode__(self):
+        return u'Category: {}'.format(self.name)
