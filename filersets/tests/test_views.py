@@ -227,11 +227,39 @@ class ProcessViewTests(TestCase):
 
 class CategoryListViewTests(TestCase):
 
-    # TODO  Test creation of slug_composed for a root item
-    # TODO  Test creation of slug_composed for a child item
-    # TODO  Test creation of slug_composed for an item with parents and children
-    # TODO  Test creation of slug_composed for an item with many children
-    # TODO  Test creation of slug_composed with exceeding URL length
+    def setUp(self):
+        translation.activate('en')
+        self.superuser = create_superuser()
+        self.client.login(username='admin', password='secret')
+
+    def tearDown(self):
+        self.client.logout()
+        for f in File.objects.all():
+            f.delete()
+        translation.deactivate()
+
+    def test_list_view_with_category_in_root_leaf_200(self):
+        """
+        Check 200 when hitting a list view with `cat_id` or `cat_slug` in
+        a root laef without siblings
+        """
+        fset = create_set(self, do_categorize=True)
+        cat_slug = fset.category.all()[0].slug_composed
+        cat_id = fset.category.all()[0].pk
+
+        url_slug = reverse('filersets:list_view', kwargs={'cat_slug': cat_slug})
+        url_id = reverse('filersets:list_view', kwargs={'cat_id': cat_id})
+        response = self.client.get(url_slug)
+        self.assertEqual(response.status_code, 200, "200 by slug failed")
+        response = self.client.get(url_id)
+        self.assertEqual(response.status_code, 200, "200 by id failed")
+
+    # TODO  Test 200 for list with a category in root with one child
+    # TODO  Test 200 for list with a category in root with two children
+    # TODO  Test 200 for list with a category in child leaf with one ancestor
+    # TODO  Test 200 for list with a category in child leaf with two ancestors
+    # TODO  Test 200 for list with a category in child leaf with one child
+    # TODO  Test 200 for list with a category in child leaf with two chilrdren
 
     pass
 
