@@ -31,7 +31,7 @@ class ListView(View):
             try:
                 cat = Category.objects.get(pk=cat_id)
             except ObjectDoesNotExist:
-                raise 404
+                raise Http404
 
             filter_query = {'category': cat}
 
