@@ -245,6 +245,7 @@ class Category(MPTTModel):
 
     slug_composed = models.CharField(
         _('Composed slug'),
+        unique=True,
         max_length=150,
         blank=True,
         default=None,
