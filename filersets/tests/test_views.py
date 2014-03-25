@@ -214,12 +214,6 @@ class ProcessViewTests(TestCase):
             f.delete()
         translation.deactivate()
 
-    # TODO  Test creation of one unprocessed set
-    # TODO  Test update of one already processed but unchanged set
-    # TODO  Test update of one already processed and changed set
-    # TODO  Test creation of multiple unprocessed sets
-    # TODO  Test update of multiple already processed but unchanged sets
-    # TODO  Test update of multiple already processed and changed sets
     # TODO  Test invocation of processing with nonexisting set
     # TODO  Test invocation of processing with no privilidges
     # TODO  Test invocation of processing through admin actions
