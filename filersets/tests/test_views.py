@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 from django.core.urlresolvers import reverse
 # from django.forms.models import modelform_factory
+from django.http.response import Http404
 from django.test import TestCase
 # from django.test.client import Client
 # from django.test.utils import setup_test_environment
@@ -241,7 +242,7 @@ class CategoryListViewTests(TestCase):
     def test_list_view_with_category_in_root_leaf_200(self):
         """
         Check 200 when hitting a list view with `cat_id` or `cat_slug` in
-        a root laef without siblings
+        a root leaf without siblings
         """
         fset = create_set(self, do_categorize=True)
         cat_slug = fset.category.all()[0].slug_composed
@@ -254,13 +255,23 @@ class CategoryListViewTests(TestCase):
         response = self.client.get(url_id)
         self.assertEqual(response.status_code, 200, "200 by id failed")
 
+    def test_list_view_with_no_matching_category_404(self):
+        """
+        Check 404 when hitting a category list view with a non-existent category
+        """
+        fset = create_set(self, do_categorize=False)
+
+        url_slug = reverse('filersets:list_view', kwargs={'cat_slug': 'foo/'})
+        response = self.client.get(url_slug)
+        self.assertEqual(response.status_code, 404, "404 by slug failed")
+
+        url_id = reverse('filersets:list_view', kwargs={'cat_id': 1})
+        response = self.client.get(url_id)
+        self.assertEqual(response.status_code, 404, "404 by id failed")
+
     # TODO  Test 200 for list with a category in root with one child
     # TODO  Test 200 for list with a category in root with two children
     # TODO  Test 200 for list with a category in child leaf with one ancestor
     # TODO  Test 200 for list with a category in child leaf with two ancestors
     # TODO  Test 200 for list with a category in child leaf with one child
     # TODO  Test 200 for list with a category in child leaf with two chilrdren
-
-    pass
-
-
