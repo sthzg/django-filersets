@@ -22,7 +22,7 @@ urlpatterns = patterns('',
     ),
 
     url( # Show a category list page referenced by its slug
-        r'^category/(?P<cat_slug>.+?)/$',
+        r'^category/(?P<cat_slug>.+?/)$',
         views.ListView.as_view(),
         name='list_view'
     ),

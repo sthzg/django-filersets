@@ -38,7 +38,8 @@ class ListView(View):
         # Fetch sets by slug
         elif cat_slug:
             # Asure that the generous url regexp is not explited
-            cat_slug = '{}/'.format(strip_tags(cat_slug))
+            cat_slug = strip_tags(cat_slug)
+            import ipdb; ipdb.set_trace()
             cat = Category.objects.filter(slug_composed=cat_slug)
             if not cat.exists():
                 raise Http404
