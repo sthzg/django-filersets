@@ -12,34 +12,12 @@ from django.utils import translation
 from django.utils.timezone import now
 from filer.models import File, Image, Folder
 from filersets.models import Set, Category
-from filersets.tests.helpers import create_superuser
+from filersets.tests.helpers import create_superuser, create_categories
 
 # TODO  Testing boilerplate for Django CMS should be handled by another class
 #       https://github.com/divio/django-cms/blob/develop/cms/tests/apphooks.py
 #       As long as this is not ready (low priority) the tests will explicitly
 #       use settings without CMS installed
-
-
-def create_category(name='Foo', parent=None, is_active=False,
-                    description='', order=int(0)):
-    """
-    Creates a single category and returns its object instance
-
-    :param name: name of the category to be created
-    :param parent: parent category (mptt tree)
-    :param is_active: flag to set is_active on the model
-    :param description: description to set in the model
-    :param order: order for item in the mptt tree
-    """
-    category = Category(
-        is_active=is_active,
-        name=name,
-        description=description,
-        parent=parent,
-        order=order)
-
-    category.save()
-    return category
 
 
 def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
@@ -69,7 +47,8 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
     category = None
     if do_categorize:
         if category_config is None:
-            category = create_category()
+            create_categories(1, 1)
+            category = Category.objects.all()[0]
 
     folder_root = Folder(name='Filerset Tests', parent=None)
     folder_root.save()
