@@ -39,7 +39,7 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
     :param set_name: the name of the set to be creted in the test
     :param media_types: a list of configurable file types to add to the set
     :param do_categorize: flag whether to assign the set to a category or not
-    :param category_config: config-object to specify structure of categories
+    :param cat_config: config-object to specify structure of categories
     """
     if not media_types:
         media_types = [{'all'}]
