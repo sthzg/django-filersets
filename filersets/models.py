@@ -255,7 +255,8 @@ class Category(MPTTModel):
     description = models.TextField(
         _('Description'),
         blank=True,
-        default=None
+        default=None,
+        null=True
     )
 
     parent = TreeForeignKey(
@@ -265,7 +266,12 @@ class Category(MPTTModel):
         related_name='category_children'
     )
 
-    order = models.PositiveIntegerField(_('Order'))
+    order = models.PositiveIntegerField(
+        _('Order'),
+        default=int(0),
+        blank=True,
+        null=True
+    )
 
     def number_of_sets(self):
         return Set.objects.filter(category=self).count()
