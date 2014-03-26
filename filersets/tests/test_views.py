@@ -22,7 +22,7 @@ from filersets.tests.helpers import create_superuser, create_categories
 
 def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
                set_name='Filerset Tests', media_types=None,
-               do_categorize=False, category_config=None):
+               do_categorize=False, cat_config=None):
     """
     Creates a set with the given `set_name` and uploads all assets of given
     `media_types` to the filer test directory.
