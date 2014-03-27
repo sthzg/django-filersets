@@ -8,16 +8,31 @@ from django.views.generic.base import View
 from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
+from filersets.config import get_template_settings
 from filersets.models import Set, Item, Category
 
 
 class ListView(View):
-    """
-    Show a list of sets using the configured templates.
+    """ Show a list of sets using the configured templates.
 
-    TODO    Fetch exceptions and handle empty lists
+    **Theming site-wide**
+
+    You can configure the templates with these options in your settings:
+
+    ```FILERSETS_TEMPLATES = {
+        'base': '`path_to/another_base.html',
+        'set': 'path_to/another_set.html',
+        'list': 'path_to/another_list.html',
+        'list_item': 'path_to/another_list_item.html',
+    }```
+
+    **Theming individual**
+
+    TODO
+
+    TODO    Use a view parameter to determine use specific templates
+
     TODO    Extend to be fully configurable
-    TODO    Extend to handle category list views
     TODO    Extend to make use of paging
     TODO    Extend to provide sorting
     """
@@ -49,13 +64,15 @@ class ListView(View):
         else:
             filter_query = {}
 
+        t_settings = get_template_settings()
+
         for fset in Set.objects.filter(**filter_query).order_by('-date'):
             fitems = (
                 fitem
                 for fitem in Item.objects.filter(set=fset).order_by('order')
             )
 
-            t = get_template('filersets/list_item.html')
+            t = get_template(t_settings['list_item'])
             c = Context({
                 'set': fset,
                 'items': fitems
@@ -64,8 +81,9 @@ class ListView(View):
 
         return render(
             request,
-            'filersets/list.html',
+            t_settings['list'],
             {
+                't_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': list_items
             }
@@ -73,8 +91,7 @@ class ListView(View):
 
 
 class SetView(View):
-    """
-    Show a detail page for a set.
+    """ Show a detail page for a set.
 
     TODO    Check for set id or slug
     TODO    Create list and position aware back button handling
@@ -98,6 +115,8 @@ class SetView(View):
         except ObjectDoesNotExist:
             raise Http404
 
+        t_settings = get_template_settings()
+
         # TODO  We constantly need this -> Put it on the model manager
         fitems = (
             fitem
@@ -106,8 +125,9 @@ class SetView(View):
 
         return render(
             request,
-            'filersets/set.html',
+            t_settings['set'],
             {
+                't_extend': t_settings['base'],
                 'fset': fset,
                 'fitems': fitems,
             }
@@ -117,8 +137,7 @@ class SetView(View):
 class ProcessSetView(View):
 
     def get(self, request, set_id=None):
-        """
-        Process a set with the given set_id
+        """ Process a set with the given set_id
 
         Certain GET query parameters can be given:
         ?redirect=<url> If set, redirects to this url and sets a message
