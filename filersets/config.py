@@ -48,10 +48,10 @@ def get_filersets_defaults(key=None):
 
     defaults = {
         'FILERSETS_TEMPLATES': {
-            'base': 'filersets/fileraddons_env_base.html',
-            'set': 'filersets/filersets_set.html',
-            'list': 'filersets/filersets_list.html',
-            'list_item': 'filersets/filersets_list_item.html',
+            'base': 'filersets/base.html',
+            'set': 'filersets/set.html',
+            'list': 'filersets/list.html',
+            'list_item': 'filersets/_list_item.html',
         },
     }
 

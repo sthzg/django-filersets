@@ -15,19 +15,17 @@ from filersets.models import Set, Item, Category
 class ListView(View):
     """ Show a list of sets using the configured templates.
 
-    **Theming site-wide**
-
+    Global settings:
     You can configure the templates with these options in your settings:
 
-    ```FILERSETS_TEMPLATES = {
+    FILERSETS_TEMPLATES = {
         'base': '`path_to/another_base.html',
         'set': 'path_to/another_set.html',
         'list': 'path_to/another_list.html',
         'list_item': 'path_to/another_list_item.html',
-    }```
+    }
 
-    **Theming individual**
-
+    Method call overrides
     TODO
 
     TODO    Use a view parameter to determine use specific templates
