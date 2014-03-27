@@ -72,4 +72,3 @@ class CategoryModelTests(TestCase):
     # TODO  Test creation of slug_composed for an item with parents and children
     # TODO  Test creation of slug_composed for an item with many children
     # TODO  Test creation of slug_composed with exceeding URL length
-    pass
