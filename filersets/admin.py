@@ -3,7 +3,8 @@ from __future__ import absolute_import
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
+
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
     has_suit = True
@@ -71,17 +72,15 @@ class SetAdmin(admin.ModelAdmin):
         return wrap.format(set_url, query, label)
 
     process_set.allow_tags = True
-    process_set.short_description = _('Create / Update Set')
 
     def changelist_view(self, request, extra_context=None):
-        # We need to override the changelist_view to have the current_url
-        # parameter available in the process_set function
+        """ Provide current_url parameter to the change list """
         self.current_url = request.get_full_path()
         return super(SetAdmin, self).changelist_view(
-            request, extra_context=extra_context
-        )
+            request, extra_context=extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        """ Provide the filer folder id of the edited set to the change page """
         if not extra_context:
             extra_context = dict()
 
@@ -96,8 +95,8 @@ class SetAdmin(admin.ModelAdmin):
             sffid = -1
 
         extra_context['set_filer_folder_id'] = sffid
-        return super(SetAdmin, self).change_view(request, object_id,
-            form_url, extra_context=extra_context)
+        return super(SetAdmin, self).change_view(
+            request, object_id, form_url, extra_context=extra_context)
 
     search_fields = ('title',)
     list_filter = ('date', 'is_processed',)
@@ -109,12 +108,23 @@ class SetAdmin(admin.ModelAdmin):
 
 
 class CategoryAdmin(MPTTModelAdmin, SortableModelAdmin):
+
+    def watch_online(self, obj):
+        """ Display link on change list to the category view on the website """
+        cat_url = reverse('filersets:list_view',
+                          kwargs={'cat_slug': obj.slug_composed})
+        label = ugettext('Watch online')
+        extra = 'icon-alpha5' if obj.number_of_sets() < int(1) else ''
+        link = '<a href="{}"><span class="icon-refresh {}"></span> {}</a>'
+        return link.format(cat_url, extra, label)
+
+    watch_online.allow_tags = True
+
     mptt_level_indent = 20
-    list_display = ('name', 'number_of_sets', 'slug', 'is_active',)
+    list_display = ('name', 'number_of_sets', 'slug',
+                    'is_active', 'watch_online',)
     list_editable = ('is_active',)
     exclude = ('slug_composed',)
-
-    # Specify name of sortable property
     sortable = 'order'
 
 admin.site.register(Set, SetAdmin)
