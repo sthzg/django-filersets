@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+from django import forms
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.forms.models import ModelForm
+from django.forms.widgets import SelectMultiple
+from django.utils.translation import ugettext_lazy as _, ugettext, string_concat
+from django_select2.widgets import AutoHeavySelect2TagWidget
+from taggit.forms import TagWidget
 
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
@@ -11,6 +16,11 @@ try:
 except ImportError:
     has_suit = False
 from mptt.admin import MPTTModelAdmin
+try:
+    from django_select2 import AutoSelect2MultipleField, Select2MultipleWidget
+    has_select2 = True
+except ImportError:
+    has_select2 = False
 from filersets.models import Set, Item, Category
 
 # TODO  Try to make any use of third party packages like suit and cms optional
@@ -42,13 +52,39 @@ else:
         max_num = 0
 
 
+class SetForm(ModelForm):
+    class Meta:
+        model = Set
+
+        # django-select2 is available -> use it to enhance the interface
+        if has_select2:
+            widgets = {
+                'set_root': Select2MultipleWidget(
+                    select2_options={
+                        'width': '220px',
+                        'placeholder': _('Pick folder(s)'),
+                    }),
+                'category': Select2MultipleWidget(
+                    select2_options={
+                        'width': '220px',
+                        'placeholder': _('Pick one or more categories'),
+                    }),
+            }
+
+        # no django-select2 -> extend the default size of multiselects
+        else:
+            widgets = {
+                'set_root': SelectMultiple(attrs={'size': '12'}),
+                'category': SelectMultiple(attrs={'size': '12'}),
+            }
+
 class SetAdmin(admin.ModelAdmin):
-    """
-    Administer a single set and show the referenced filer_files in an inline
-    """
+    """ Administer a set and show the referenced filer_files in an inline """
+    form = SetForm
 
     class Media:
-        js = ("filersets/filersets.js",)
+        """ Provide additional static files for the set admin """
+        js = ("filersets/js/filersets.js",)
 
     def create_or_update_filerset(self, request, queryset):
         """
@@ -58,33 +94,30 @@ class SetAdmin(admin.ModelAdmin):
         for fset in queryset:
             Set.objects.create_or_update_set(fset.id)
 
-    create_or_update_filerset.short_description = _('Create/Update filerset')
-
     def watch_online(self, obj):
         """ Display link on change list to the category view on the website """
         cat_url = reverse('filersets:set_by_slug_view',
                           kwargs={'set_slug': obj.slug})
         label = ugettext('Watch online')
-        link = '<a href="{}"><span class="icon-eye-open icon-alpha75"></span> {}</a>'
+        link = '<a href="{}">' \
+               '<span class="icon-eye-open icon-alpha75"></span> {}' \
+               '</a>'
         return link.format(cat_url, label)
-    watch_online.allow_tags = True
 
     def process_set(self, obj):
-        """
-        Extra field for change list displays a link to create / update a set
-        """
+        """ Extra field for change list displays a link to process a set """
         set_url = reverse('filersets_api:set_process_view',
                           kwargs={'set_id': obj.pk})
         query = '?redirect={}'.format(self.current_url)
-        label = _('Create / Update Set')
-        wrap = _('<a href="{0}{1}"><span class="icon-refresh icon-alpha75"></span> {2}</a>')
-        return wrap.format(set_url, query, label)
-
-    process_set.allow_tags = True
+        label = ugettext('Process set')
+        link = '<a href="{0}{1}">' \
+               '<span class="icon-refresh icon-alpha75"></span> {2}' \
+               '</a>'
+        return link.format(set_url, query, label)
 
     def changelist_view(self, request, extra_context=None):
         """ Provide current_url parameter to the change list """
-        self.current_url = request.get_full_path()
+        self.__setattr__('current_url', request.get_full_path())
         return super(SetAdmin, self).changelist_view(
             request, extra_context=extra_context)
 
@@ -109,6 +142,11 @@ class SetAdmin(admin.ModelAdmin):
         extra_context['set_is_processed'] = is_processed
         return super(SetAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context)
+
+    # Set options for custom functions
+    create_or_update_filerset.short_description = _('Create/Update filerset')
+    watch_online.allow_tags = True
+    process_set.allow_tags = True
 
     search_fields = ('title',)
     list_filter = ('date', 'is_processed',)
