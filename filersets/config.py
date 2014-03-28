@@ -7,13 +7,14 @@ def get_template_settings(overrides=None):
     """ Returns a dictionary with template settings
 
     Currently there are three layers for settings, two of them can be overridden
-    by users. (only global Settings are currently implemented)
+    by users. (but only default and global settings are currently implemented)
 
     Prio -1: Package defaults
     if no other settings are defined the defaults will be taken
 
     Prio  0: Global settings
-    The global settings, usually defined in settings.py
+    The global settings, usually defined in settings.py. Note that for each
+    setting that is not overridden by you the default setting will be taken
 
     Prio +1: Method overrides
     TODO
@@ -45,6 +46,12 @@ def get_filersets_defaults(key=None):
     :type key: None or string
     :rtype: dict
     """
+
+    # !!!
+    # CAUTION:
+    # Each time default settings are changed don't forget to update the
+    # ConfigTests in filersets.tests.tests_config
+    # !!!
 
     defaults = {
         'FILERSETS_TEMPLATES': {
