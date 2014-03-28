@@ -95,6 +95,7 @@ class SetAdmin(admin.ModelAdmin):
 
         try:
             fset = Set.objects.get(pk=object_id)
+            is_processed = fset.is_processed
             try:
                 el = fset.set_root.all()[0]
                 sffid = el.pk
@@ -102,8 +103,10 @@ class SetAdmin(admin.ModelAdmin):
                 sffid = -1
         except ObjectDoesNotExist:
             sffid = -1
+            is_processed = False
 
         extra_context['set_filer_folder_id'] = sffid
+        extra_context['set_is_processed'] = is_processed
         return super(SetAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context)
 

@@ -6,6 +6,14 @@
     {% block object-tools-items %}
         {{ block.super }}
         {% if object_id and not "suit"|installed %}
+            {% if set_filer_folder_id > -1 and set_is_processed %}
+            <li>
+                <a href="{% url 'filersets:set_by_id_view' object_id %}">
+                    <i class="icon-eye-open icon-alpha75"></i>
+                    {% trans "Watch online" %}
+                </a>
+            </li>
+            {% endif %}
             <li>
                 <a href="{% url 'filersets_api:set_process_view' object_id  %}?redirect={{ request.get_full_path }}">
                     <i class="icon-refresh icon-alpha75"></i>
@@ -32,6 +40,14 @@
                 {% trans "Current Set" %}
             </h4>
             <ul class="box menu-box">
+                {% if set_filer_folder_id > -1 and set_is_processed %}
+                <li>
+                    <a href="{% url 'filersets:set_by_id_view' object_id %}">
+                        <i class="icon-eye-open icon-alpha75"></i>
+                        {% trans "Watch online" %}
+                    </a>
+                </li>
+                {% endif %}
                 <li>
                     <a href="{% url 'filersets_api:set_process_view' object_id  %}?redirect={{ request.get_full_path }}">
                         <i class="icon-refresh icon-alpha75"></i>
