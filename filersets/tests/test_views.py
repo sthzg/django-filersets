@@ -32,7 +32,7 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
     1.  Create filer directories: `/Filersets Tests/<filerdir_name>/'
     2.  Upload media to the newly created directory
 
-    TODO   category_config
+    TODO   cat_config
 
     :param filer_root: the root folder for our operations in filer
     :param filerdir_name: the name of the directory in filer that is created
@@ -46,7 +46,7 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
 
     category = None
     if do_categorize:
-        if category_config is None:
+        if cat_config is None:
             create_categories(1, 1)
             category = Category.objects.all()[0]
 
