@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 try:
@@ -25,6 +26,7 @@ if has_suit:
         model = Item
         sortable = 'order'
         extra = 0
+        max_num = 0
 else:
     class ItemInlineAdmin(admin.TabularInline):
         """
@@ -36,6 +38,7 @@ else:
         list_display = ('is_cover',)
         model = Item
         extra = 0
+        max_num = 0
 
 
 class SetAdmin(admin.ModelAdmin):
@@ -77,6 +80,24 @@ class SetAdmin(admin.ModelAdmin):
         return super(SetAdmin, self).changelist_view(
             request, extra_context=extra_context
         )
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if not extra_context:
+            extra_context = dict()
+
+        try:
+            fset = Set.objects.get(pk=object_id)
+            try:
+                el = fset.set_root.all()[0]
+                sffid = el.pk
+            except KeyError:
+                sffid = -1
+        except ObjectDoesNotExist:
+            sffid = -1
+
+        extra_context['set_filer_folder_id'] = sffid
+        return super(SetAdmin, self).change_view(request, object_id,
+            form_url, extra_context=extra_context)
 
     search_fields = ('title',)
     list_filter = ('date', 'is_processed',)
