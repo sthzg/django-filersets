@@ -60,6 +60,15 @@ class SetAdmin(admin.ModelAdmin):
 
     create_or_update_filerset.short_description = _('Create/Update filerset')
 
+    def watch_online(self, obj):
+        """ Display link on change list to the category view on the website """
+        cat_url = reverse('filersets:set_by_slug_view',
+                          kwargs={'set_slug': obj.slug})
+        label = ugettext('Watch online')
+        link = '<a href="{}"><span class="icon-eye-open icon-alpha75"></span> {}</a>'
+        return link.format(cat_url, label)
+    watch_online.allow_tags = True
+
     def process_set(self, obj):
         """
         Extra field for change list displays a link to create / update a set
@@ -68,7 +77,7 @@ class SetAdmin(admin.ModelAdmin):
                           kwargs={'set_id': obj.pk})
         query = '?redirect={}'.format(self.current_url)
         label = _('Create / Update Set')
-        wrap = _('<a href="{0}{1}"><span class="icon-refresh"></span> {2}</a>')
+        wrap = _('<a href="{0}{1}"><span class="icon-refresh icon-alpha75"></span> {2}</a>')
         return wrap.format(set_url, query, label)
 
     process_set.allow_tags = True
@@ -101,7 +110,8 @@ class SetAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     list_filter = ('date', 'is_processed',)
     ordering = ('-date',)
-    list_display = ('title', 'date', 'is_processed', 'process_set',)
+    list_display = ('title', 'date', 'is_processed',
+                    'watch_online', 'process_set',)
     inlines = (ItemInlineAdmin,)
     actions = [create_or_update_filerset]
     readonly_fields = ('is_processed',)
@@ -115,7 +125,7 @@ class CategoryAdmin(MPTTModelAdmin, SortableModelAdmin):
                           kwargs={'cat_slug': obj.slug_composed})
         label = ugettext('Watch online')
         extra = 'icon-alpha5' if obj.number_of_sets() < int(1) else ''
-        link = '<a href="{}"><span class="icon-refresh {}"></span> {}</a>'
+        link = '<a href="{}"><span class="icon-eye-open {}"></span> {}</a>'
         return link.format(cat_url, extra, label)
 
     watch_online.allow_tags = True
