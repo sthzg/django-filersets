@@ -21,6 +21,6 @@ For websites I want editors to be able to handle and organize editor-contributed
 
 ## Project status
 
-Although many parts of the system are covered with test cases already I do consider this package still in early development. Whilst the current coverage sounds high I am aware of critical parts that need clever testing (one apsect that can not be messured in percentages). One of the next steps will be to provide screenshots and a demo of what is implemented so far. I hope that this step makes it easier for users to get an idea about the scope of this package. I'll see to how mature a system this grows and if it is as convenient to use as I hope. 
+Although many parts of the system are covered with test cases already I do consider this package still in early development. Whilst the current coverage sounds high I am aware of critical parts that need clever testing (one apsect that can not be measured in percentages). One of the next steps will be to provide screenshots and a demo of what is implemented so far. I hope that this step makes it easier for users to get an idea about the scope of this package. I'll see to how mature a system this grows and if it is as convenient to use as I hope. 
 
 > If there is public interest, demand or feedback I am looking forward to it.
