@@ -15,7 +15,8 @@ from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
 # ______________________________________________________________________________
 #                                                                        Contrib
-from mptt.models import MPTTModel
+import mptt
+from mptt.models import MPTTModel, TreeManager
 from mptt.fields import TreeManyToManyField, TreeForeignKey
 from autoslug import AutoSlugField
 from filer.models import File, Folder
@@ -86,6 +87,30 @@ class SetManager(models.Manager):
             filerset.save()
 
         return op_stats
+
+
+# ______________________________________________________________________________
+#                                                              Manager: Category
+class CategoryManager(TreeManager):
+    def get_categories_by_level(self, level_start=0, depth=0, skip_empty=True):
+        """ Retreive a queryset with categories
+
+        :param level_start: defines at which level to start
+        :param depth: defines how many child levels to deliver (0 = All)
+        :param skip_empty: flag, deliver categories without entries or not
+        :rtype: queryset
+        """
+        query_filter = dict()
+        query_filter.update({'level__gte': level_start})
+
+        if depth > int(0):
+            query_filter.update({'level__lt': level_start + depth})
+
+        # TODO Skip empty
+
+        qs = self.filter(**query_filter)
+
+        return qs
 
 
 # ______________________________________________________________________________
@@ -235,6 +260,8 @@ class Item(MPTTModel):
 # ______________________________________________________________________________
 #                                                                Model: Category
 class Category(MPTTModel):
+
+    objects = CategoryManager()
 
     is_active = models.BooleanField(
         _('Is active?'),
