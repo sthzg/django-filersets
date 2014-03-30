@@ -19,6 +19,8 @@ from filersets.config import get_template_settings
 from filersets.models import Set, Item, Category
 
 
+# ______________________________________________________________________________
+#                                                                     View: List
 class ListView(View):
     """ Show a list of sets using the configured templates.
 
@@ -95,6 +97,8 @@ class ListView(View):
         )
 
 
+# ______________________________________________________________________________
+#                                                                      View: Set
 class SetView(View):
     """ Show a detail page for a set.
 
@@ -139,6 +143,8 @@ class SetView(View):
         )
 
 
+# ______________________________________________________________________________
+#                                                              View: Process Set
 class ProcessSetView(View):
 
     def get(self, request, set_id=None):

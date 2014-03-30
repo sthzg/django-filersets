@@ -24,6 +24,9 @@ from taggit.managers import TaggableManager
 
 logger = logging.getLogger(__name__)
 
+
+# ______________________________________________________________________________
+#                                                                   Manager: Set
 class SetManager(models.Manager):
     def create_or_update_set(self, set_id=None):
         """ Creates or updates filersets
@@ -85,6 +88,8 @@ class SetManager(models.Manager):
         return op_stats
 
 
+# ______________________________________________________________________________
+#                                                                     Model: Set
 class Set(TimeStampedModel):
     """
     The Set model is a thin wrapper around one ore more django filer folders.
@@ -164,7 +169,8 @@ class Set(TimeStampedModel):
     def __unicode__(self):
         return u'{}'.format(self.title)
 
-
+# ______________________________________________________________________________
+#                                                                    Model: Item
 class Item(MPTTModel):
     """
     The item model holds items that are contained within a Set.
@@ -226,6 +232,8 @@ class Item(MPTTModel):
         return u'Set: {}'.format(self.set.title)
 
 
+# ______________________________________________________________________________
+#                                                                Model: Category
 class Category(MPTTModel):
 
     is_active = models.BooleanField(

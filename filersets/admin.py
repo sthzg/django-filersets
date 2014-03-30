@@ -22,7 +22,7 @@ try:
 except ImportError:
     has_suit = False
 # ______________________________________________________________________________
-#                                                                Django Select 2
+#                                                                 Django Select2
 try:
     from django_select2 import AutoSelect2MultipleField, Select2MultipleWidget
     has_select2 = True
@@ -32,6 +32,8 @@ except ImportError:
 
 # TODO  Try to make any use of third party packages like suit and cms optional
 
+# ______________________________________________________________________________
+#                                                              InlineAdmin: Item
 if has_suit:
     class ItemInlineAdmin(SortableTabularInline):
         """
@@ -59,6 +61,8 @@ else:
         max_num = 0
 
 
+# ______________________________________________________________________________
+#                                                                 ModelForm: Set
 class SetForm(ModelForm):
     class Meta:
         model = Set
@@ -85,6 +89,9 @@ class SetForm(ModelForm):
                 'category': SelectMultiple(attrs={'size': '12'}),
             }
 
+
+# ______________________________________________________________________________
+#                                                                     Admin: Set
 class SetAdmin(admin.ModelAdmin):
     """ Administer a set and show the referenced filer_files in an inline """
     form = SetForm
@@ -93,6 +100,8 @@ class SetAdmin(admin.ModelAdmin):
         """ Provide additional static files for the set admin """
         js = ("filersets/js/filersets.js",)
 
+    #                                                                    _______
+    #                                                                    Customs
     def create_or_update_filerset(self, request, queryset):
         """
         This action triggers the creation or update process for selected sets
@@ -122,12 +131,16 @@ class SetAdmin(admin.ModelAdmin):
                '</a>'
         return link.format(set_url, query, label)
 
+    #                                                                ___________
+    #                                                                Change List
     def changelist_view(self, request, extra_context=None):
         """ Provide current_url parameter to the change list """
         self.__setattr__('current_url', request.get_full_path())
         return super(SetAdmin, self).changelist_view(
             request, extra_context=extra_context)
 
+    #                                                                ___________
+    #                                                                Change View
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """ Provide the filer folder id of the edited set to the change page """
         if not extra_context:
@@ -150,21 +163,26 @@ class SetAdmin(admin.ModelAdmin):
         return super(SetAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context)
 
-    # Set options for custom functions
+    #                                                            _______________
+    #                                                            Customs Options
     create_or_update_filerset.short_description = _('Create/Update filerset')
     watch_online.allow_tags = True
     process_set.allow_tags = True
 
-    search_fields = ('title',)
-    list_filter = ('date', 'is_processed',)
+    #                                                               ____________
+    #                                                               Admin Config
     ordering = ('-date',)
-    list_display = ('title', 'date', 'is_processed',
-                    'watch_online', 'process_set',)
+    search_fields = ('title',)
     inlines = (ItemInlineAdmin,)
     actions = [create_or_update_filerset]
     readonly_fields = ('is_processed',)
+    list_filter = ('date', 'is_processed',)
+    list_display = (
+        'title', 'date', 'is_processed', 'watch_online', 'process_set',)
 
 
+# ______________________________________________________________________________
+#                                                                Admin: Category
 class CategoryAdmin(MPTTModelAdmin, SortableModelAdmin):
 
     def watch_online(self, obj):
@@ -185,5 +203,8 @@ class CategoryAdmin(MPTTModelAdmin, SortableModelAdmin):
     exclude = ('slug_composed',)
     sortable = 'order'
 
+
+# ______________________________________________________________________________
+#                                                                   Registration
 admin.site.register(Set, SetAdmin)
 admin.site.register(Category, CategoryAdmin)
