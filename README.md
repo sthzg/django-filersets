@@ -1,6 +1,6 @@
 # django-filersets
 
-Status: experimental, currently under development.
+  ```Status: experimental, currently under development.```
 
 > django-filersets allows users to select one or more django filer directories and display their contents in a list and detail view. 
 
