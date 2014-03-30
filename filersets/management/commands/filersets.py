@@ -1,8 +1,17 @@
 # -*- coding:utf-8 -*-
+# ______________________________________________________________________________
+#                                                                         Future
 from __future__ import absolute_import
+# ______________________________________________________________________________
+#                                                                         Python
 import sys
+# ______________________________________________________________________________
+#                                                                         Django
 from django.core.management.base import BaseCommand
+# ______________________________________________________________________________
+#                                                                        Package
 from filersets.models import Set
+
 
 class Command(BaseCommand):
     args = ''

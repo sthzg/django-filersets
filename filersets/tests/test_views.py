@@ -1,18 +1,26 @@
 # -*- coding: utf-8 -*-
+# ______________________________________________________________________________
+#                                                                         Future
 from __future__ import absolute_import
 from __future__ import print_function
+# ______________________________________________________________________________
+#                                                                         Python
 import os
+# ______________________________________________________________________________
+#                                                                         Django
 from django.core.urlresolvers import reverse
-# from django.forms.models import modelform_factory
 from django.test import TestCase
-# from django.test.client import Client
-# from django.test.utils import setup_test_environment
 from django.core.files import File as DjangoFile
 from django.utils import translation
 from django.utils.timezone import now
+# ______________________________________________________________________________
+#                                                                        Contrib
 from filer.models import File, Image, Folder
+# ______________________________________________________________________________
+#                                                                        Package
 from filersets.models import Set, Category
 from filersets.tests.helpers import create_superuser, create_categories
+
 
 # TODO  Testing boilerplate for Django CMS should be handled by another class
 #       https://github.com/divio/django-cms/blob/develop/cms/tests/apphooks.py

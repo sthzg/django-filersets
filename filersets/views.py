@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
+# ______________________________________________________________________________
+#                                                                         Future
+from __future__ import absolute_import
+# ______________________________________________________________________________
+#                                                                         Django
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
-from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.utils.html import strip_tags
 from django.views.generic.base import View
 from django.template.context import Context
 from django.template.loader import get_template
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from django.http.response import HttpResponseRedirect, Http404
+# ______________________________________________________________________________
+#                                                                        Package
 from filersets.config import get_template_settings
 from filersets.models import Set, Item, Category
 

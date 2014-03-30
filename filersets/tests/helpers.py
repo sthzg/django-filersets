@@ -1,12 +1,21 @@
-from filersets.models import Category
+# -*- coding: utf-8 -*.
+# ______________________________________________________________________________
+#                                                                         Future
+from __future__ import absolute_import
+# ______________________________________________________________________________
+#                                                                         Django
 try:
     from django.contrib.auth import get_user_model
     User = get_user_model()
 except ImportError:
     from django.contrib.auth.models import User
+# ______________________________________________________________________________
+#                                                                        Package
+from filersets.models import Category
 
 
 def create_superuser():
+    """ Create a superuser for the test case """
     superuser = User.objects.create_superuser('admin',
                                               'sthzg@gmx.net',
                                               'secret')

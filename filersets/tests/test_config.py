@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
+# ______________________________________________________________________________
+#                                                                         Future
 from __future__ import absolute_import
+# ______________________________________________________________________________
+#                                                                         Python
 import os
+# ______________________________________________________________________________
+#                                                                         Django
 from django.test import TestCase
 from django.test.utils import override_settings
+# ______________________________________________________________________________
+#                                                                        Package
 from filersets.config import get_template_settings, get_filersets_defaults
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))

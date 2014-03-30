@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+# ______________________________________________________________________________
+#                                                                         Future
 from __future__ import absolute_import
+# ______________________________________________________________________________
+#                                                                         Django
 from django.conf.urls import patterns, url
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.decorators import permission_required
+# ______________________________________________________________________________
+#                                                                        Package
 from filersets import views
 
 # TODO  Make url components configurable
@@ -39,4 +43,5 @@ urlpatterns = patterns('',
         views.SetView.as_view(),
         name='set_by_slug_view'
     ),
+
 )

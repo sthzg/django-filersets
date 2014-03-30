@@ -1,27 +1,34 @@
 # -*- coding: utf-8 -*-
+# ______________________________________________________________________________
+#                                                                         Future
 from __future__ import absolute_import
-from django import forms
+# ______________________________________________________________________________
+#                                                                         Django
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
 from django.forms.models import ModelForm
+from django.core.urlresolvers import reverse
 from django.forms.widgets import SelectMultiple
-from django.utils.translation import ugettext_lazy as _, ugettext, string_concat
-from django_select2.widgets import AutoHeavySelect2TagWidget
-from taggit.forms import TagWidget
-
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _, ugettext
+# ______________________________________________________________________________
+#                                                                        Contrib
+from mptt.admin import MPTTModelAdmin
+from filersets.models import Set, Item, Category
+# ______________________________________________________________________________
+#                                                                    Django Suit
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
     has_suit = True
 except ImportError:
     has_suit = False
-from mptt.admin import MPTTModelAdmin
+# ______________________________________________________________________________
+#                                                                Django Select 2
 try:
     from django_select2 import AutoSelect2MultipleField, Select2MultipleWidget
     has_select2 = True
 except ImportError:
     has_select2 = False
-from filersets.models import Set, Item, Category
+
 
 # TODO  Try to make any use of third party packages like suit and cms optional
 

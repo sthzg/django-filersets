@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
+# ______________________________________________________________________________
+#                                                                         Future
 from __future__ import absolute_import
+# ______________________________________________________________________________
+#                                                                         Python
 import inspect
 import logging
+# ______________________________________________________________________________
+#                                                                         Django
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
-from mptt.fields import TreeManyToManyField, TreeForeignKey
+# ______________________________________________________________________________
+#                                                                        Contrib
 from mptt.models import MPTTModel
+from mptt.fields import TreeManyToManyField, TreeForeignKey
 from autoslug import AutoSlugField
 from filer.models import File, Folder
 from filer.fields.file import FilerFileField
