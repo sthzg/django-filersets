@@ -9,7 +9,9 @@ from django.utils.translation import ugettext_lazy as _
 #                                                                        Contrib
 from cms.app_base import CMSApp
 from cms.apphook_pool import apphook_pool
-
+# ______________________________________________________________________________
+#                                                                        Contrib
+from filersets.menu import FilersetsCategoryMenu
 
 class FilersetsApphook(CMSApp):
     """
@@ -24,5 +26,6 @@ class FilersetsApphook(CMSApp):
     name = _("Filersets App")
     urls = ["filersets.urls"]
     app_name = 'filersets'
+    menus = [FilersetsCategoryMenu]
 
 apphook_pool.register(FilersetsApphook)
