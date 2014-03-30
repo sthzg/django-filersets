@@ -1,9 +1,12 @@
-    Status: Currently under development.
+# django-filersets
 
-**Filersets** is meant as a thin wrapper around **django filer**. It allows users to pick one or more django filer directories and display their contents in a collection and optionally a detail view (for example image galleries). The filerset model can have various meta data like title, description, category, publish date and is planned to have multiple render modes available.
+    Status: experimental, currently under development.
 
+**Filersets** allow users to select one or more django filer directories and display their contents in a list and detail view. Filersets have various meta data like title, description, category and publishing date which makes them suitable to act as a thin wrapper around any collections of files. In the first step it is mainly used to create image galleries by uploading media in bulk using the original ``django-filer`` interface and afterwards create a set out of this folder.
 
-##### Rationale
+Later steps on the roadmap will extend the core functionality to support more filetypes (video, audio, rST, markdown and HTML files), navigational logic for nested folder structures as well as different render methods.
+
+## Rationale
 
 I find media management a critical part of web applications and a place were too many systems don't provide an accessible and centralized approach for developers, users and the server's file system. Filer offers a clean, intuitive and extendable way to handle editor-contributed media uploads including a very nice implementation of multifile uploads.
 
@@ -12,6 +15,6 @@ For websites I want editors to be able to handle and organize editor-contributed
 This is were django-filersets comes in. It provides a set creation model to enter the data and be connected to one ore more filer directories. All files within these directories are then accessible as a set that can be displayed, f.i. in a list of all sets of a particular category, a sidebar, a set detail page, a Django CMS plugin,...
 
 
-##### Early development
+## Project status
 
-Currently this is in very early development and I mostly pick the next targets out of features that I need right now in various projects. I'll see to how mature a system this grows and if it is as convenient to use as I hope. If there is public interest, demand or feedback I am looking forward to it.
+Although many parts of the system are covered with test cases already I do consider this package still in early development. Whilst the current coverage sounds high I am aware of critical parts that need clever testing (one apsect that can not be messured in the percentage of coverage). One of the next steps will be to provide screenshots and a demo of what is implemented so far. I hope that this step makes it easier for users to get an idea about the scope of this package. I'll see to how mature a system this grows and if it is as convenient to use as I hope. If there is public interest, demand or feedback I am looking forward to it.
