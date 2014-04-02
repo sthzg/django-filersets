@@ -3,9 +3,11 @@
 #                                                                         Future
 from __future__ import absolute_import
 # ______________________________________________________________________________
+#                                                                         Python
+from math import ceil, floor
+# ______________________________________________________________________________
 #                                                                         Django
 from django import template
-from math import ceil, floor
 from django.template.context import Context
 from django.template.loader import get_template
 
