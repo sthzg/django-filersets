@@ -1,0 +1,13 @@
+<div class="row equal">
+    <div class="col-md-{{ total_cols }}">
+        {% for fitem in fitems %}
+            <div class="fs-set-list-container col-md-{{ col_width }}">
+                {% if fitem %}
+                    {% autoescape off %}
+                    {{ fitem }}
+                    {% endautoescape %}
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
