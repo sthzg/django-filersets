@@ -20,6 +20,4 @@ urlpatterns = patterns('',
         name='set_process_view'
     ),
 
-    # TODO  Create view to reference detail page by slug
-
 )

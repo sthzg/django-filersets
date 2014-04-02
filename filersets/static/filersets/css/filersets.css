@@ -10,13 +10,6 @@ p.date {
 .filer-set-container p.date {
   margin: 0;
 }
-.filer-set-container a,
-.filer-set-container a:visited,
-.filer-set-container a:active,
-.filer-set-container a:hover,
-.filer-set-container a:focus {
-  color: inherit;
-}
 .filersets-item-container img {
   margin: 20px 0;
   box-shadow: 1px 1px 14px rgba(100, 100, 100, 0.1);
