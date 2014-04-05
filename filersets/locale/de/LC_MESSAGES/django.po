@@ -1,0 +1,148 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: django-filersets\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-04-05 21:18+0200\n"
+"PO-Revision-Date: 2014-04-05 21:23+0100\n"
+"Last-Translator: Stephan Herzog <herzog@crevo.net>\n"
+"Language-Team: LANGUAGE <sthzg@gmx.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: de\n"
+"X-Generator: Poedit 1.6.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: admin.py:76
+msgid "Pick folder(s)"
+msgstr "Ordner wählen"
+
+#: admin.py:81
+msgid "Pick one or more categories"
+msgstr "Kategorie(n) wählen"
+
+#: admin.py:117 admin.py:192 templates/admin/filersets/change_form.html:13
+#: templates/admin/filersets/change_form.html:47
+msgid "Watch online"
+msgstr "Online ansehen"
+
+#: admin.py:128 templates/admin/filersets/change_form.html:20
+#: templates/admin/filersets/change_form.html:54
+msgid "Process set"
+msgstr "Set verarbeiten"
+
+#: admin.py:168
+msgid "Create/Update filerset"
+msgstr "Erstellen/aktualisieren"
+
+#: cms_app.py:26
+msgid "Filersets App"
+msgstr "Filersets App"
+
+#: menu.py:21
+msgid "filersets category menu"
+msgstr "filersets Kategorie-Menü"
+
+#: models.py:129
+msgid "Filer Set"
+msgstr "Filer Set"
+
+#: models.py:130
+msgid "Filer Sets"
+msgstr "Filer Sets"
+
+#: models.py:135
+msgid "Date"
+msgstr "Datum"
+
+#: models.py:141
+msgid "Title"
+msgstr "Titel"
+
+#: models.py:148 models.py:281
+msgid "Slug"
+msgstr "Kürzel"
+
+#: models.py:157 models.py:299
+msgid "Description"
+msgstr "Beschreibung"
+
+#: models.py:164
+msgid "Set folders"
+msgstr "Set-Ordner"
+
+#: models.py:166
+msgid ""
+"Choose the directories you wish to have integrated into the current set."
+msgstr "Ordner wählen, deren Inhalte im Set gezeigt werden sollen"
+
+#: models.py:172
+msgid "Category"
+msgstr "Kategorie"
+
+#: models.py:174
+msgid "Assign the set to as many categories as you like"
+msgstr "Kategorien können beliebig vielen Sets zugewiesen werden"
+
+#: models.py:181
+msgid "Tags"
+msgstr "Tags"
+
+#: models.py:188
+msgid "Is processed?"
+msgstr "Ist verarbeitet?"
+
+#: models.py:208
+msgid "Belongs to set"
+msgstr "Gehört zu Set"
+
+#: models.py:218
+msgid "Content type"
+msgstr "Inhaltstyp"
+
+#: models.py:226
+msgid "Cover item?"
+msgstr "Cover-Item?"
+
+#: models.py:234
+msgid "Filer file"
+msgstr "Filer-Datei"
+
+#: models.py:247 models.py:313
+msgid "Order"
+msgstr "Reihenfolge"
+
+#: models.py:267
+msgid "Is active?"
+msgstr "Ist aktiv?"
+
+#: models.py:274
+msgid "Category name"
+msgstr "Kategoriename"
+
+#: models.py:290
+msgid "Composed slug"
+msgstr "Zusammengesetztes Kürzel"
+
+#: views.py:166
+msgid "Processed set with id {}"
+msgstr "Verarbeitetes Set mit ID {}"
+
+#: templates/admin/filersets/change_form.html:28
+#: templates/admin/filersets/change_form.html:62
+msgid "Add / edit files"
+msgstr "Datei(en) hinzufügen / bearbeiten"
+
+#: templates/admin/filersets/change_form.html:40
+msgid "Current Set"
+msgstr "Aktuelles Set"
+
+#: templates/filersets/list.html:41
+msgid "There are currently no filersets to display."
+msgstr "Aktuell gibt es keine filersets zur Anzeige."
