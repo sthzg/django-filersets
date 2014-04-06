@@ -58,7 +58,7 @@ class ListView(View):
         # Fetch sets by slug
         elif cat_slug:
             through_category = True
-            # Asure that the generous url regexp is not explited
+            # Asure that the generous url regexp is not exploited
             cat_slug = strip_tags(cat_slug)
             try:
                 cat = Category.objects.filter(slug_composed=cat_slug)[0]
@@ -76,18 +76,15 @@ class ListView(View):
         for fset in Set.objects.filter(**filter_query).order_by('-date'):
             fitems = (
                 fitem
-                for fitem in Item.objects.filter(set=fset).order_by('order')
-            )
+                for fitem in Item.objects.filter(set=fset).order_by('order'))
 
             t = get_template(t_settings['list_item'])
-            c = Context({
-                'set': fset,
-                'items': fitems
-            })
+            c = Context({'set': fset, 'items': fitems})
             list_items.append(t.render(c))
 
         if through_category:
-            canonical_url = reverse('filersets:list_view', kwargs=({'cat_id': cat.pk}))
+            canonical_url = reverse('filersets:list_view',
+                                    kwargs=({'cat_id': cat.pk}))
         else:
             canonical_url = reverse('filersets:list_view')
 
@@ -121,14 +118,11 @@ class ListView(View):
 
         response = render(
             request,
-            t_settings['list'],
-            {
+            t_settings['list'], {
                 't_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': list_items,
-                'canonical_url': canonical_url,
-            }
-        )
+                'canonical_url': canonical_url})
 
         return response
 
@@ -171,13 +165,10 @@ class SetView(View):
 
         return render(
             request,
-            t_settings['set'],
-            {
+            t_settings['set'], {
                 't_extend': t_settings['base'],
                 'fset': fset,
-                'fitems': fitems,
-            }
-        )
+                'fitems': fitems})
 
 
 # ______________________________________________________________________________
@@ -208,5 +199,4 @@ class ProcessSetView(View):
         return render(
             request,
             'filersets/process_set.html',
-            {'op_stats': op_stats}
-        )
+            {'op_stats': op_stats})
