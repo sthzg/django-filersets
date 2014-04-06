@@ -26,6 +26,6 @@ class FilersetsApphook(CMSApp):
     name = _("Filersets App")
     urls = ["filersets.urls"]
     app_name = 'filersets'
-    menus = [FilersetsCategoryMenu]
+    # menus = [FilersetsCategoryMenu]
 
 apphook_pool.register(FilersetsApphook)
