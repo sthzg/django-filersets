@@ -18,6 +18,7 @@ from filersets.models import Set, Item, Category
 #                                                                    Django Suit
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
+    from suit.widgets import AutosizedTextarea
     has_suit = True
 except ImportError:
     has_suit = False
@@ -35,13 +36,21 @@ except ImportError:
 # ______________________________________________________________________________
 #                                                              InlineAdmin: Item
 if has_suit:
+    class ItemInlineForm(ModelForm):
+        class Meta:
+            model = Item
+            widgets = {
+                'description': AutosizedTextarea
+            }
+
     class ItemInlineAdmin(SortableTabularInline):
         """
         Allows to view filer_files referenced in a set to be sorted in an inline
         form inside of the SetAdmin.
         """
-        fields = ('filer_file', 'is_cover')
-        list_display = ('is_cover',)
+        form = ItemInlineForm
+        fields = ('filer_file', 'title', 'description', 'is_cover')
+        list_editable = ('title', 'description', 'is_cover',)
         list_editable = ('is_cover',)
         model = Item
         sortable = 'order'
@@ -53,8 +62,8 @@ else:
         Allows to view filer_files referenced in a set to be sorted in an inline
         form inside of the SetAdmin.
         """
-        fields = ('filer_file', 'is_cover')
-        list_editable = ('is_cover',)
+        fields = ('filer_file', 'title', 'description', 'is_cover')
+        list_editable = ('title', 'description', 'is_cover',)
         list_display = ('is_cover',)
         model = Item
         extra = 0
