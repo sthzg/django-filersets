@@ -54,10 +54,11 @@ class FSCategoryTree(template.Node):
                 cat_classes.append('active')
 
             if has_back_base and back_base_url == cat_url:
-                # Prevent marking to cats as active when switching categories
+                # Prevent marking two cats as active when switching categories
                 if fs_referrer != 'filersets:list_view':
                     cat_classes.append('active')
 
+            # TODO  Make template configurable
             t = get_template('filersets/templatetags/_category_tree_item.html')
             c = Context({'cat': cat, 'cat_classes': ' '.join(cat_classes)})
             litems.append(t.render(c))
