@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Django Filersets – Standalone Template</title>
+    {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
 </head>
 <body>
 {% block base_content %}{% endblock %}
