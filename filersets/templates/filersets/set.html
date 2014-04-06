@@ -34,7 +34,7 @@ TODO    Make configurable and very generic
                 <h2>{{ fset.title }}</h2>
                 <h3>{{ fset.description }}</h3>
 
-                <div class="filersets-item-container">
+                <div class="fs-item-container">
                 {% for fitem in fitems %}
                     {% sorl_thumbnail fitem.filer_file.path "845" quality=84 as im %}
                     <img src="{{ im.url }}"

@@ -1,0 +1,5 @@
+{% load i18n %}
+<a href="{% url "filersets:list_view" cat.slug_composed %}" data-id="{{ cat.id }}" data-parent="{{ cat.parent_id }}" class="list-group-item {{ cat_classes }}">
+  <span class="badge">{{ cat.number_of_sets }}</span>
+  {{ cat.name }}
+</a>
