@@ -177,10 +177,10 @@ class Set(TimeStampedModel):
         null=True
     )
 
-    tags = TaggableManager(
-        verbose_name=_('Tags'),
-        blank=True,
-    )
+    # tags = TaggableManager(
+    #     verbose_name=_('Tags'),
+    #     blank=True,
+    # )
 
     # Sets are not directly available for displaying when they are saved. First
     # a task needs to process all the items and after success sets flag to True
@@ -190,6 +190,9 @@ class Set(TimeStampedModel):
         blank=True,
         default=False
     )
+
+    def save(self, *args, **kwargs):
+        super(Set, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'{}'.format(self.title)
@@ -244,10 +247,28 @@ class Item(MPTTModel):
         related_name='item_children'
     )
 
+    title = models.CharField(
+        _('title'),
+        help_text=_('Note that django-filersets provides you with various '
+                    'ways to author title and description for items. Please '
+                    'see the help for more information and examples.'),
+        max_length=150,
+        blank=True,
+        default=None,
+        null=True
+    )
+
+    description = models.TextField(
+        _('description'),
+        blank=True,
+        default=None,
+        null=True
+    )
+
     order = models.PositiveIntegerField(_('Order'))
 
-    class MPTTMeta:
-        order_insertion_by = ['order']
+    # class MPTTMeta:
+    #     order_insertion_by = ['order']
 
     def save(self, *args, **kwargs):
         super(Item, self).save(*args, **kwargs)
@@ -260,6 +281,10 @@ class Item(MPTTModel):
 # ______________________________________________________________________________
 #                                                                Model: Category
 class Category(MPTTModel):
+
+    class Meta:
+        verbose_name=_('Category')
+        verbose_name_plural=_('Categories')
 
     objects = CategoryManager()
 
