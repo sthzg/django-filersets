@@ -5,15 +5,15 @@ from __future__ import absolute_import
 # ______________________________________________________________________________
 #                                                                         Django
 from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.utils.html import strip_tags
-from django.views.generic.base import View
-from django.template.context import Context
+from django.http.response import HttpResponseRedirect, Http404, HttpResponse
 from django.template.loader import get_template
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.context import Context
+from django.core.urlresolvers import reverse
+from django.views.generic.base import View
 from django.utils.translation import ugettext_lazy as _
-from django.http.response import HttpResponseRedirect, Http404
 # ______________________________________________________________________________
 #                                                                        Package
 from filersets.config import get_template_settings
@@ -34,16 +34,11 @@ class ListView(View):
         'list': 'path_to/another_list.html',
         'list_item': 'path_to/another_list_item.html',
     }
-
-    Method call overrides
-    TODO
-
-    TODO    Use a view parameter to determine use specific templates
-
-    TODO    Extend to be fully configurable
-    TODO    Extend to make use of paging
-    TODO    Extend to provide sorting
     """
+    # TODO    Use a view parameter to determine use specific templates
+    # TODO    Extend to be fully configurable
+    # TODO    Extend to make use of paging
+    # TODO    Extend to provide sorting
     def get(self, request, cat_id=None, cat_slug=None):
 
         fset = None
@@ -96,16 +91,46 @@ class ListView(View):
         else:
             canonical_url = reverse('filersets:list_view')
 
-        return render(
+        # The Back Base System: Retaining state through sessions
+        # ----------------------------------------------------------------------
+        # Sets can be accessed over multiple URLs, for example after clicking a
+        # link on a category list page (/en/category/<cat_slug>), after watching
+        # a tag list (/en/tags/<tag_slug>), ... Whenever users follow such
+        # links the system should preserve correct navigational context.
+        # In other words if accessing a set detail page from the category list
+        # page, the category should still be highlighted in the menu tree.
+        #
+        # To enable this behavior we store the page that linked to a set view in
+        # the session. This session can be accessed on the set page view to
+        # determine which leafs in the menu system need to be rendered active.
+        #
+        # If you have ideas for better solutions, feel free to drop an issue on
+        # Github: https://github.com/sthzg/django-filersets
+        # ----------------------------------------------------------------------
+        request.session['has_back_base'] = True
+        request.session['back_base_url'] = request.get_full_path()
+        request.session['fs_referrer'] = 'filersets:list_view'
+
+        # The fs_last_pk cookie enables us to scroll to the list position of
+        # the last clicked item (when coming back from a detail view)
+        # Since we are on the list again, we can delete that entry here.
+        try:
+            del request.session['fs_last_pk']
+        except KeyError:
+            pass
+
+        response = render(
             request,
             t_settings['list'],
             {
                 't_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': list_items,
-                'canonical_url': canonical_url
+                'canonical_url': canonical_url,
             }
         )
+
+        return response
 
 
 # ______________________________________________________________________________
@@ -123,6 +148,7 @@ class SetView(View):
         :param set_id: pk of the set
         :param set_slug: slug of the set
         """
+        request.session['fs_referrer'] = 'filersets:set_view'
 
         if set_id:
             get_query = {'pk': int(set_id)}
