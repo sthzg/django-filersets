@@ -5,6 +5,7 @@ from __future__ import absolute_import
 # ______________________________________________________________________________
 #                                                                         Django
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.html import strip_tags
 from django.views.generic.base import View
@@ -46,10 +47,12 @@ class ListView(View):
     def get(self, request, cat_id=None, cat_slug=None):
 
         fset = None
+        through_category = False
         list_items = list()
 
         # Fetch sets by category primary key
         if cat_id:
+            through_category = True
             try:
                 cat = Category.objects.get(pk=cat_id)
             except ObjectDoesNotExist:
@@ -59,10 +62,12 @@ class ListView(View):
 
         # Fetch sets by slug
         elif cat_slug:
+            through_category = True
             # Asure that the generous url regexp is not explited
             cat_slug = strip_tags(cat_slug)
-            cat = Category.objects.filter(slug_composed=cat_slug)
-            if not cat.exists():
+            try:
+                cat = Category.objects.filter(slug_composed=cat_slug)[0]
+            except IndexError:
                 raise Http404
 
             filter_query = {'category': cat}
@@ -86,13 +91,19 @@ class ListView(View):
             })
             list_items.append(t.render(c))
 
+        if through_category:
+            canonical_url = reverse('filersets:list_view', kwargs=({'cat_id': cat.pk}))
+        else:
+            canonical_url = reverse('filersets:list_view')
+
         return render(
             request,
             t_settings['list'],
             {
                 't_extends': t_settings['base'],
                 'fset': fset,
-                'fitems': list_items
+                'fitems': list_items,
+                'canonical_url': canonical_url
             }
         )
 
