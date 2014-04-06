@@ -10,10 +10,10 @@ p.date {
 .filer-set-container p.date {
   margin: 0;
 }
-.filersets-item-container {
+.fs-item-container {
   padding: 20px 0;
 }
-.filersets-item-container img {
+.fs-item-container img {
   margin: 0;
   box-shadow: 1px 1px 14px rgba(100, 100, 100, 0.1);
 }

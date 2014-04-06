@@ -34,15 +34,15 @@ TODO    Make configurable and very generic
                 <h2>{{ fset.title }}</h2>
                 <h3>{{ fset.description }}</h3>
 
-                <div class="fs-item-container">
                 {% for fitem in fitems %}
-                    {% sorl_thumbnail fitem.filer_file.path "845" quality=84 as im %}
+                    <div class="fs-item-container">
+                    {% sorl_thumbnail fitem.filer_file.path "845" quality=89 as im %}
                     <img src="{{ im.url }}"
                          alt=""
                          class="img-responsive" />
                     {% endthumbnail %}
+                    </div>
                 {% endfor %}
-                </div>
             </div>
         </article>
         <!-- Ende: Hauptinhalt -->
