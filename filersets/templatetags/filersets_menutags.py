@@ -45,15 +45,17 @@ class FSCategoryTree(template.Node):
         # -> Compile list items
         litems = list()
         for cat in categories:
-            cat_url = reverse(
+            cat_slug_url = reverse(
                 'filersets:list_view', kwargs=({'cat_slug': cat.slug_composed}))
+            cat_id_url = reverse(
+                'filersets:list_view', kwargs=({'cat_id': cat.pk}))
             cur_url = request.get_full_path()
             cat_classes = list()
             cat_classes.append('cat-level-{}'.format(cat.level))
-            if cat_url == cur_url:
+            if cur_url in (cat_slug_url, cat_id_url):
                 cat_classes.append('active')
 
-            if has_back_base and back_base_url == cat_url:
+            if has_back_base and back_base_url in (cat_slug_url, cat_id_url):
                 # Prevent marking two cats as active when switching categories
                 if fs_referrer != 'filersets:list_view':
                     cat_classes.append('active')
