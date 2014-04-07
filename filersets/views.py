@@ -74,9 +74,9 @@ class ListView(View):
         t_settings = get_template_settings()
 
         for fset in Set.objects.filter(**filter_query).order_by('-date'):
-            fitems = (
+            fitems = [
                 fitem
-                for fitem in Item.objects.filter(set=fset).order_by('order'))
+                for fitem in Item.objects.filter(set=fset).order_by('order')]
 
             t = get_template(t_settings['list_item'])
             c = Context({'set': fset, 'items': fitems})
