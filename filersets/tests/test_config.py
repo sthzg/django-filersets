@@ -11,7 +11,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 # ______________________________________________________________________________
 #                                                                        Package
-from filersets.config import get_template_settings, get_filersets_defaults
+from filersets.config import get_template_settings, _get_filersets_defaults
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 T_DIR = '{}/templates'.format(BASE_DIR)
@@ -21,7 +21,7 @@ class ConfigTests(TestCase):
     def test_get_default_template_settings(self):
         """ Check all default settings to exist and to be of expected type """
 
-        t_conf = get_filersets_defaults()
+        t_conf = _get_filersets_defaults()
         self.assertEqual(type(t_conf), type(dict()))
         self.assertEqual(len(t_conf), int(1))
         self.assertTrue('FILERSETS_TEMPLATES' in t_conf)
@@ -29,6 +29,8 @@ class ConfigTests(TestCase):
         self.assertTrue('set' in t_conf['FILERSETS_TEMPLATES'])
         self.assertTrue('list' in t_conf['FILERSETS_TEMPLATES'])
         self.assertTrue('list_item' in t_conf['FILERSETS_TEMPLATES'])
+        self.assertTrue('cat_tree_wrap' in t_conf['FILERSETS_TEMPLATES'])
+        self.assertTrue('cat_tree_item' in t_conf['FILERSETS_TEMPLATES'])
         self.assertTrue(os.path.exists('{}/{}'.format(
             T_DIR, t_conf['FILERSETS_TEMPLATES']['base'])))
         self.assertTrue(os.path.exists('{}/{}'.format(
@@ -37,6 +39,10 @@ class ConfigTests(TestCase):
             T_DIR, t_conf['FILERSETS_TEMPLATES']['list'])))
         self.assertTrue(os.path.exists('{}/{}'.format(
             T_DIR, t_conf['FILERSETS_TEMPLATES']['list_item'])))
+        self.assertTrue(os.path.exists('{}/{}'.format(
+            T_DIR, t_conf['FILERSETS_TEMPLATES']['cat_tree_wrap'])))
+        self.assertTrue(os.path.exists('{}/{}'.format(
+            T_DIR, t_conf['FILERSETS_TEMPLATES']['cat_tree_item'])))
 
     @override_settings(
         FILERSETS_TEMPLATES={
@@ -44,6 +50,8 @@ class ConfigTests(TestCase):
             'set': 'overridden/set.html',
             'list': 'overridden/list.html',
             'list_item': 'overridden/_list_item.html',
+            'cat_tree_wrap': 'overridden/cat_tree_wrap.html',
+            'cat_tree_item': 'overridden/cat_tree_item.html',
         })
     def test_override_all_default_template_by_global_settings(self):
         """
@@ -52,15 +60,19 @@ class ConfigTests(TestCase):
         """
         t_conf = get_template_settings()
         self.assertEqual(type(t_conf), type(dict()))
-        self.assertEqual(len(t_conf), int(4))
+        self.assertEqual(len(t_conf), int(6))
         self.assertTrue('base' in t_conf)
         self.assertTrue('set' in t_conf)
         self.assertTrue('list' in t_conf)
         self.assertTrue('list_item' in t_conf)
+        self.assertTrue('cat_tree_wrap' in t_conf)
+        self.assertTrue('cat_tree_item' in t_conf)
         self.assertTrue('overridden' in t_conf['base'])
         self.assertTrue('overridden' in t_conf['set'])
         self.assertTrue('overridden' in t_conf['list'])
         self.assertTrue('overridden' in t_conf['list_item'])
+        self.assertTrue('overridden' in t_conf['cat_tree_wrap'])
+        self.assertTrue('overridden' in t_conf['cat_tree_item'])
 
     @override_settings(
         FILERSETS_TEMPLATES={
@@ -70,7 +82,7 @@ class ConfigTests(TestCase):
     def test_override_partial_default_template_by_global_settings(self):
         t_conf = get_template_settings()
         self.assertEqual(type(t_conf), type(dict()))
-        self.assertEqual(len(t_conf), int(4))
+        self.assertEqual(len(t_conf), int(6))
         self.assertTrue('base' in t_conf)
         self.assertTrue('set' in t_conf)
         self.assertTrue('list' in t_conf)

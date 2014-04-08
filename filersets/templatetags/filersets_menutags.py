@@ -56,10 +56,10 @@ class FSCategoryTree(template.Node):
             try:
                 root_id = template.Variable(root_id).resolve(context)
             except AttributeError:
-                # TODO  Configurize if param errors should rais exception
+                # TODO  Configurize if param errors should raise exception
                 raise AttributeError('Invalid paramater for category root id')
             except template.VariableDoesNotExist:
-                # TODO  Configurize if param errors should rais exception
+                # TODO  Configurize if param errors should raise exception
                 raise template.VariableDoesNotExist(
                     'Invalid paramater for category root id')
 
@@ -101,13 +101,11 @@ class FSCategoryTree(template.Node):
                 if fs_referrer != 'filersets:list_view':
                     cat_classes.append('active')
 
-            # TODO  Write test that configuration works
             t = get_template(t_settings['cat_tree_item'])
             c = Context({'cat': cat, 'cat_classes': ' '.join(cat_classes)})
             litems.append(t.render(c))
 
         # -> Return them wrapped
-        # TODO  Write test that configuration works
         t = get_template(t_settings['cat_tree_wrap'])
         c = Context({'items': litems})
         return t.render(c)
