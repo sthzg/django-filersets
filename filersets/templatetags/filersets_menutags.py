@@ -3,39 +3,80 @@
 #                                                                         Future
 from __future__ import absolute_import
 # ______________________________________________________________________________
-#                                                                         Python
-from math import ceil, floor
-# ______________________________________________________________________________
 #                                                                         Django
 from django import template
 from django.template.loader import get_template
 from django.template.context import Context
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 # ______________________________________________________________________________
 #                                                                        Package
 from filersets.models import Category
+from filersets.config import get_template_settings
 
 register = template.Library()
 
 
 # ______________________________________________________________________________
 #                                                                  Category Tree
+
+#                                                                        _______
+#                                                                        Compile
 def do_category_tree(parser, token):
     """
+    If called without parameters, the whole category tree will be rendered.
+    Optionally you can pass the pk of the category you wish to start with.
     """
-    return FSCategoryTree()
+    try:
+        tag_name, root_id = token.split_contents()
+        root_id = root_id.replace('"', '').replace("'", "")
+    except ValueError:
+        root_id = int(-1)
+
+    return FSCategoryTree(root_id)
 
 
 class FSCategoryTree(template.Node):
-    """ """
-    def __init__(self):
-        pass
+    """ Returns the rendered category tree """
 
+    def __init__(self, root_id):
+        self.root_id = root_id
+
+#                                                                         ______
+#                                                                         Render
     def render(self, context):
         """ """
-        request = context.get('request')
+        root_id = self.root_id
+        lvl_compensate = 0
 
-        categories = Category.objects.get_categories_by_level()
+        # We support root id as value and as variable
+        try:
+            isinstance(int(self.root_id), int)
+        except ValueError:
+            try:
+                root_id = template.Variable(root_id).resolve(context)
+            except AttributeError:
+                # TODO  Configurize if param errors should rais exception
+                raise AttributeError('Invalid paramater for category root id')
+            except template.VariableDoesNotExist:
+                # TODO  Configurize if param errors should rais exception
+                raise template.VariableDoesNotExist(
+                    'Invalid paramater for category root id')
+
+        request = context.get('request')
+        t_settings = get_template_settings()
+
+        if root_id < int(0):
+            categories = Category.objects.get_categories_by_level()
+        else:
+            try:
+                root_cat = Category.objects.get(pk=root_id)
+                # TODO  Configurize include_self parameter
+                categories = root_cat.get_descendants(True)
+                lvl_compensate = root_cat.level
+            except Category.DoesNotExist:
+                # TODO Templatize the no categories display
+                return _('<p>No categories available</p>')
 
         # Check back base system, see views.py for documentation
         fs_referrer = request.session.get('fs_referrer', None)
@@ -51,7 +92,7 @@ class FSCategoryTree(template.Node):
                 'filersets:list_view', kwargs=({'cat_id': cat.pk}))
             cur_url = request.get_full_path()
             cat_classes = list()
-            cat_classes.append('cat-level-{}'.format(cat.level))
+            cat_classes.append('cat-level-{}'.format(cat.level-lvl_compensate))
             if cur_url in (cat_slug_url, cat_id_url):
                 cat_classes.append('active')
 
@@ -60,13 +101,14 @@ class FSCategoryTree(template.Node):
                 if fs_referrer != 'filersets:list_view':
                     cat_classes.append('active')
 
-            # TODO  Make template configurable
-            t = get_template('filersets/templatetags/_category_tree_item.html')
+            # TODO  Write test that configuration works
+            t = get_template(t_settings['cat_tree_item'])
             c = Context({'cat': cat, 'cat_classes': ' '.join(cat_classes)})
             litems.append(t.render(c))
 
         # -> Return them wrapped
-        t = get_template('filersets/templatetags/_category_tree.html')
+        # TODO  Write test that configuration works
+        t = get_template(t_settings['cat_tree_wrap'])
         c = Context({'items': litems})
         return t.render(c)
 
