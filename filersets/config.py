@@ -31,8 +31,8 @@ def get_template_settings(overrides=None):
     if not overrides:
         overrides = dict()
 
-    s_defaults = get_filersets_defaults('FILERSETS_TEMPLATES')  # prio -1
-    s_globals = get_filersets_globals('FILERSETS_TEMPLATES')    # prio  0
+    s_defaults = _get_filersets_defaults('FILERSETS_TEMPLATES')  # prio -1
+    s_globals = _get_filersets_globals('FILERSETS_TEMPLATES')    # prio  0
     s_overrides = overrides                                     # prio +1
 
     ret = dict()
@@ -43,7 +43,7 @@ def get_template_settings(overrides=None):
     return ret
 
 
-def get_filersets_defaults(key=None):
+def _get_filersets_defaults(key=None):
     """ Return default settings for the given key
 
     :param key: string of the required key or None for all settings
@@ -59,10 +59,15 @@ def get_filersets_defaults(key=None):
 
     defaults = {
         'FILERSETS_TEMPLATES': {
+            # page and page element templates
             'base': 'filersets/base.html',
             'set': 'filersets/set.html',
             'list': 'filersets/list.html',
             'list_item': 'filersets/_list_item.html',
+
+            # templatetags
+            'cat_tree_wrap': 'filersets/templatetags/_category_tree.html',
+            'cat_tree_item': 'filersets/templatetags/_category_tree_item.html',
         },
     }
 
@@ -75,7 +80,7 @@ def get_filersets_defaults(key=None):
     return defaults[key]
 
 
-def get_filersets_globals(key=None):
+def _get_filersets_globals(key=None):
     """ Returns filerset settings from settings module by key
 
     :param key: name of the setting as used in settings.py
