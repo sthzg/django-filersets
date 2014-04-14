@@ -12,7 +12,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _, ugettext
 # ______________________________________________________________________________
 #                                                                        Contrib
-from mptt.admin import MPTTModelAdmin
+from treebeard.admin import TreeAdmin
+from treebeard.forms import movenodeform_factory
 from filersets.models import Set, Item, Category
 # ______________________________________________________________________________
 #                                                                    Django Suit
@@ -22,6 +23,7 @@ try:
     has_suit = True
 except ImportError:
     has_suit = False
+has_suit = False
 # ______________________________________________________________________________
 #                                                                 Django Select2
 try:
@@ -76,27 +78,22 @@ class SetForm(ModelForm):
     class Meta:
         model = Set
 
-        # django-select2 is available -> use it to enhance the interface
-        if has_select2:
-            widgets = {
-                'set_root': Select2MultipleWidget(
-                    select2_options={
-                        'width': '220px',
-                        'placeholder': _('Pick folder(s)'),
-                    }),
-                'category': Select2MultipleWidget(
-                    select2_options={
-                        'width': '220px',
-                        'placeholder': _('Pick one or more categories'),
-                    }),
-            }
+        widgets = {'set_root': SelectMultiple(attrs={'size': '12'})}
 
-        # no django-select2 -> extend the default size of multiselects
-        else:
-            widgets = {
-                'set_root': SelectMultiple(attrs={'size': '12'}),
-                'category': SelectMultiple(attrs={'size': '12'}),
-            }
+        # # django-select2 is available -> use it to enhance the interface
+        # if has_select2:
+        #     widgets = {
+        #         'set_root': Select2MultipleWidget(
+        #             select2_options={
+        #                 'width': '220px',
+        #                 'placeholder': _('Pick folder(s)'),
+        #             }),
+        #         'category': Select2MultipleWidget(
+        #             select2_options={
+        #                 'width': '220px',
+        #                 'placeholder': _('Pick one or more categories'),
+        #             })
+        #     }
 
 
 # ______________________________________________________________________________
@@ -139,17 +136,17 @@ class SetAdmin(admin.ModelAdmin):
                '<span class="icon-refresh icon-alpha75"></span> {2}' \
                '</a>'
         return link.format(set_url, query, label)
-
-    #                                                                ___________
-    #                                                                Change List
+    #
+    # #                                                                ___________
+    # #                                                                Change List
     def changelist_view(self, request, extra_context=None):
         """ Provide current_url parameter to the change list """
         self.__setattr__('current_url', request.get_full_path())
         return super(SetAdmin, self).changelist_view(
             request, extra_context=extra_context)
-
-    #                                                                ___________
-    #                                                                Change View
+    #
+    # #                                                                ___________
+    # #                                                                Change View
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """ Provide the filer folder id of the edited set to the change page """
         if not extra_context:
@@ -192,7 +189,7 @@ class SetAdmin(admin.ModelAdmin):
 
 # ______________________________________________________________________________
 #                                                                Admin: Category
-class CategoryAdmin(MPTTModelAdmin, SortableModelAdmin):
+class CategoryAdmin(TreeAdmin):
 
     def watch_online(self, obj):
         """ Display link on change list to the category view on the website """
@@ -205,12 +202,13 @@ class CategoryAdmin(MPTTModelAdmin, SortableModelAdmin):
 
     watch_online.allow_tags = True
 
-    mptt_level_indent = 20
+    form = movenodeform_factory(Category)
+    list_display = ('name', 'slug', 'is_active',)
+
     list_display = ('name', 'number_of_sets', 'slug',
-                    'is_active', 'watch_online',)
+                    'is_active',)
     list_editable = ('is_active',)
-    exclude = ('slug_composed',)
-    sortable = 'order'
+    # exclude = ('slug_composed',)
 
 
 # ______________________________________________________________________________

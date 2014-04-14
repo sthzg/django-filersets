@@ -73,7 +73,7 @@ class FSCategoryTree(template.Node):
                 root_cat = Category.objects.get(pk=root_id)
                 # TODO  Configurize include_self parameter
                 categories = root_cat.get_descendants(True)
-                lvl_compensate = root_cat.level
+                lvl_compensate = root_cat.depth
             except Category.DoesNotExist:
                 # TODO Templatize the no categories display
                 return _('<p>No categories available</p>')
@@ -92,7 +92,7 @@ class FSCategoryTree(template.Node):
                 'filersets:list_view', kwargs=({'cat_id': cat.pk}))
             cur_url = request.get_full_path()
             cat_classes = list()
-            cat_classes.append('cat-level-{}'.format(cat.level-lvl_compensate))
+            cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
             if cur_url in (cat_slug_url, cat_id_url):
                 cat_classes.append('active')
 

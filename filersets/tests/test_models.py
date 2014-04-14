@@ -43,8 +43,7 @@ class CategoryModelTests(TestCase):
         Test creation of a single category using special characters and assert
         that values inserted into the database match configured defaults
         """
-        category = Category(name=u'Foo üß çś —')
-        category.save()
+        cat = Category.add_root(name=u'Foo üß çś —', numval=int(1))
         result = Category.objects.all()
         cat = result[0]
         self.assertEqual(result.count(), int(1))
@@ -54,15 +53,14 @@ class CategoryModelTests(TestCase):
         self.assertEqual(cat.slug, u'foo-u-cs')  # TODO How to get better I18N?
         self.assertEqual(cat.slug_composed, u'foo-u-cs/')
         self.assertEqual(cat.parent, None)
-        self.assertEqual(cat.order, int(0))
+        self.assertEqual(cat.numval, int(1))
 
     def test_update_slug_for_category_in_root_leaf(self):
         """
         Test that updating the name of a category updates `slug`and
         `slug_composed` accordingly.
         """
-        category = Category(name=u'Foobar')
-        category.save()
+        cat = Category.add_root(name=u'Foobar', numval=int(1))
         result = Category.objects.all()
         cat = result[0]
         self.assertEqual(cat.slug, u'foobar')

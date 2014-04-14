@@ -1,6 +1,5 @@
 {% extends t_extends %}
-{% load i18n %}
-{% load static %}
+{% load i18n static %}
 
 {% comment %}
 This is only a temporary solution to fit within the dev env. Should be a lot
@@ -29,7 +28,6 @@ TODO    Make configurable and very generic
         {% if fset %}
             <div class="col-md-18">
                 <h1>{{ fset.title }}</h1>
-
                 {% for fitem in fitems %}
                     {{ fitem }}
                 {% endfor %}

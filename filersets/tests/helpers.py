@@ -4,6 +4,8 @@
 from __future__ import absolute_import
 # ______________________________________________________________________________
 #                                                                         Django
+from django.db import transaction
+
 try:
     from django.contrib.auth import get_user_model
     User = get_user_model()
@@ -38,12 +40,24 @@ def create_categories(depth=1, sibling=1, parent=None, cat_conf=None):
         depth_range.reverse()
         for d in depth_range:
             for s in range(1, sibling+1):
+
                 name = "category: %s -- %s" % (str(d), str(s))
-                cat = Category(
-                    is_active=False,
-                    name=name,
-                    description='',
-                    parent=parent,
-                    order=int(0))
-                cat.save()
+                if not parent:
+                    cat = Category.add_root(
+                        is_active=False,
+                        name=name,
+                        description='',
+                        numval=int(1),
+                        parent=parent
+                    )
+                else:
+                    cat = parent.add_child(
+                        is_active=False,
+                        name=name,
+                        description='',
+                        numval=int(1),
+                        parent=parent
+                    )
+
+                # print cat.slug_composed
                 create_categories(depth=d-1, sibling=sibling, parent=cat)

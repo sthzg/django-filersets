@@ -15,13 +15,12 @@ from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
 # ______________________________________________________________________________
 #                                                                        Contrib
-import mptt
 from mptt.models import MPTTModel, TreeManager
 from mptt.fields import TreeManyToManyField, TreeForeignKey
 from autoslug import AutoSlugField
 from filer.models import File, Folder
 from filer.fields.file import FilerFileField
-from taggit.managers import TaggableManager
+from treebeard.mp_tree import MP_Node, MP_NodeManager
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +90,7 @@ class SetManager(models.Manager):
 
 # ______________________________________________________________________________
 #                                                              Manager: Category
-class CategoryManager(TreeManager):
+class CategoryManager(MP_NodeManager):
     def get_categories_by_level(self, level_start=0, depth=0, skip_empty=True):
         """ Retreive a queryset with categories
 
@@ -101,13 +100,12 @@ class CategoryManager(TreeManager):
         :rtype: queryset
         """
         query_filter = dict()
-        query_filter.update({'level__gte': level_start})
+        query_filter.update({'depth__gte': level_start})
 
         if depth > int(0):
-            query_filter.update({'level__lt': level_start + depth})
+            query_filter.update({'depth__lt': level_start + depth})
 
         # TODO Skip empty
-
         qs = self.filter(**query_filter)
 
         return qs
@@ -167,7 +165,7 @@ class Set(TimeStampedModel):
                     'the current set.')
     )
 
-    category = TreeManyToManyField(
+    category = models.ManyToManyField(
         'Category',
         verbose_name=_('Category'),
         related_name='category_set',
@@ -200,11 +198,8 @@ class Set(TimeStampedModel):
 # ______________________________________________________________________________
 #                                                                    Model: Item
 class Item(MPTTModel):
-    """
-    The item model holds items that are contained within a Set.
-
-    TODO: Mark the combination of `set` and `filer_file` as unique
-    """
+    """ The item model holds items that are contained within a Set. """
+    # TODO: Mark the combination of `set` and `filer_file` as unique
 
     set = models.ForeignKey(
         'Set',
@@ -267,9 +262,6 @@ class Item(MPTTModel):
 
     order = models.PositiveIntegerField(_('Order'))
 
-    # class MPTTMeta:
-    #     order_insertion_by = ['order']
-
     def save(self, *args, **kwargs):
         super(Item, self).save(*args, **kwargs)
         Item.objects.rebuild()
@@ -280,13 +272,15 @@ class Item(MPTTModel):
 
 # ______________________________________________________________________________
 #                                                                Model: Category
-class Category(MPTTModel):
+class Category(MP_Node):
 
     class Meta:
         verbose_name=_('Category')
         verbose_name_plural=_('Categories')
 
     objects = CategoryManager()
+
+    node_order_by = ['numval', 'name']
 
     is_active = models.BooleanField(
         _('Is active?'),
@@ -327,38 +321,33 @@ class Category(MPTTModel):
         null=True
     )
 
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         'self',
-        null=True,
+        verbose_name=_('parent'),
+        related_name='cat_parent',
         blank=True,
-        related_name='category_children'
+        null=True,
+        default=None
     )
 
-    order = models.PositiveIntegerField(
-        _('Order'),
-        default=int(0),
-        blank=True,
-        null=True
-    )
+    numval = models.IntegerField()
 
     def number_of_sets(self):
         return Set.objects.filter(category=self).count()
 
-    class MPTTMeta:
-        order_insertion_by = ['order']
-
     def save(self, *args, **kwargs):
+
         super(Category, self).save(*args, **kwargs)
-        Category.objects.rebuild()
 
         # Providing a composed slug keeps the cost of lookups for category urls
         # low during runtime, since it only has to check against one string.
         current_token = [self.slug]
         ancestor_tokens = [res.slug for res in self.get_ancestors()]
         composed_list = ancestor_tokens + current_token
+
         self.slug_composed = '{}/'.format('/'.join(composed_list))
+
         super(Category, self).save(*args, **kwargs)
-        Category.objects.rebuild()
 
         for child in self.get_children():
             child.save(force_update=True)

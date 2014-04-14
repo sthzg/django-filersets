@@ -95,7 +95,7 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
 
     fset = Set.objects.create(title=set_name, description='', date=now())
     if do_categorize:
-        fset.category = [category]
+        fset.category.add(category)
         fset.save()
 
     Set.objects.create_or_update_set(fset.pk)
