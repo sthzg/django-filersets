@@ -37,41 +37,22 @@ except ImportError:
 
 # ______________________________________________________________________________
 #                                                              InlineAdmin: Item
-if has_suit:
-    class ItemInlineForm(ModelForm):
-        class Meta:
-            model = Item
-            widgets = {
-                'description': AutosizedTextarea
-            }
+class ItemInlineAdmin(admin.TabularInline):
+    """
+    Allows to view filer_files referenced in a set to be sorted in an inline
+    form inside of the SetAdmin.
+    """
+    fields = ('filer_file', 'title', 'description', 'is_cover',)
+    list_editable = ('description', 'is_cover',)
+    list_display = ('title', 'is_cover', 'description', 'is_cover',)
+    list_display_links = ('title',)
+    model = Item
+    extra = 0
+    max_num = 0
 
-    class ItemInlineAdmin(SortableTabularInline):
-        """
-        Allows to view filer_files referenced in a set to be sorted in an inline
-        form inside of the SetAdmin.
-        """
-        form = ItemInlineForm
-        fields = ('filer_file', 'title', 'description', 'is_cover')
-        list_editable = ('title', 'description', 'is_cover',)
-        list_editable = ('is_cover',)
-        model = Item
-        sortable = 'order'
-        extra = 0
-        max_num = 0
-else:
-    class ItemInlineAdmin(admin.TabularInline):
-        """
-        Allows to view filer_files referenced in a set to be sorted in an inline
-        form inside of the SetAdmin.
-        """
-        fields = ('filer_file', 'title', 'description', 'is_cover',)
-        list_editable = ('description', 'is_cover',)
-        list_display = ('title', 'is_cover', 'description', 'is_cover',)
-        list_display_links = ('title',)
-        model = Item
-        extra = 0
-        max_num = 0
 
+class InlineAdmin(TreeAdmin):
+    pass
 
 # ______________________________________________________________________________
 #                                                                 ModelForm: Set
@@ -201,3 +182,4 @@ class CategoryAdmin(TreeAdmin):
 #                                                                   Registration
 admin.site.register(Set, SetAdmin)
 admin.site.register(Category, CategoryAdmin)
+admin.site.register(Item, InlineAdmin)
