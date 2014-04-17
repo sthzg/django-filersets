@@ -84,12 +84,17 @@ class FSCategoryTree(template.Node):
         has_back_base = request.session.get('has_back_base', False)
 
         # -> Compile list items
+        current_app = context.get('current_app')
         litems = list()
         for cat in categories:
             cat_slug_url = reverse(
-                'filersets:list_view', kwargs=({'cat_slug': cat.slug_composed}))
+                'filersets:list_view',
+                kwargs=({'cat_slug': cat.slug_composed}),
+                current_app=current_app)
             cat_id_url = reverse(
-                'filersets:list_view', kwargs=({'cat_id': cat.pk}))
+                'filersets:list_view',
+                kwargs=({'cat_id': cat.pk}),
+                current_app=current_app)
             cur_url = request.get_full_path()
             cat_classes = list()
             cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
@@ -98,16 +103,18 @@ class FSCategoryTree(template.Node):
 
             if has_back_base and back_base_url in (cat_slug_url, cat_id_url):
                 # Prevent marking two cats as active when switching categories
-                if fs_referrer != 'filersets:list_view':
+                if fs_referrer != '{}:list_view'.format(current_app):
                     cat_classes.append('active')
 
             t = get_template(t_settings['cat_tree_item'])
-            c = Context({'cat': cat, 'cat_classes': ' '.join(cat_classes)})
+            c = Context({'cat': cat,
+                         'cat_classes': ' '.join(cat_classes),
+                         'current_app': current_app})
             litems.append(t.render(c))
 
         # -> Return them wrapped
         t = get_template(t_settings['cat_tree_wrap'])
-        c = Context({'items': litems})
+        c = Context({'items': litems, 'current_app': current_app})
         return t.render(c)
 
 

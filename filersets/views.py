@@ -11,7 +11,7 @@ from django.http.response import HttpResponseRedirect, Http404, HttpResponse
 from django.template.loader import get_template
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.context import Context
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from django.views.generic.base import View
 from django.utils.translation import ugettext_lazy as _
 # ______________________________________________________________________________
@@ -40,7 +40,7 @@ class ListView(View):
     # TODO    Extend to make use of paging
     # TODO    Extend to provide sorting
     def get(self, request, cat_id=None, cat_slug=None):
-
+        current_app = resolve(request.path).namespace
         fset = None
         through_category = False
         list_items = list()
@@ -84,9 +84,11 @@ class ListView(View):
 
         if through_category:
             canonical_url = reverse('filersets:list_view',
+                                    current_app=current_app,
                                     kwargs=({'cat_id': cat.pk}))
         else:
-            canonical_url = reverse('filersets:list_view')
+            canonical_url = reverse('filersets:list_view',
+                                    current_app=current_app)
 
         # The Back Base System: Retaining state through sessions
         # ----------------------------------------------------------------------
@@ -106,7 +108,7 @@ class ListView(View):
         # ----------------------------------------------------------------------
         request.session['has_back_base'] = True
         request.session['back_base_url'] = request.get_full_path()
-        request.session['fs_referrer'] = 'filersets:list_view'
+        request.session['fs_referrer'] = '{}:list_view'.format(current_app)
 
         # The fs_last_pk cookie enables us to scroll to the list position of
         # the last clicked item (when coming back from a detail view)
@@ -122,7 +124,8 @@ class ListView(View):
                 't_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': list_items,
-                'canonical_url': canonical_url})
+                'canonical_url': canonical_url,
+                'current_app': current_app})
 
         return response
 
@@ -142,7 +145,8 @@ class SetView(View):
         :param set_id: pk of the set
         :param set_slug: slug of the set
         """
-        request.session['fs_referrer'] = 'filersets:set_view'
+        current_app = resolve(request.path).namespace
+        request.session['fs_referrer'] = '{}:set_view'.format(current_app)
 
         if set_id:
             get_query = {'pk': int(set_id)}
@@ -168,7 +172,8 @@ class SetView(View):
             t_settings['set'], {
                 't_extend': t_settings['base'],
                 'fset': fset,
-                'fitems': fitems})
+                'fitems': fitems,
+                'current_app': current_app})
 
 
 # ______________________________________________________________________________
