@@ -275,12 +275,10 @@ class Item(MPTTModel):
 class Category(MP_Node):
 
     class Meta:
-        verbose_name=_('Category')
-        verbose_name_plural=_('Categories')
+        verbose_name = _('Category')
+        verbose_name_plural = _('Categories')
 
     objects = CategoryManager()
-
-    node_order_by = ['numval', 'name']
 
     is_active = models.BooleanField(
         _('Is active?'),
@@ -329,8 +327,6 @@ class Category(MP_Node):
         null=True,
         default=None
     )
-
-    numval = models.IntegerField()
 
     def number_of_sets(self):
         return Set.objects.filter(category=self).count()

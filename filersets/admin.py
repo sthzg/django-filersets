@@ -64,9 +64,10 @@ else:
         Allows to view filer_files referenced in a set to be sorted in an inline
         form inside of the SetAdmin.
         """
-        fields = ('filer_file', 'title', 'description', 'is_cover')
-        list_editable = ('title', 'description', 'is_cover',)
-        list_display = ('is_cover',)
+        fields = ('filer_file', 'title', 'description', 'is_cover',)
+        list_editable = ('description', 'is_cover',)
+        list_display = ('title', 'is_cover', 'description', 'is_cover',)
+        list_display_links = ('title',)
         model = Item
         extra = 0
         max_num = 0
@@ -79,21 +80,6 @@ class SetForm(ModelForm):
         model = Set
 
         widgets = {'set_root': SelectMultiple(attrs={'size': '12'})}
-
-        # # django-select2 is available -> use it to enhance the interface
-        # if has_select2:
-        #     widgets = {
-        #         'set_root': Select2MultipleWidget(
-        #             select2_options={
-        #                 'width': '220px',
-        #                 'placeholder': _('Pick folder(s)'),
-        #             }),
-        #         'category': Select2MultipleWidget(
-        #             select2_options={
-        #                 'width': '220px',
-        #                 'placeholder': _('Pick one or more categories'),
-        #             })
-        #     }
 
 
 # ______________________________________________________________________________
@@ -136,17 +122,17 @@ class SetAdmin(admin.ModelAdmin):
                '<span class="icon-refresh icon-alpha75"></span> {2}' \
                '</a>'
         return link.format(set_url, query, label)
-    #
-    # #                                                                ___________
-    # #                                                                Change List
+
+    #                                                                ___________
+    #                                                                Change List
     def changelist_view(self, request, extra_context=None):
         """ Provide current_url parameter to the change list """
         self.__setattr__('current_url', request.get_full_path())
         return super(SetAdmin, self).changelist_view(
             request, extra_context=extra_context)
-    #
-    # #                                                                ___________
-    # #                                                                Change View
+
+    #                                                                ___________
+    #                                                                Change View
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """ Provide the filer folder id of the edited set to the change page """
         if not extra_context:
@@ -208,7 +194,7 @@ class CategoryAdmin(TreeAdmin):
     list_display = ('name', 'number_of_sets', 'slug',
                     'is_active',)
     list_editable = ('is_active',)
-    # exclude = ('slug_composed',)
+    exclude = ('slug_composed', 'path', 'depth', 'numchild', 'parent',)
 
 
 # ______________________________________________________________________________

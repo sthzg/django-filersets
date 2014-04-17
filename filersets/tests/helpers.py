@@ -47,7 +47,6 @@ def create_categories(depth=1, sibling=1, parent=None, cat_conf=None):
                         is_active=False,
                         name=name,
                         description='',
-                        numval=int(1),
                         parent=parent
                     )
                 else:
@@ -55,7 +54,6 @@ def create_categories(depth=1, sibling=1, parent=None, cat_conf=None):
                         is_active=False,
                         name=name,
                         description='',
-                        numval=int(1),
                         parent=parent
                     )
 
