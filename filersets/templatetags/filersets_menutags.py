@@ -72,7 +72,7 @@ class FSCategoryTree(template.Node):
             try:
                 root_cat = Category.objects.get(pk=root_id)
                 # TODO  Configurize include_self parameter
-                categories = root_cat.get_descendants(True)
+                categories = root_cat.get_descendants()
                 lvl_compensate = root_cat.depth
             except Category.DoesNotExist:
                 # TODO Templatize the no categories display
