@@ -76,7 +76,7 @@ class ListView(View):
         for fset in Set.objects.filter(**filter_query).order_by('-date'):
             fitems = [
                 fitem
-                for fitem in Item.objects.filter(set=fset).order_by('order')]
+                for fitem in Item.objects.filter(set=fset)]
 
             t = get_template(t_settings['list_item'])
             c = Context({'set': fset, 'items': fitems})
@@ -160,7 +160,7 @@ class SetView(View):
         # TODO  We constantly need this -> Put it on the model manager
         fitems = (
             fitem
-            for fitem in Item.objects.filter(set=fset).order_by('order')
+            for fitem in Item.objects.filter(set=fset)
         )
 
         return render(

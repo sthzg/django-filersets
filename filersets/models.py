@@ -15,8 +15,7 @@ from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
 # ______________________________________________________________________________
 #                                                                        Contrib
-from mptt.models import MPTTModel, TreeManager
-from mptt.fields import TreeManyToManyField, TreeForeignKey
+from mptt.fields import TreeManyToManyField
 from autoslug import AutoSlugField
 from filer.models import File, Folder
 from filer.fields.file import FilerFileField
@@ -71,12 +70,11 @@ class SetManager(models.Manager):
 
                 except ObjectDoesNotExist:
                     # Creation routine
-                    item = Item()
-                    item.set = filerset
-                    item.ct = ContentType.objects.get(pk=f.polymorphic_ctype_id)
-                    item.filer_file = f
-                    item.order = 1
-                    item.save()
+                    Item.add_root(
+                        set=filerset,
+                        ct=ContentType.objects.get(pk=f.polymorphic_ctype_id),
+                        filer_file=f
+                    )
 
                     msg = '{}File {} saved for Set {}'
                     op_stats['added'].append(msg.format('', f.id, filerset.id))
@@ -197,7 +195,7 @@ class Set(TimeStampedModel):
 
 # ______________________________________________________________________________
 #                                                                    Model: Item
-class Item(MPTTModel):
+class Item(MP_Node):
     """ The item model holds items that are contained within a Set. """
     # TODO: Mark the combination of `set` and `filer_file` as unique
 
@@ -235,12 +233,12 @@ class Item(MPTTModel):
         blank=True
     )
 
-    parent = TreeForeignKey(
-        'self',
-        null=True,
-        blank=True,
-        related_name='item_children'
-    )
+    # parent = TreeForeignKey(
+    #     'self',
+    #     null=True,
+    #     blank=True,
+    #     related_name='item_children'
+    # )
 
     title = models.CharField(
         _('title'),
@@ -260,11 +258,11 @@ class Item(MPTTModel):
         null=True
     )
 
-    order = models.PositiveIntegerField(_('Order'))
+    # order = models.PositiveIntegerField(_('Order'))
 
-    def save(self, *args, **kwargs):
-        super(Item, self).save(*args, **kwargs)
-        Item.objects.rebuild()
+    # def save(self, *args, **kwargs):
+    #     super(Item, self).save(*args, **kwargs)
+    #     Item.objects.rebuild()
 
     def __unicode__(self):
         return u'Set: {}'.format(self.set.title)
