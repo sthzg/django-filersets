@@ -135,12 +135,10 @@ class ListView(View):
 # ______________________________________________________________________________
 #                                                                      View: Set
 class SetView(View):
-    """ Show a detail page for a set.
-
-    TODO    Check for set id or slug
-    TODO    Create list and position aware back button handling
-    """
-
+    """ Show a detail page for a set. """
+    # TODO  Support various predefined ordering options
+    # TODO  Check for set id or slug
+    # TODO  Create list and position aware back button handling
     def get(self, request, set_id=None, set_slug=None):
         """
 
@@ -163,10 +161,12 @@ class SetView(View):
 
         t_settings = get_template_settings()
 
-        # TODO  We constantly need this -> Put it on the model manager
+        # TODO  Support various predefined ordering options
+        # TODO  Make ordering options available on set edit form
+        order_query = 'filer_file__original_filename'
         fitems = (
             fitem
-            for fitem in Item.objects.filter(set=fset)
+            for fitem in Item.objects.filter(set=fset).order_by(order_query)
         )
 
         return render(
