@@ -74,9 +74,11 @@ class ListView(View):
         t_settings = get_template_settings()
 
         for fset in Set.objects.filter(**filter_query).order_by('-date'):
+            # TODO  Respect order config on individual sets
+            order_query = ('-is_cover', 'filer_file__original_filename')
             fitems = [
                 fitem
-                for fitem in Item.objects.filter(set=fset)]
+                for fitem in Item.objects.filter(set=fset).order_by(*order_query)]
 
             t = get_template(t_settings['list_item'])
             c = Context({'set': fset,
@@ -163,7 +165,7 @@ class SetView(View):
 
         # TODO  Support various predefined ordering options
         # TODO  Make ordering options available on set edit form
-        order_query = '-filer_file__original_filename'
+        order_query = 'filer_file__original_filename'
         fitems = (
             fitem
             for fitem in Item.objects.filter(set=fset).order_by(order_query)
