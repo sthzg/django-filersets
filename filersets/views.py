@@ -79,7 +79,9 @@ class ListView(View):
                 for fitem in Item.objects.filter(set=fset)]
 
             t = get_template(t_settings['list_item'])
-            c = Context({'set': fset, 'items': fitems})
+            c = Context({'set': fset,
+                         'items': fitems,
+                         'current_app': current_app})
             list_items.append(t.render(c))
 
         if through_category:
