@@ -10,7 +10,7 @@ from django.utils.html import strip_tags
 from django.http.response import HttpResponseRedirect, Http404, HttpResponse
 from django.template.loader import get_template
 from django.core.exceptions import ObjectDoesNotExist
-from django.template.context import Context
+from django.template.context import Context, RequestContext
 from django.core.urlresolvers import reverse, resolve
 from django.views.generic.base import View
 from django.utils.translation import ugettext_lazy as _
@@ -89,9 +89,10 @@ class ListView(View):
                                  .order_by(*['-is_cover']+[fset.ordering])]
 
             t = get_template(t_settings['list_item'])
-            c = Context({'set': fset,
-                         'items': fitems,
-                         'current_app': current_app})
+            c = RequestContext(request,
+                               {'set': fset,
+                                'items': fitems,
+                                'current_app': current_app})
             list_items.append(t.render(c))
 
         if through_category:
