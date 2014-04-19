@@ -15,6 +15,7 @@ from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
 # ______________________________________________________________________________
 #                                                                        Contrib
+from model_utils.choices import Choices
 from mptt.fields import TreeManyToManyField
 from autoslug import AutoSlugField
 from filer.models import File, Folder
@@ -127,10 +128,24 @@ class Set(TimeStampedModel):
 
     objects = SetManager()
 
+    ORDERING_OPTIONS = Choices(
+        ('filer_file__original_filename', 'filename ascending'),
+        ('-filer_file__original_filename', 'filename descending'),
+    )
+
     date = models.DateField(
         _('Date'),
         blank=True,
         default=None,
+    )
+
+    ordering = models.CharField(
+        _('Ordering rule'),
+        max_length=50,
+        blank=True,
+        choices=ORDERING_OPTIONS,
+        default='original_filename',
+        null=True
     )
 
     title = models.CharField(
