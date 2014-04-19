@@ -131,6 +131,8 @@ class Set(TimeStampedModel):
     ORDERING_OPTIONS = Choices(
         ('filer_file__original_filename', 'filename ascending'),
         ('-filer_file__original_filename', 'filename descending'),
+        ('filer_file__name', 'title in filer ascending'),
+        ('-filer_file__name', 'title in filer descending'),
     )
 
     date = models.DateField(
