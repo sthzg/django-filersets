@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from django.conf import settings
 
 
-def get_template_settings(overrides=None):
+def get_template_settings(overrides=None, namespace=None):
     """ Returns a dictionary with template settings
 
     Currently there are three layers for settings, two of them can be overridden
@@ -33,11 +33,13 @@ def get_template_settings(overrides=None):
 
     s_defaults = _get_filersets_defaults('FILERSETS_TEMPLATES')  # prio -1
     s_globals = _get_filersets_globals('FILERSETS_TEMPLATES')    # prio  0
-    s_overrides = overrides                                     # prio +1
+    s_namespace = s_globals[namespace] if namespace in s_globals else dict()
+    s_overrides = overrides                                      # prio +1
 
     ret = dict()
     ret.update(s_defaults)
     ret.update(s_globals)
+    ret.update(s_namespace)
     ret.update(s_overrides)
 
     return ret

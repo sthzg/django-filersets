@@ -33,6 +33,10 @@ class ListView(View):
         'set': 'path_to/another_set.html',
         'list': 'path_to/another_list.html',
         'list_item': 'path_to/another_list_item.html',
+        '<my_instance_namespace': {
+            'list': 'path_to/another_list.html',
+            'list_item': 'path_to/another_list_item.html',
+        }
     }
     """
     # TODO    Use a view parameter to determine use specific templates
@@ -75,7 +79,7 @@ class ListView(View):
                     affiliate_categories__namespace=current_app)]
             filter_query = {'category__in': cat_ids}
 
-        t_settings = get_template_settings()
+        t_settings = get_template_settings(namespace=current_app)
 
         for fset in Set.objects.filter(**filter_query).order_by('-date').distinct():
             # TODO  Respect order config on individual sets

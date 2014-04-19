@@ -144,7 +144,7 @@ class Set(TimeStampedModel):
         max_length=50,
         blank=True,
         choices=ORDERING_OPTIONS,
-        default='original_filename',
+        default='filer_file__original_filename',
         null=True
     )
 
