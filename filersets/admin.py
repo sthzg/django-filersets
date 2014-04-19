@@ -14,16 +14,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 #                                                                        Contrib
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
-from filersets.models import Set, Item, Category
 # ______________________________________________________________________________
-#                                                                    Django Suit
-try:
-    from suit.admin import SortableModelAdmin, SortableTabularInline
-    from suit.widgets import AutosizedTextarea
-    has_suit = True
-except ImportError:
-    has_suit = False
-has_suit = False
+#                                                                         Custom
+from filersets.models import Set, Item, Category, Affiliate
 # ______________________________________________________________________________
 #                                                                 Django Select2
 try:
@@ -51,8 +44,10 @@ class ItemInlineAdmin(admin.TabularInline):
     max_num = 0
 
 
-class InlineAdmin(TreeAdmin):
-    pass
+# ______________________________________________________________________________
+#                                                                    Admin: Item
+class ItemAdmin(TreeAdmin):
+    list_filter = ('set',)
 
 # ______________________________________________________________________________
 #                                                                 ModelForm: Set
@@ -155,6 +150,20 @@ class SetAdmin(admin.ModelAdmin):
 
 
 # ______________________________________________________________________________
+#                                                         InlineAdmin: Affiliate
+class AffiliateInlineAdmin(admin.StackedInline):
+    """ Adds affiliate settings as inline to category admin """
+    model = Affiliate.category.through
+    extra = 0
+
+
+# ______________________________________________________________________________
+#                                                               Admin: Affiliate
+class AffiliateAdmin(admin.ModelAdmin):
+    list_display = ('label', 'namespace', 'memo',)
+
+
+# ______________________________________________________________________________
 #                                                                Admin: Category
 class CategoryAdmin(TreeAdmin):
 
@@ -176,10 +185,12 @@ class CategoryAdmin(TreeAdmin):
                     'is_active',)
     list_editable = ('is_active',)
     exclude = ('slug_composed', 'path', 'depth', 'numchild', 'parent',)
+    inlines = [AffiliateInlineAdmin]
 
 
 # ______________________________________________________________________________
 #                                                                   Registration
 admin.site.register(Set, SetAdmin)
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(Item, InlineAdmin)
+admin.site.register(Item, ItemAdmin)
+admin.site.register(Affiliate, AffiliateAdmin)

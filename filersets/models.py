@@ -363,3 +363,66 @@ class Category(MP_Node):
 
     def __unicode__(self):
         return u'Category: {}'.format(self.name)
+
+
+# ______________________________________________________________________________
+#                                                              Model: Membership
+class Affiliate(models.Model):
+    """
+    Configure categories that belong to certain logical entities of filersets
+
+    With affiliates you can configure categories that belong to certain
+    logical entities of filersets. For example, if you use filersets for the two
+    areas image galleries and downloads then you do not want to show sets
+    belonging to the downloads in a list view of the image galleries.
+
+    Currently we assume that those two areas are presented through different
+    django namespaces:
+    https://docs.djangoproject.com/en/1.6/topics/http/urls/#url-namespaces
+    """
+
+    class Meta:
+        verbose_name=_('affiliated categories')
+        verbose_name_plural=_('affiliated categories')
+
+    label = models.CharField(
+        _('label'),
+        help_text=_('The label is shown as internal description in widgets.'),
+        max_length=30,
+        blank=False,
+        default=None,
+        null=False
+    )
+
+    namespace = models.CharField(
+        _('namespace'),
+        help_text=_('Enter the namespace that will be associated with this '
+                    'particular affiliate.'),
+        max_length=30,
+        blank=True,
+        default=None,
+        null=True
+    )
+
+    memo = models.TextField(
+        _('internal memo'),
+        help_text=_('You could use this field to lave some information for '
+                    'yourself or co-workers.'),
+        blank=True,
+        default=None,
+        null=True
+    )
+
+    category = models.ManyToManyField(
+        Category,
+        verbose_name=_('categories'),
+        related_name='affiliate_categories',
+        help_text=_('Pick the category/ies you wish to include in list '
+                    'displays of filersets associated with this affiliate.'),
+        blank=True,
+        default=None,
+        null=True
+    )
+
+    def __unicode__(self):
+        return u'{}'.format(self.label)

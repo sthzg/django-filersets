@@ -58,7 +58,6 @@ class ListView(View):
         # Fetch sets by slug
         elif cat_slug:
             through_category = True
-            # Asure that the generous url regexp is not exploited
             cat_slug = strip_tags(cat_slug)
             try:
                 cat = Category.objects.filter(slug_composed=cat_slug)[0]
@@ -67,9 +66,14 @@ class ListView(View):
 
             filter_query = {'category': cat}
 
-        # Fetch all sets
+        # Fetch sets that are affiliated with the current instance namespace
+        # See the Affiliate model in models.py for more information.
         else:
-            filter_query = {}
+            cat_ids = [
+                cat.pk
+                for cat in Category.objects.filter(
+                    affiliate_categories__namespace=current_app)]
+            filter_query = {'category__in': cat_ids}
 
         t_settings = get_template_settings()
 
