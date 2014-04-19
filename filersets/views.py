@@ -77,7 +77,7 @@ class ListView(View):
 
         t_settings = get_template_settings()
 
-        for fset in Set.objects.filter(**filter_query).order_by('-date'):
+        for fset in Set.objects.filter(**filter_query).order_by('-date').distinct():
             # TODO  Respect order config on individual sets
             fitems = [
                 fitem
