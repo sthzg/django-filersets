@@ -59,3 +59,17 @@ def create_categories(depth=1, sibling=1, parent=None, cat_conf=None):
 
                 # print cat.slug_composed
                 create_categories(depth=d-1, sibling=sibling, parent=cat)
+
+def create_controlled_categories():
+    """
+    Much like create_categories this provides a sample structure, with the only
+    difference that this is manually controlled and easier for some of the
+    tests to assert against.
+    """
+    cat01 = Category.add_root(is_active=False, name='Cat 01', description='', parent=None)
+    cat02 = cat01.add_child(is_active=False, name='Cat 01-01', description='', parent=None)
+    cat03 = cat01.add_child(is_active=False, name='Cat 01-02', description='', parent=None)
+    cat04 = cat03.add_child(is_active=False, name='Cat 01-02-01', description='', parent=None)
+    cat05 = cat03.add_child(is_active=False, name='Cat 01-02-02', description='', parent=None)
+    cat06 = Category.add_root(is_active=False, name='Cat 02', description='', parent=None)
+    cat07 = cat06.add_child(is_active=False, name='Cat 02-01', description='', parent=None)

@@ -43,7 +43,7 @@ class CategoryModelTests(TestCase):
         Test creation of a single category using special characters and assert
         that values inserted into the database match configured defaults
         """
-        cat = Category.add_root(name=u'Foo üß çś —')
+        Category.add_root(name=u'Foo üß çś —')
         result = Category.objects.all()
         cat = result[0]
         self.assertEqual(result.count(), int(1))
@@ -59,7 +59,7 @@ class CategoryModelTests(TestCase):
         Test that updating the name of a category updates `slug`and
         `slug_composed` accordingly.
         """
-        cat = Category.add_root(name=u'Foobar')
+        Category.add_root(name=u'Foobar')
         result = Category.objects.all()
         cat = result[0]
         self.assertEqual(cat.slug, u'foobar')
