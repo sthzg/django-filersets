@@ -11,7 +11,7 @@ from filer.models import File
 # ______________________________________________________________________________
 #                                                                        Package
 from django.test.testcases import TestCase
-from filersets.tests.helpers import create_superuser
+from filersets.tests.helpers import create_superuser, create_controlled_categories
 from filersets.models import Category
 
 
@@ -71,6 +71,18 @@ class CategoryModelTests(TestCase):
         cat = result[0]
         self.assertEqual(cat.slug, u'bazbam')
         self.assertEqual(cat.slug_composed, u'bazbam/')
+
+    def test_custom_field__get_level_compensation(self):
+        """ The compensation value for different levels is correct """
+        create_controlled_categories()
+        root_cat = Category.get_root_nodes()[0]
+        self.assertEqual(root_cat.get_level_compensation(), int(0))
+
+        lvl1_cat = root_cat.get_last_child()
+        self.assertEqual(lvl1_cat.get_level_compensation(), int(1))
+
+        lvl2_cat = lvl1_cat.get_first_child()
+        self.assertEqual(lvl2_cat.get_level_compensation(), int(2))
 
 
     # TODO  Test creation of slug_composed for a child item

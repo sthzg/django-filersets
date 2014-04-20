@@ -45,9 +45,11 @@ class FSCategoryTree(template.Node):
 #                                                                         ______
 #                                                                         Render
     def render(self, context):
-        """ """
+        """ Renders the category menu tree as HTML """
         root_id = self.root_id
-        lvl_compensate = 0
+        current_app = context.get('current_app')
+        request = context.get('request')
+        t_settings = get_template_settings()
 
         # We support root id as value and as variable
         try:
@@ -56,15 +58,10 @@ class FSCategoryTree(template.Node):
             try:
                 root_id = template.Variable(root_id).resolve(context)
             except AttributeError:
-                # TODO  Configurize if param errors should raise exception
-                raise AttributeError('Invalid paramater for category root id')
+                raise AttributeError('Invalid parameter for category root id')
             except template.VariableDoesNotExist:
-                # TODO  Configurize if param errors should raise exception
                 raise template.VariableDoesNotExist(
-                    'Invalid paramater for category root id')
-
-        request = context.get('request')
-        t_settings = get_template_settings()
+                    'Invalid parameter for category root id')
 
         if root_id < int(0):
             categories = Category.objects.get_categories_by_level()
@@ -73,7 +70,6 @@ class FSCategoryTree(template.Node):
                 root_cat = Category.objects.get(pk=root_id)
                 # TODO  Configurize include_self parameter
                 categories = root_cat.get_descendants()
-                lvl_compensate = root_cat.depth
             except Category.DoesNotExist:
                 # TODO Templatize the no categories display
                 return _('<p>No categories available</p>')
@@ -83,21 +79,25 @@ class FSCategoryTree(template.Node):
         back_base_url = request.session.get('back_base_url', None)
         has_back_base = request.session.get('has_back_base', False)
 
-        # -> Compile list items
-        current_app = context.get('current_app')
         litems = list()
         for cat in categories:
+
+            lvl_compensate = cat.get_level_compensation()
+            cat_classes = list()
+            cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
+
             cat_slug_url = reverse(
                 'filersets:list_view',
                 kwargs=({'cat_slug': cat.slug_composed}),
                 current_app=current_app)
+
             cat_id_url = reverse(
                 'filersets:list_view',
                 kwargs=({'cat_id': cat.pk}),
                 current_app=current_app)
+
             cur_url = request.get_full_path()
-            cat_classes = list()
-            cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
+
             if cur_url in (cat_slug_url, cat_id_url):
                 cat_classes.append('active')
 
@@ -112,7 +112,6 @@ class FSCategoryTree(template.Node):
                          'current_app': current_app})
             litems.append(t.render(c))
 
-        # -> Return them wrapped
         t = get_template(t_settings['cat_tree_wrap'])
         c = Context({'items': litems, 'current_app': current_app})
         return t.render(c)
