@@ -39,10 +39,9 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
         """ Shorthand to retreive the request object for a list view """
         return self.factory.get(reverse('filersets:list_view', kwargs=(opts)))
 
-    def _get_context_for_rendering(self, cat):
+    def _get_context_for_rendering(self, cat, lvl_compensate=0):
         """ Shorthand to retreive the Context object for the render method """
         cat_classes = list()
-        lvl_compensate = cat.get_level_compensation()
         cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
         return Context({'cat': cat,
                         'cat_classes': ' '.join(cat_classes),
@@ -111,8 +110,10 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
             "{% endwith %}"
         ).render(RequestContext(request, {'current_app': 'filersets'}))
 
-        for cat in Category.objects.get(pk=pk_as_val).get_descendants():
-            c = self._get_context_for_rendering(cat)
+        root_cat = Category.objects.get(pk=pk_as_val)
+        lvl_compensate = root_cat.get_level_compensation()
+        for cat in root_cat.get_descendants():
+            c = self._get_context_for_rendering(cat, lvl_compensate)
             self.assertInHTML(self.t_tree_item.render(c), out)
 
     def test_get_empty_tree_with_nonexisting_variable_param(self):

@@ -65,9 +65,11 @@ class FSCategoryTree(template.Node):
 
         if root_id < int(0):
             categories = Category.objects.get_categories_by_level()
+            lvl_compensate = int(0)
         else:
             try:
                 root_cat = Category.objects.get(pk=root_id)
+                lvl_compensate = root_cat.get_level_compensation()
                 # TODO  Configurize include_self parameter
                 categories = root_cat.get_descendants()
             except Category.DoesNotExist:
@@ -81,8 +83,6 @@ class FSCategoryTree(template.Node):
 
         litems = list()
         for cat in categories:
-
-            lvl_compensate = cat.get_level_compensation()
             cat_classes = list()
             cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
 
