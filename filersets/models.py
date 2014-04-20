@@ -344,7 +344,13 @@ class Category(MP_Node):
     )
 
     def number_of_sets(self):
+        """ returns the number of sets contained in current category """
         return Set.objects.filter(category=self).count()
+
+    def get_level_compensation(self, compensate_to=None):
+        """ returns the offset to the root level as int """
+        # TODO  Implement compensate_to functionality
+        return self.get_depth() - 1
 
     def save(self, *args, **kwargs):
 
