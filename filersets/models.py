@@ -17,10 +17,10 @@ from django.contrib.contenttypes.models import ContentType
 # ______________________________________________________________________________
 #                                                                        Contrib
 from model_utils.choices import Choices
-from mptt.fields import TreeManyToManyField
 from autoslug import AutoSlugField
-from filer.models import File, Folder
+from filer.models import File
 from filer.fields.file import FilerFileField
+from filer.fields.folder import FilerFolderField
 from treebeard.mp_tree import MP_Node, MP_NodeManager
 
 logger = logging.getLogger(__name__)
@@ -56,9 +56,9 @@ class SetManager(models.Manager):
         op_stats = dict({'added': list(), 'updated': list(), 'noop': list()})
         for filerset in Set.objects.filter(**filter_query):
 
-            folder_ids = [folder.id for folder in filerset.set_root.all()]
+            folder_id = filerset.folder
 
-            for f in File.objects.filter(folder_id__in=folder_ids):
+            for f in File.objects.filter(folder_id=folder_id):
 
                 # Check if there is an item already
                 try:
@@ -90,7 +90,7 @@ class SetManager(models.Manager):
 # ______________________________________________________________________________
 #                                                              Manager: Category
 class CategoryManager(MP_NodeManager):
-    def get_categories_by_level(self, level_start=0, depth=0, skip_empty=True):
+    def get_categories_by_level(self, level_start=0, depth=0, skip_empty=False):
         """ Retreive a queryset with categories
 
         :param level_start: defines at which level to start
@@ -189,11 +189,9 @@ class Set(TimeStampedModel):
         default=None
     )
 
-    set_root = TreeManyToManyField(
-        Folder,
+    folder = FilerFolderField(
         verbose_name=_('Set folders'),
-        related_name='set_root_foreign',
-        help_text=_('Choose the directories you wish to have integrated into '
+        help_text=_('Choose the directory you wish to have integrated into '
                     'the current set.')
     )
 
@@ -262,13 +260,6 @@ class Item(MP_Node):
         blank=True
     )
 
-    # parent = TreeForeignKey(
-    #     'self',
-    #     null=True,
-    #     blank=True,
-    #     related_name='item_children'
-    # )
-
     title = models.CharField(
         _('title'),
         help_text=_('Note that django-filersets provides you with various '
@@ -286,12 +277,6 @@ class Item(MP_Node):
         default=None,
         null=True
     )
-
-    # order = models.PositiveIntegerField(_('Order'))
-
-    # def save(self, *args, **kwargs):
-    #     super(Item, self).save(*args, **kwargs)
-    #     Item.objects.rebuild()
 
     def __unicode__(self):
         return u'Set: {}'.format(self.set.title)

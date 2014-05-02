@@ -54,10 +54,7 @@ class ItemAdmin(TreeAdmin):
 class SetForm(ModelForm):
     class Meta:
         model = Set
-        widgets = {
-            'set_root': SelectMultiple(attrs={'size': '12'}),
-            'category': SelectMultiple(attrs={'size': '12'})
-        }
+        widgets = { 'category': SelectMultiple(attrs={'size': '12'}) }
 
 
 # ______________________________________________________________________________
@@ -120,7 +117,7 @@ class SetAdmin(admin.ModelAdmin):
             fset = Set.objects.get(pk=object_id)
             is_processed = fset.is_processed
             try:
-                el = fset.set_root.all()[0]
+                el = fset.folder
                 sffid = el.pk
             except KeyError:
                 sffid = -1
