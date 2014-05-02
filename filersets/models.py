@@ -9,6 +9,7 @@ import logging
 # ______________________________________________________________________________
 #                                                                         Django
 from django.db import models
+from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -74,8 +75,7 @@ class SetManager(models.Manager):
                     Item.add_root(
                         set=filerset,
                         ct=ContentType.objects.get(pk=f.polymorphic_ctype_id),
-                        filer_file=f
-                    )
+                        filer_file=f)
 
                     msg = '{}File {} saved for Set {}'
                     op_stats['added'].append(msg.format('', f.id, filerset.id))
@@ -98,15 +98,17 @@ class CategoryManager(MP_NodeManager):
         :param skip_empty: flag, deliver categories without entries or not
         :rtype: queryset
         """
-        query_filter = dict()
-        query_filter.update({'is_active': True})
-        query_filter.update({'depth__gte': level_start})
+        q_filter = dict()
+        q_filter.update({'is_active': True})
+        q_filter.update({'depth__gte': level_start})
 
         if depth > int(0):
-            query_filter.update({'depth__lt': level_start + depth})
+            q_filter.update({'depth__lt': level_start + depth})
 
-        # TODO Skip empty
-        qs = self.filter(**query_filter)
+        if skip_empty:
+            q_filter.update({'num_sets__gt': 0})
+
+        qs = self.annotate(num_sets=Count('category_set')).filter(**q_filter)
 
         return qs
 
