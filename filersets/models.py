@@ -132,10 +132,16 @@ class Set(TimeStampedModel):
     objects = SetManager()
 
     ORDERING_OPTIONS = Choices(
-        ('filer_file__original_filename', 'filename ascending'),
-        ('-filer_file__original_filename', 'filename descending'),
-        ('filer_file__name', 'title in filer ascending'),
-        ('-filer_file__name', 'title in filer descending'),
+        ('filer_file__original_filename', _('filename ascending')),
+        ('-filer_file__original_filename', _('filename descending')),
+        ('filer_file__name', _('title in filer ascending')),
+        ('-filer_file__name', _('title in filer descending')),
+        ('title', _('title in set ascending')),
+        ('-title', _('title in set descending')),
+        ('filer_file__uploaded_at', _('upload date ascending')),
+        ('-filer_file__uploaded_at', _('upload date descending')),
+        ('filer_file__modified_at', _('modfied date ascending')),
+        ('-filer_file__modified_at', _('modified date descending')),
     )
 
     STATUS_OPTIONS = Choices(
