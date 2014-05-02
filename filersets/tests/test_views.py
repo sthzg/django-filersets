@@ -93,7 +93,8 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
             file.folder_id = parent.pk
             file.save()
 
-    fset = Set.objects.create(title=set_name, description='', date=now())
+    fset = Set.objects.create( title=set_name, description='', date=now(),
+                               folder=folder_set, status='published')
     if do_categorize:
         fset.category.add(category)
         fset.save()

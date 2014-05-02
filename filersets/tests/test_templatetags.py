@@ -50,7 +50,7 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
     def test_get_tree_with_no_param(self):
         """ The whole cat tree is rendered when no param is given """
         create_controlled_categories()
-        Category.objects.all()
+        cats = Category.objects.all().order_by('id')
         request = self._reverse_listview({'cat_id': 1})
         request.session = self.client.session
 
@@ -66,8 +66,8 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
     def test_get_tree_with_existing_int_pk(self):
         """ The cat tree is rendered starting from cat with given pk """
         create_controlled_categories()
-        Category.objects.all()
-        pk_as_val = Category.objects.all().order_by('id')[0].pk
+        cats = Category.objects.all().order_by('id')
+        pk_as_val = cats[0].pk
         request = self._reverse_listview({'cat_id': 1})
         request.session = self.client.session
 
@@ -142,7 +142,7 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
 
     def test_active_item_from_id_view(self):
         """ The active item is highlighted in the menu tree """
-        cat = Category.add_root(name='Category 01', parent=None)
+        cat = Category.add_root(name='Category 01', is_active=True, parent=None)
         request = self._reverse_listview({'cat_id': cat.pk})
         request.session = self.client.session
         out = Template(
@@ -155,7 +155,7 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
 
     def test_active_item_from_slug_view(self):
         """ The active item is highlighted in the menu tree """
-        cat = Category.add_root(name='Category 01', parent=None)
+        cat = Category.add_root(name='Category 01', is_active=True, parent=None)
         request = self._reverse_listview({'cat_slug': cat.slug_composed})
         request.session = self.client.session
         out = Template(
@@ -168,8 +168,8 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
 
     def test_only_one_active_cat_when_switching_categories(self):
         """ Only the current item is active when switching categories """
-        cat1 = Category.add_root(name='Category 01', parent=None)
-        cat2 = Category.add_root(name='Category 02', parent=None)
+        cat1 = Category.add_root(name='Category 01', is_active=True, parent=None)
+        cat2 = Category.add_root(name='Category 02', is_active=True, parent=None)
 
         # Write session entries as if we came from cat1 category list page
         request = self._reverse_listview({'cat_id': cat1.pk})
