@@ -171,7 +171,7 @@ class FilersetsMenutagsTemplateTagsTests(TestCase):
         cat1 = Category.add_root(name='Category 01', parent=None)
         cat2 = Category.add_root(name='Category 02', parent=None)
 
-        # Write session entries as if we come from cat1 category list page
+        # Write session entries as if we came from cat1 category list page
         request = self._reverse_listview({'cat_id': cat1.pk})
         cat1_fullpath = request.get_full_path()
 
