@@ -57,7 +57,9 @@ class ListView(View):
             except ObjectDoesNotExist:
                 raise Http404
 
-            filter_query = {'category': cat, 'category__is_active': True}
+            filter_query = {'category': cat,
+                            'category__is_active': True,
+                            'status': 'published'}
 
         # Fetch sets by slug
         elif cat_slug:
@@ -68,7 +70,9 @@ class ListView(View):
             except IndexError:
                 raise Http404
 
-            filter_query = {'category': cat, 'category__is_active': True}
+            filter_query = {'category': cat,
+                            'category__is_active': True,
+                            'status': 'published'}
 
         # Fetch sets that are affiliated with the current instance namespace
         # See the Affiliate model in models.py for more information.
@@ -77,7 +81,7 @@ class ListView(View):
                 cat.pk
                 for cat in Category.objects.filter(
                     affiliate_categories__namespace=current_app)]
-            filter_query = {'category__in': cat_ids}
+            filter_query = {'category__in': cat_ids, 'status': 'published'}
 
         t_settings = get_template_settings(namespace=current_app)
 
@@ -167,6 +171,8 @@ class SetView(View):
 
         try:
             fset = Set.objects.get(**get_query)
+            if fset.status != 'published':
+                raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             raise Http404
 

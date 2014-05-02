@@ -54,8 +54,10 @@ class ItemAdmin(TreeAdmin):
 class SetForm(ModelForm):
     class Meta:
         model = Set
-
-        widgets = {'set_root': SelectMultiple(attrs={'size': '12'})}
+        widgets = {
+            'set_root': SelectMultiple(attrs={'size': '12'}),
+            'category': SelectMultiple(attrs={'size': '12'})
+        }
 
 
 # ______________________________________________________________________________
@@ -144,9 +146,10 @@ class SetAdmin(admin.ModelAdmin):
     inlines = (ItemInlineAdmin,)
     actions = [create_or_update_filerset]
     readonly_fields = ('is_processed',)
-    list_filter = ('date', 'is_processed',)
-    list_display = (
-        'title', 'date', 'is_processed', 'watch_online', 'process_set',)
+    list_filter = ('date', 'is_processed', 'status',)
+    list_display = ('title', 'date', 'status', 'is_processed', 'watch_online',
+                    'process_set',)
+    list_editable = ('status',)
 
 
 # ______________________________________________________________________________

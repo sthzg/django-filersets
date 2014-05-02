@@ -136,6 +136,20 @@ class Set(TimeStampedModel):
         ('-filer_file__name', 'title in filer descending'),
     )
 
+    STATUS_OPTIONS = Choices(
+        ('unpublished', _('unpublished')),
+        ('published', _('published')),
+    )
+
+    status = models.CharField(
+        _('Status'),
+        choices=STATUS_OPTIONS,
+        max_length=15,
+        blank=True,
+        default='unpublished',
+        null=False
+    )
+
     date = models.DateField(
         _('Date'),
         blank=True,
@@ -190,11 +204,6 @@ class Set(TimeStampedModel):
         default=None,
         null=True
     )
-
-    # tags = TaggableManager(
-    #     verbose_name=_('Tags'),
-    #     blank=True,
-    # )
 
     # Sets are not directly available for displaying when they are saved. First
     # a task needs to process all the items and after success sets flag to True
@@ -346,7 +355,7 @@ class Category(MP_Node):
 
     def number_of_sets(self):
         """ returns the number of sets contained in current category """
-        return Set.objects.filter(category=self).count()
+        return Set.objects.filter(category=self, status='published').count()
 
     def get_level_compensation(self, compensate_to=None):
         """ returns the offset to the root level as int """
