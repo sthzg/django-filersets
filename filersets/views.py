@@ -57,7 +57,7 @@ class ListView(View):
             except ObjectDoesNotExist:
                 raise Http404
 
-            filter_query = {'category': cat}
+            filter_query = {'category': cat, 'category__is_active': True}
 
         # Fetch sets by slug
         elif cat_slug:
@@ -68,7 +68,7 @@ class ListView(View):
             except IndexError:
                 raise Http404
 
-            filter_query = {'category': cat}
+            filter_query = {'category': cat, 'category__is_active': True}
 
         # Fetch sets that are affiliated with the current instance namespace
         # See the Affiliate model in models.py for more information.

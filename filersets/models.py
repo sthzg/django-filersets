@@ -99,6 +99,7 @@ class CategoryManager(MP_NodeManager):
         :rtype: queryset
         """
         query_filter = dict()
+        query_filter.update({'is_active': True})
         query_filter.update({'depth__gte': level_start})
 
         if depth > int(0):
