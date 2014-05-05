@@ -8,6 +8,7 @@ from math import ceil, floor
 # ______________________________________________________________________________
 #                                                                         Django
 from django import template
+from django.conf import settings
 from django.template.context import Context
 from django.template.loader import get_template
 
@@ -55,8 +56,7 @@ class FSEqualHeightColsNode(template.Node):
         fitems = self.fitems.resolve(context)
         num_cols = int(self.num_cols)
         rows = int(ceil(len(fitems)/float(num_cols)))
-        # TODO  The total number of cols in our raster needs to be configurable
-        col_width = int(floor(12 / num_cols))
+        col_width = int(floor(settings.FILERSETS_GRID_TOTAL_COLS / num_cols))
         output = list()
         for idx in range(rows):
             start = idx * num_cols
@@ -76,7 +76,7 @@ class FSEqualHeightColsNode(template.Node):
                 'idx_start': start,
                 'idx_end': end,
                 'num_cols': num_cols,
-                'total_cols': 12,
+                'total_cols': settings.FILERSETS_GRID_TOTAL_COLS,
                 'col_width': col_width,
                 # TODO  This ties it to bootstrap, so we need a generic layer...
                 'classes': ['col-md-{}'.format(num_cols)],
