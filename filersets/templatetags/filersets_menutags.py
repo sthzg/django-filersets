@@ -27,33 +27,43 @@ def do_category_tree(parser, token):
     If called without parameters, the whole category tree will be rendered.
     Optionally you can pass the pk of the category you wish to start with.
     """
-    try:
-        tag_name, root_id = token.split_contents()
-        root_id = root_id.replace('"', '').replace("'", "")
-    except ValueError:
-        root_id = int(-1)
+    root_id = int(-1)
+    skip_empty = False
 
-    return FSCategoryTree(root_id)
+    tokens = token.split_contents()
+
+    if len(tokens) == 2:
+        root_id = tokens[1].replace('"', '').replace("'", "")
+    if len(tokens) == 3:
+        skip_empty = bool(tokens[2].replace('"', '').replace("'", ""))
+
+    return FSCategoryTree(root_id, skip_empty)
 
 
 class FSCategoryTree(template.Node):
-    """ Returns the rendered category tree """
+    """
+    Returns the rendered category tree
 
-    def __init__(self, root_id):
+    :param root_id: id of root category
+    :param skip_empty: flag whether to show links to empty categories
+    """
+
+    def __init__(self, root_id, skip_empty):
         self.root_id = root_id
-
+        self.skip_empty = skip_empty
 #                                                                         ______
 #                                                                         Render
     def render(self, context):
         """ Renders the category menu tree as HTML """
         root_id = self.root_id
+        skip_empty = self.skip_empty
         current_app = context.get('current_app')
         request = context.get('request')
         t_settings = get_template_settings()
 
         # We support root id as value and as variable
         try:
-            isinstance(int(self.root_id), int)
+            isinstance(int(root_id), int)
         except ValueError:
             try:
                 root_id = template.Variable(root_id).resolve(context)
@@ -63,8 +73,9 @@ class FSCategoryTree(template.Node):
                 raise template.VariableDoesNotExist(
                     'Invalid parameter for category root id')
 
-        if root_id < int(0):
-            categories = Category.objects.get_categories_by_level()
+        if int(root_id) < int(0):
+            categories = Category.objects.get_categories_by_level(
+                skip_empty=skip_empty)
             lvl_compensate = int(0)
         else:
             try:
