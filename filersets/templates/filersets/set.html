@@ -34,6 +34,10 @@ TODO    Make configurable and very generic
                 <h2>{{ fset.title }}</h2>
                 <h3>{{ fset.description }}</h3>
 
+                {% if perms.filersets.can_edit %}
+                <a href="{% url "admin:filersets_set_change" fset.pk %}">(edit)</a>
+                {% endif %}
+
                 {% for fitem in fitems %}
                     <div class="fs-item-container">
                     {% sorl_thumbnail fitem.filer_file.path "845" quality=89 as im %}
