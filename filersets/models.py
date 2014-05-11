@@ -267,6 +267,16 @@ class Item(MP_Node):
         default=False
     )
 
+    category = models.ManyToManyField(
+        'Category',
+        verbose_name=_('Category'),
+        related_name='item_category',
+        help_text=_('Assign the set to as many categories as you like'),
+        blank=True,
+        default=None,
+        null=True
+    )
+
     filer_file = FilerFileField(
         related_name='filer_file_obj',
         verbose_name=_('Filer file'),

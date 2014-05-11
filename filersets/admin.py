@@ -75,15 +75,16 @@ else:
 # ______________________________________________________________________________
 #                                                                    Admin: Item
 class ItemAdmin(TreeAdmin):
-    fields = ('filer_file', 'title', 'description', 'is_cover', 'set',)
+    fields = ('filer_file', 'title', 'description', 'category',)
     list_filter = ('set',)
+    filter_horizontal = ('category',)
 
 # ______________________________________________________________________________
 #                                                                 ModelForm: Set
 class SetForm(ModelForm):
     class Meta:
         model = Set
-        widgets = { 'category': SelectMultiple(attrs={'size': '12'}) }
+        widgets = {'category': SelectMultiple(attrs={'size': '12'})}
 
 
 # ______________________________________________________________________________
