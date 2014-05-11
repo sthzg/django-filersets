@@ -18,6 +18,14 @@ from treebeard.forms import movenodeform_factory
 #                                                                         Custom
 from filersets.models import Set, Item, Category, Affiliate
 # ______________________________________________________________________________
+#                                                                    Django Suit
+try:
+    from suit.admin import SortableModelAdmin, SortableTabularInline
+    from suit.widgets import AutosizedTextarea
+    has_suit = True
+except ImportError:
+    has_suit = False
+# ______________________________________________________________________________
 #                                                                 Django Select2
 try:
     from django_select2 import AutoSelect2MultipleField, Select2MultipleWidget
@@ -30,23 +38,44 @@ except ImportError:
 
 # ______________________________________________________________________________
 #                                                              InlineAdmin: Item
-class ItemInlineAdmin(admin.TabularInline):
-    """
-    Allows to view filer_files referenced in a set to be sorted in an inline
-    form inside of the SetAdmin.
-    """
-    fields = ('filer_file', 'title', 'description', 'is_cover',)
-    list_editable = ('description', 'is_cover',)
-    list_display = ('title', 'is_cover', 'description', 'is_cover',)
-    list_display_links = ('title',)
-    model = Item
-    extra = 0
-    max_num = 0
+if has_suit:
+    class ItemInlineForm(ModelForm):
+        class Meta:
+            model = Item
+            widgets = {
+                'description': AutosizedTextarea
+            }
+
+    class ItemInlineAdmin(admin.TabularInline):
+        """
+        Allows to view filer_files referenced in a set.
+        """
+        form = ItemInlineForm
+        fields = ('filer_file', 'title', 'description', 'is_cover',)
+        list_editable = ('description', 'is_cover',)
+        list_display = ('title', 'is_cover', 'description', 'is_cover',)
+        list_display_links = ('title',)
+        model = Item
+        extra = 0
+        max_num = 0
+else:
+    class ItemInlineAdmin(admin.TabularInline):
+        """
+        Allows to view filer_files referenced in a set.
+        """
+        fields = ('filer_file', 'title', 'description', 'is_cover',)
+        list_editable = ('description', 'is_cover',)
+        list_display = ('title', 'is_cover', 'description', 'is_cover',)
+        list_display_links = ('title',)
+        model = Item
+        extra = 0
+        max_num = 0
 
 
 # ______________________________________________________________________________
 #                                                                    Admin: Item
 class ItemAdmin(TreeAdmin):
+    fields = ('filer_file', 'title', 'description', 'is_cover', 'set',)
     list_filter = ('set',)
 
 # ______________________________________________________________________________
