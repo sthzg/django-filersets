@@ -383,7 +383,7 @@ class Category(MP_Node):
             child.save(force_update=True)
 
     def __unicode__(self):
-        return u'Category: {}'.format(self.name)
+        return u'{}'.format(self.name)
 
 
 # ______________________________________________________________________________
