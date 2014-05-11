@@ -39,19 +39,19 @@ class SetManager(models.Manager):
         """
 
         logsig = str(inspect.stack()[0][3]) + '() '
-        
+
         # Param handling for set_id, because it can take None, int and list
         if not set_id:
             filter_query = {}
-
         elif isinstance(set_id, int):
             filter_query = {'pk': set_id}
-
-        elif isinstance(set_id, list):
-            filter_query = {'pk__in': set_id}
-
         else:
             raise TypeError()
+
+        fset = Set.objects.get(pk=set_id)
+        if fset.recursive:
+            set_ids = fset.folder.get_descendants(include_self=True)
+            filter_query = {'pk__in': [set_.id for set_ in set_ids]}
 
         op_stats = dict({'added': list(), 'updated': list(), 'noop': list()})
         for filerset in Set.objects.filter(**filter_query):
@@ -64,7 +64,7 @@ class SetManager(models.Manager):
                 try:
                     # Update routine
                     # TODO  Find orphanes and act
-                    Item.objects.get(set=filerset.pk, filer_file__id=f.id)
+                    Item.objects.get(set=fset.pk, filer_file__id=f.id)
 
                     msg = '{}File {} in Set {} already exists'
                     op_stats['noop'].append(msg.format('', f.id, filerset.id))
@@ -73,7 +73,7 @@ class SetManager(models.Manager):
                 except ObjectDoesNotExist:
                     # Creation routine
                     Item.add_root(
-                        set=filerset,
+                        set=fset,
                         ct=ContentType.objects.get(pk=f.polymorphic_ctype_id),
                         filer_file=f)
 
@@ -201,6 +201,15 @@ class Set(TimeStampedModel):
                     'the current set.')
     )
 
+    recursive = models.BooleanField(
+        verbose_name=_('Include sub-folders?'),
+        help_text=_('If checked, items from all subfolders will be included '
+                    'into the set as well.'),
+        blank=True,
+        default=False,
+        null=False
+    )
+
     category = models.ManyToManyField(
         'Category',
         verbose_name=_('Category'),
@@ -285,7 +294,8 @@ class Item(MP_Node):
     )
 
     def __unicode__(self):
-        return u'Set: {}'.format(self.set.title)
+        return u'{}'.format(self.filer_file.original_filename)
+        # return u'Set: {}'.format(self.set.title)
 
 
 # ______________________________________________________________________________
