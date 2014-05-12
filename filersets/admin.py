@@ -57,6 +57,8 @@ if has_suit:
         list_display_links = ('title',)
         model = Item
         extra = 0
+        list_per_page = 30
+
 else:
     class ItemInlineAdmin(admin.TabularInline):
         """
@@ -76,8 +78,8 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('title', 'filer_file', )
     list_editable = ('filer_file',)
     list_display_links = ('title',)
-    # fields = ('filer_file', 'title', 'description', 'category',)
-    list_filter = ('set',)
+    fields = ('filer_file', 'title', 'description', 'category',)
+    list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
     filter_horizontal = ('category',)
 
 # ______________________________________________________________________________
