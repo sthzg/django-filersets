@@ -72,10 +72,11 @@ class SetManager(models.Manager):
 
                 except ObjectDoesNotExist:
                     # Creation routine
-                    Item.add_root(
-                        set=fset,
-                        ct=ContentType.objects.get(pk=f.polymorphic_ctype_id),
-                        filer_file=f)
+                    item = Item()
+                    item.set = fset
+                    item.ct= ContentType.objects.get(pk=f.polymorphic_ctype_id)
+                    item.filer_file = f
+                    item.save()
 
                     msg = '{}File {} saved for Set {}'
                     op_stats['added'].append(msg.format('', f.id, filerset.id))
@@ -237,7 +238,7 @@ class Set(TimeStampedModel):
 
 # ______________________________________________________________________________
 #                                                                    Model: Item
-class Item(MP_Node):
+class Item(TimeStampedModel):
     """ The item model holds items that are contained within a Set. """
     # TODO: Mark the combination of `set` and `filer_file` as unique
 
@@ -250,7 +251,7 @@ class Item(MP_Node):
         blank=None
     )
 
-    # TODO:   Name the content type field as suggestedin the django docs
+    # TODO:   Name the content type field as suggested in the django docs
     ct = models.ForeignKey(
         ContentType,
         verbose_name=_('Content type'),
@@ -302,6 +303,25 @@ class Item(MP_Node):
         default=None,
         null=True
     )
+
+    is_locked = models.BooleanField(
+        _('locked'),
+        help_text=_('Reprocessing a set searches for and deletes files that '
+                    'are not/no longer contained within the root folder. Check '
+                    'locked if you wish to keep this file as part of the '
+                    'set even though it is reported as an orphan.'),
+        blank=False,
+        default=False,
+        null=False
+    )
+
+    def save(self, *args, **kwargs):
+
+        if not self.ct_id:
+            self.ct_id = ContentType.objects.get(
+                pk=self.filer_file.polymorphic_ctype_id).id
+
+        super(Item, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'{}'.format(self.filer_file.original_filename)
