@@ -51,31 +51,33 @@ if has_suit:
         Allows to view filer_files referenced in a set.
         """
         form = ItemInlineForm
-        fields = ('filer_file', 'title', 'description', 'is_cover',)
+        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked',)
         list_editable = ('description', 'is_cover',)
         list_display = ('title', 'is_cover', 'description', 'is_cover',)
         list_display_links = ('title',)
         model = Item
         extra = 0
-        max_num = 0
 else:
     class ItemInlineAdmin(admin.TabularInline):
         """
         Allows to view filer_files referenced in a set.
         """
-        fields = ('filer_file', 'title', 'description', 'is_cover',)
+        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked',)
         list_editable = ('description', 'is_cover',)
         list_display = ('title', 'is_cover', 'description', 'is_cover',)
         list_display_links = ('title',)
         model = Item
         extra = 0
-        max_num = 0
 
 
 # ______________________________________________________________________________
 #                                                                    Admin: Item
-class ItemAdmin(TreeAdmin):
-    fields = ('filer_file', 'title', 'description', 'category',)
+class ItemAdmin(admin.ModelAdmin):
+    form = movenodeform_factory(Item)
+    list_display = ('title', 'filer_file', )
+    list_editable = ('filer_file',)
+    list_display_links = ('title',)
+    # fields = ('filer_file', 'title', 'description', 'category',)
     list_filter = ('set',)
     filter_horizontal = ('category',)
 
