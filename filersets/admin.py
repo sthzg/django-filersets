@@ -73,7 +73,6 @@ else:
 # ______________________________________________________________________________
 #                                                                    Admin: Item
 class ItemAdmin(admin.ModelAdmin):
-    form = movenodeform_factory(Item)
     list_display = ('title', 'filer_file', )
     list_editable = ('filer_file',)
     list_display_links = ('title',)
