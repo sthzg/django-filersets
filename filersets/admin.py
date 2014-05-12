@@ -6,9 +6,9 @@ from __future__ import absolute_import
 #                                                                         Django
 from django.contrib import admin
 from django.forms.models import ModelForm
-from django.core.urlresolvers import reverse
 from django.forms.widgets import SelectMultiple
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 # ______________________________________________________________________________
 #                                                                        Contrib
@@ -21,7 +21,8 @@ from filersets.models import Set, Item, Category, Affiliate
 #                                                                    Django Suit
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
-    from suit.widgets import AutosizedTextarea
+    from suit.widgets import AutosizedTextarea, LinkedSelect
+
     has_suit = True
 except ImportError:
     has_suit = False
@@ -59,6 +60,14 @@ if has_suit:
         extra = 0
         list_per_page = 30
 
+    class ItemForm(ModelForm):
+        class Meta:
+            model = Item
+            widgets = {
+                'description': AutosizedTextarea,
+                'set': LinkedSelect,
+            }
+
 else:
     class ItemInlineAdmin(admin.TabularInline):
         """
@@ -71,16 +80,53 @@ else:
         model = Item
         extra = 0
 
+    class ItemForm(ModelForm):
+        class Meta:
+            model = Item
+            widgets = {}
+
 
 # ______________________________________________________________________________
 #                                                                    Admin: Item
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'filer_file', )
-    list_editable = ('filer_file',)
-    list_display_links = ('title',)
-    fields = ('filer_file', 'title', 'description', 'category',)
+
+    class Media:
+        """ Provide additional static files for the set admin """
+        css = {'all': ('filersets/css/filersets_admin.css',)}
+
+    form = ItemForm
+    list_display = ('edit_link', 'filer_file', 'set_admin_link', 'title', 'description',)
+    list_editable = ('filer_file', 'title', 'description',)
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
+    list_display_links = ('edit_link',)
+    fields = ('filer_file', 'title', 'description', 'category',)
     filter_horizontal = ('category',)
+    search_fields = ('filer_file__file', 'title', 'set__title')
+
+    def edit_link(self, obj):
+        """
+        Output text named 'edit' to use it as link to the edit page
+        """
+        return '{}'.format(ugettext('Edit'))
+
+    def set_admin_link(self, obj):
+        """
+        Return a link to th admin change page of the set
+        """
+        url = reverse('admin:filersets_set_change', args={(obj.set.pk)})
+        link = '<a href="{}">{}</a>'
+        return link.format(url, obj.set.title)
+
+    def get_changelist_form(self, request, **kwargs):
+        """
+        Alter change list to use custom widgets
+        """
+        kwargs.setdefault('form', ItemForm)
+        return super(ItemAdmin, self).get_changelist_form(request, **kwargs)
+
+    edit_link.allow_tags = True
+    set_admin_link.allow_tags = True
+
 
 # ______________________________________________________________________________
 #                                                                 ModelForm: Set
