@@ -101,7 +101,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_editable = ('title', 'description', 'is_timeline',)
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
     list_display_links = ('item_thumb',)
-    fields = ('filer_file', 'title', 'description', 'category',)
+    fields = ('filer_file', 'title', 'description', 'category', 'tags',)
     filter_horizontal = ('category',)
     search_fields = ('filer_file__file', 'title', 'set__title')
     list_per_page = 25
@@ -111,7 +111,7 @@ class ItemAdmin(admin.ModelAdmin):
         Return a thumbnail represenation of the current item.
         """
         if obj.filer_file.polymorphic_ctype.name == 'image':
-            options = {'size': (50,50), 'crop': True}
+            options = {'size': (80, 0), 'crop': True}
             thumb_url = get_thumbnailer(
                 obj.filer_file.file).get_thumbnail(options).url
             output = '<img src="{}">'.format(thumb_url)

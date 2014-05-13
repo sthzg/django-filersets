@@ -22,6 +22,8 @@ from filer.models import File
 from filer.fields.file import FilerFileField
 from filer.fields.folder import FilerFolderField
 from treebeard.mp_tree import MP_Node, MP_NodeManager
+# from taggit.managers import TaggableManager
+from taggit_autosuggest_select2.managers import TaggableManager
 
 logger = logging.getLogger(__name__)
 
@@ -302,6 +304,10 @@ class Item(TimeStampedModel):
         blank=True,
         default=None,
         null=True
+    )
+
+    tags = TaggableManager(
+        blank=True
     )
 
     is_timeline = models.BooleanField(
