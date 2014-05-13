@@ -94,6 +94,7 @@ class ItemAdmin(admin.ModelAdmin):
     class Media:
         """ Provide additional static files for the set admin """
         css = {'all': ('filersets/css/filersets_admin.css',)}
+        js = ('filersets/js/filersets_admin.js',)
 
     form = ItemForm
     list_display = ('item_thumb', 'set_admin_link', 'current_categories', 'title', 'description', 'created',)
