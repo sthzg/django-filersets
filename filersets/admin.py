@@ -95,7 +95,7 @@ class ItemAdmin(admin.ModelAdmin):
         css = {'all': ('filersets/css/filersets_admin.css',)}
 
     form = ItemForm
-    list_display = ('edit_link', 'filer_file', 'set_admin_link', 'title', 'description',)
+    list_display = ('edit_link', 'filer_file', 'set_admin_link', 'current_categories', 'title', 'description',)
     list_editable = ('filer_file', 'title', 'description',)
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
     list_display_links = ('edit_link',)
@@ -116,6 +116,16 @@ class ItemAdmin(admin.ModelAdmin):
         url = reverse('admin:filersets_set_change', args={(obj.set.pk)})
         link = '<a href="{}">{}</a>'
         return link.format(url, obj.set.title)
+
+    def current_categories(self, obj):
+        """
+        Return a string of currently assign categories to one item.
+        """
+        try:
+            cats = u', '.join([cat.name for cat in obj.category.all()])
+        except TypeError:
+            cats = _(u'None')
+        return cats
 
     def get_changelist_form(self, request, **kwargs):
         """
