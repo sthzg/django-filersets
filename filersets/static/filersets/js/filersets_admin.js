@@ -6,4 +6,8 @@ $('document').ready(function() {
         $cb.prop('checked', !$cb.prop("checked"));
         $(this).toggleClass('selected');
   });
+
+  $('a').bind('click', function(ev) {
+    ev.stopPropagation();
+  });
 });
