@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 #                                                                        Contrib
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
+from easy_thumbnails.files import get_thumbnailer
 # ______________________________________________________________________________
 #                                                                         Custom
 from filersets.models import Set, Item, Category, Affiliate
@@ -95,20 +96,28 @@ class ItemAdmin(admin.ModelAdmin):
         css = {'all': ('filersets/css/filersets_admin.css',)}
 
     form = ItemForm
-    list_display = ('edit_link', 'filer_file', 'set_admin_link', 'current_categories', 'title', 'description', 'created',)
-    list_editable = ('filer_file', 'title', 'description',)
+    list_display = ('item_thumb', 'set_admin_link', 'current_categories', 'title', 'description', 'created',)
+    list_editable = ('title', 'description',)
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
-    list_display_links = ('edit_link',)
+    list_display_links = ('item_thumb',)
     fields = ('filer_file', 'title', 'description', 'category',)
     filter_horizontal = ('category',)
     search_fields = ('filer_file__file', 'title', 'set__title')
     list_per_page = 25
 
-    def edit_link(self, obj):
+    def item_thumb(self, obj):
         """
-        Output text named 'edit' to use it as link to the edit page
+        Return a thumbnail represenation of the current item.
         """
-        return '{}'.format(ugettext('Edit'))
+        if obj.filer_file.polymorphic_ctype.name == 'image':
+            options = {'size': (50,50), 'crop': True}
+            thumb_url = get_thumbnailer(
+                obj.filer_file.file).get_thumbnail(options).url
+            output = '<img src="{}">'.format(thumb_url)
+        else:
+            output = '{}'.format(ugettext('Edit'))
+
+        return output
 
     def set_admin_link(self, obj):
         """
@@ -135,7 +144,9 @@ class ItemAdmin(admin.ModelAdmin):
         kwargs.setdefault('form', ItemForm)
         return super(ItemAdmin, self).get_changelist_form(request, **kwargs)
 
-    edit_link.allow_tags = True
+    item_thumb.short_description = _('Item')
+    item_thumb.allow_tags = True
+    set_admin_link.short_description = _('Set')
     set_admin_link.allow_tags = True
 
 
