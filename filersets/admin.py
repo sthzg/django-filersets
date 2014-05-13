@@ -95,13 +95,14 @@ class ItemAdmin(admin.ModelAdmin):
         css = {'all': ('filersets/css/filersets_admin.css',)}
 
     form = ItemForm
-    list_display = ('edit_link', 'filer_file', 'set_admin_link', 'current_categories', 'title', 'description',)
+    list_display = ('edit_link', 'filer_file', 'set_admin_link', 'current_categories', 'title', 'description', 'created',)
     list_editable = ('filer_file', 'title', 'description',)
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
     list_display_links = ('edit_link',)
     fields = ('filer_file', 'title', 'description', 'category',)
     filter_horizontal = ('category',)
     search_fields = ('filer_file__file', 'title', 'set__title')
+    list_per_page = 25
 
     def edit_link(self, obj):
         """
