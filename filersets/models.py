@@ -304,6 +304,15 @@ class Item(TimeStampedModel):
         null=True
     )
 
+    is_timeline = models.BooleanField(
+        _('on timeline?'),
+        help_text=_('This field indicates whether the item is displayed on '
+                    'a timeline view.'),
+        blank=True,
+        default=False,
+        null=False
+    )
+
     is_locked = models.BooleanField(
         _('locked'),
         help_text=_('Reprocessing a set searches for and deletes files that '

@@ -53,9 +53,9 @@ if has_suit:
         Allows to view filer_files referenced in a set.
         """
         form = ItemInlineForm
-        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked',)
+        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
         list_editable = ('description', 'is_cover',)
-        list_display = ('title', 'is_cover', 'description', 'is_cover',)
+        list_display = ('title', 'is_cover', 'description', 'is_cover', 'is_timeline',)
         list_display_links = ('title',)
         model = Item
         extra = 0
@@ -74,8 +74,8 @@ else:
         """
         Allows to view filer_files referenced in a set.
         """
-        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked',)
-        list_editable = ('description', 'is_cover',)
+        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
+        list_editable = ('description', 'is_cover', 'is_timeline',)
         list_display = ('title', 'is_cover', 'description', 'is_cover',)
         list_display_links = ('title',)
         model = Item
@@ -97,8 +97,8 @@ class ItemAdmin(admin.ModelAdmin):
         js = ('filersets/js/filersets_admin.js',)
 
     form = ItemForm
-    list_display = ('item_thumb', 'set_admin_link', 'current_categories', 'title', 'description', 'created',)
-    list_editable = ('title', 'description',)
+    list_display = ('item_thumb', 'set_admin_link', 'current_categories', 'title', 'description', 'created', 'is_timeline',)
+    list_editable = ('title', 'description', 'is_timeline',)
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
     list_display_links = ('item_thumb',)
     fields = ('filer_file', 'title', 'description', 'category',)
