@@ -7,7 +7,8 @@ $('document').ready(function() {
         $(this).toggleClass('selected');
   });
 
-  $('a').bind('click', function(ev) {
-    ev.stopPropagation();
-  });
+  $('#result_list tbody tr a, ' +
+      '#result_list tbody tr input,' +
+      '#result_list tbody tr textarea').bind(
+      'click', function(ev) {ev.stopPropagation(); });
 });
