@@ -15,13 +15,20 @@ from django.core.urlresolvers import reverse, resolve
 from django.views.generic.base import View
 from django.utils.translation import ugettext_lazy as _
 # ______________________________________________________________________________
+#                                                                        Contrib
+from rest_framework import viewsets
+# ______________________________________________________________________________
 #                                                                        Package
 from filersets.config import get_template_settings
 from filersets.models import Set, Item, Category
+from filersets.serializers import CategorySerializer, ItemSerializer
 
 
 # ______________________________________________________________________________
 #                                                                     View: List
+from rest_framework.decorators import api_view
+
+
 class ListView(View):
     """ Show a list of sets using the configured templates.
 
@@ -223,3 +230,23 @@ class ProcessSetView(View):
             request,
             'filersets/process_set.html',
             {'op_stats': op_stats})
+
+
+# ______________________________________________________________________________
+#                                                            API Views: Category
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows categories to be viewed
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+# ______________________________________________________________________________
+#                                                                API Views: Item
+class ItemViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows categories to be viewed
+    """
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
