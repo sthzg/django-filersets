@@ -17,7 +17,7 @@ select.filtered { min-height: 240px; }
 
 // _____________________________________________________________________________
 //                                                                       UI Band
-.fs_uiband {
+.uib-uiband {
   margin: auto;
   padding-top: 8px;
   width: 100%;
@@ -25,11 +25,15 @@ select.filtered { min-height: 240px; }
   min-height: 24px;
   overflow: hidden;
   background-color: rgba(255,255,255,.94);
-//  background-color: rgba(235,235,235,.94);
   box-shadow: 0 -3px 20px rgba(60,60,60,.3);
   position: fixed;
   bottom: 0;
   z-index: 100;
+
+  .uib-region {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
 
   ul, li { .fs_list-unstyled(); }
 

@@ -15,7 +15,7 @@ select.filtered {
   list-style-type: none;
   list-style-image: none;
 }
-.fs_uiband {
+.uib-uiband {
   margin: auto;
   padding-top: 8px;
   width: 100%;
@@ -28,35 +28,39 @@ select.filtered {
   bottom: 0;
   z-index: 100;
 }
-.fs_uiband ul,
-.fs_uiband li {
+.uib-uiband .uib-region {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.uib-uiband ul,
+.uib-uiband li {
   list-style-type: none;
   list-style-image: none;
 }
-.fs_uiband ul {
+.uib-uiband ul {
   text-align: center;
 }
-.fs_uiband li {
+.uib-uiband li {
   display: inline-block;
   vertical-align: middle;
   margin: 2px;
   padding: 0;
 }
-.fs_uiband li.fs-feature-title {
+.uib-uiband li.fs-feature-title {
   margin-right: 12px;
   color: #e6e6e6;
   font-weight: bold;
   font-size: 20px;
 }
-.fs_uiband li.fs-inline-help {
+.uib-uiband li.fs-inline-help {
   margin-right: 4px;
 }
-.fs_uiband li.fs-inline-help i {
+.uib-uiband li.fs-inline-help i {
   font-size: 24px;
   color: #dcdcdc;
   padding-top: 3px;
 }
-.fs_uiband li a {
+.uib-uiband li a {
   display: block;
   padding: 4px 12px;
   border: 1px solid #e6e6e6;
@@ -64,7 +68,7 @@ select.filtered {
   text-decoration: none;
   text-shadow: 1px 1px 1px white;
 }
-.fs_uiband li a.ui-lock {
+.uib-uiband li a.ui-lock {
   opacity: .5;
   color: #282828;
 }

@@ -28,10 +28,20 @@ $('document').ready(function() {
  */
 var fs_uiband = {
   $uib: undefined,
+  $region_west: undefined,
+  $region_middle: undefined,
+  $region_east: undefined,
 
   get_or_create: function() {
-    if (this.$uib == undefined)
-      { this.$uib = $('<div class="fs_uiband"></div>'); }
+    if (this.$uib == undefined) {
+      this.$region_west = $('<div class="uib-region uib-region-west fs_iblock"></div>');
+      this.$region_middle = $('<div class="uib-region uib-region-middle fs_iblock"></div>');
+      this.$region_east = $('<div class="uib-region  uib-region-east fs_iblock"></div>');
+      this.$uib = $('<div class="uib-uiband"></div>');
+      this.$uib.append(this.$region_west)
+               .append(this.$region_middle)
+               .append(this.$region_east);
+    }
     return this.$uib;
   }
 };
@@ -283,7 +293,7 @@ var fs_categorizr = {
 $(window).load(function() {
   $uib = fs_uiband.get_or_create();
   $cz = fs_categorizr.get_or_create();
-  $uib.append($cz);
+  fs_uiband.$region_middle.append($cz);
   $('body').append($uib);
 });
 
