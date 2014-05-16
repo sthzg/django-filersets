@@ -93,8 +93,11 @@ class ItemAdmin(admin.ModelAdmin):
 
     class Media:
         """ Provide additional static files for the set admin """
-        css = {'all': ('filersets/css/filersets_admin.css',)}
-        js = ('filersets/js/filersets_admin.js',)
+        css = {'all': [
+            'filersets/css/filersets_admin.css',
+            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
+        ]}
+        js = ['filersets/js/filersets_admin.js']
 
     form = ItemForm
     list_display = ('item_thumb', 'set_admin_link', 'current_categories', 'title', 'description', 'created', 'is_timeline',)
@@ -102,7 +105,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
     list_display_links = ('item_thumb',)
     fields = ('filer_file', 'title', 'description', 'category', 'tags',)
-    filter_horizontal = ('category',)
+    filter_vertical = ('category',)
     search_fields = ('filer_file__file', 'title', 'set__title')
     list_per_page = 25
 

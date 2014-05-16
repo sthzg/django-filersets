@@ -1,0 +1,78 @@
+select.filtered { min-height: 240px; }
+
+
+.selector-chosen select[multiple=multiple] {
+  height: 265px;
+}
+
+.title-column, .description-column { width: 230px; }
+
+// _____________________________________________________________________________
+//                                                                       Helpers
+.fs_iblock { display: inline-block; }
+.fs_list-unstyled {
+  list-style-type: none;
+  list-style-image: none;
+}
+
+// _____________________________________________________________________________
+//                                                                       UI Band
+.fs_uiband {
+  margin: auto;
+  padding-top: 8px;
+  width: 100%;
+  text-align: center;
+  min-height: 24px;
+  overflow: hidden;
+  background-color: rgba(255,255,255,.94);
+//  background-color: rgba(235,235,235,.94);
+  box-shadow: 0 -3px 20px rgba(60,60,60,.3);
+  position: fixed;
+  bottom: 0;
+  z-index: 100;
+
+  ul, li { .fs_list-unstyled(); }
+
+  ul {
+    text-align: center;
+  }
+
+  li {
+    .fs_iblock();
+    vertical-align: middle;
+    margin: 2px;
+    padding: 0;
+
+    &.fs-feature-title {
+      margin-right: 12px;
+      color: rgb(230,230,230);
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    &.fs-inline-help {
+      margin-right: 4px;
+      i {
+        font-size: 24px;
+        color: rgb(220,220,220);
+        padding-top: 3px;  // nudge it a little to be optically centered
+      }
+    }
+
+    a {
+      display: block;
+      padding: 4px 12px;
+      border: 1px solid rgb(230,230,230);
+      background-color: rgb(250,250,250);
+      text-decoration: none;
+      text-shadow: 1px 1px 1px white;
+
+      &.ui-lock {
+        opacity: .5;
+        color: rgb(40,40,40);
+      }
+    }
+
+  }
+}
+
