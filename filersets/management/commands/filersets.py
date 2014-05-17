@@ -53,6 +53,9 @@ class Command(BaseCommand):
         self.stdout.write('No change:\n{}'.format(
             '\n'.join([str(s) for s in op_stats['noop']])))
 
+        self.stdout.write('Removed:\n{}'.format(
+            '\n'.join([str(s) for s in op_stats['removed']])))
+
         self.stdout.write('Updated:\n{}'.format(
             '\n'.join([str(s) for s in op_stats['updated']])))
 

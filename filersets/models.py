@@ -184,8 +184,19 @@ class Set(TimeStampedModel):
 
     def create_or_update_set(self):
         """
-        Creates or updates the items in this filerset.
+        Creates items and removes orphans in the current set.
+
+        In general the items contained within a set derive from the files
+        listed in one or more filer folders. This method checks all files
+        in the relevant folders and creates an Item object connected to
+        the set.
+
+        When files that were previously included in a folder are no longer
+        found present, they get deleted from the set, unless their ``is_locked``
+        flag is set to True.
         """
+        # TODO  Solution for edge case, when is_locked item's file is deleted
+
         logsig = str(inspect.stack()[0][3]) + '() '
 
         if self.recursive:
@@ -194,12 +205,28 @@ class Set(TimeStampedModel):
         else:
             filter_query = {'folder_id': self.folder.id}
 
-        op_stats = dict({'added': list(), 'updated': list(), 'noop': list()})
+        op_stats = dict({'added': [], 'updated': [], 'removed': [], 'noop': []})
+
+        #                                                                    ___
+        #                                                         Remove Orphans
+        files_in_db = [it.filer_file.id for it
+                       in Item.objects.filter(set=self, is_locked=False)]
+
+        files_in_folders = [f.id for f in File.objects.filter(**filter_query)]
+
+        diff = set(files_in_db) - set(files_in_folders)
+        for item in Item.objects.filter(filer_file__id__in=list(diff)):
+            # item.delete()
+            msg = 'Deleted item {}, {} from set.'
+            msg = msg.format(item.pk, item.filer_file.original_filename)
+            op_stats['removed'].append(msg)
+
+        #                                                                    ___
+        #                                                           Create Items
         for f in File.objects.filter(**filter_query):
-            # Check if there is an item already
+
+            # Only create if it does not already exist
             try:
-                # Update routine
-                # TODO  Find orphanes and act
                 Item.objects.get(set=self.pk, filer_file__id=f.id)
 
                 msg = '{}File {} in Set {} already exists'
