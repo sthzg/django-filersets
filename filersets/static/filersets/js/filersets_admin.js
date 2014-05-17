@@ -109,15 +109,18 @@ var fs_categorizr = {
         ev.stopPropagation();
         ev.preventDefault();
 
+        var pk_category = $(this).data('pk');
+
+        var $tr_selected = $('tr.selected');
+        if ($tr_selected.length < 1)
+          { return false; }
+
         if (that.ui_lock === true)
           { return false; }
         else
           { that._toggle_ui_lock(); }
 
-        var pk_category = $(this).data('pk');
-        var $tr_selected = $('tr.selected');
-
-        // quick prototype of a tiny queue counter.
+        // quick prototype of a tiny poor man's queue counter.
         var $queue_count = {
           num_items: $tr_selected.length,
           decrease: function() {
