@@ -18,22 +18,18 @@ select.filtered { min-height: 240px; }
 // _____________________________________________________________________________
 //                                                                       UI Band
 .uib-uiband {
+  width: 100%;
+  overflow: hidden;
   margin: auto;
   padding-top: 8px;
-  width: 100%;
+  padding-bottom: 8px;
   text-align: center;
   min-height: 24px;
-  overflow: hidden;
   background-color: rgba(255,255,255,.94);
   box-shadow: 0 -3px 20px rgba(60,60,60,.3);
   position: fixed;
   bottom: 0;
   z-index: 100;
-
-  .uib-region {
-    margin-left: 8px;
-    margin-right: 8px;
-  }
 
   ul, li { .fs_list-unstyled(); }
 
@@ -80,3 +76,50 @@ select.filtered { min-height: 240px; }
   }
 }
 
+// _____________________________________________________________________________
+//                                                                       Regions
+.uib-region {
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+.uib-region-west {
+  width: 10%;
+  padding-left: 16px;
+}
+
+.uib-region-middle {
+  width: 80%;
+}
+
+.uib-region-east {
+  width: 10%;
+  padding-right: 30px;
+}
+
+// _____________________________________________________________________________
+//                                                                        Notice
+.uib-notice-container {
+  text-align: right;
+  color: rgb(150,150,150);
+  font-size: 11px;
+  font-family: Arial;
+  padding-top: 6px;
+
+  i, span {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  i {
+    color: rgb(80,80,80);
+    font-size: 24px;
+    margin-right: 6px;
+    &.fa-check { color: #4682b4; }
+    &.fa-check-circle { color: #4682b4; }
+  }
+
+}

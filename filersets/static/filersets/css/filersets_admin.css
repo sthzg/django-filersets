@@ -16,21 +16,18 @@ select.filtered {
   list-style-image: none;
 }
 .uib-uiband {
+  width: 100%;
+  overflow: hidden;
   margin: auto;
   padding-top: 8px;
-  width: 100%;
+  padding-bottom: 8px;
   text-align: center;
   min-height: 24px;
-  overflow: hidden;
   background-color: rgba(255, 255, 255, 0.94);
   box-shadow: 0 -3px 20px rgba(60, 60, 60, 0.3);
   position: fixed;
   bottom: 0;
   z-index: 100;
-}
-.uib-uiband .uib-region {
-  margin-left: 8px;
-  margin-right: 8px;
 }
 .uib-uiband ul,
 .uib-uiband li {
@@ -71,4 +68,45 @@ select.filtered {
 .uib-uiband li a.ui-lock {
   opacity: .5;
   color: #282828;
+}
+.uib-region {
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+}
+.uib-region-west {
+  width: 10%;
+  padding-left: 16px;
+}
+.uib-region-middle {
+  width: 80%;
+}
+.uib-region-east {
+  width: 10%;
+  padding-right: 30px;
+}
+.uib-notice-container {
+  text-align: right;
+  color: #969696;
+  font-size: 11px;
+  font-family: Arial;
+  padding-top: 6px;
+}
+.uib-notice-container i,
+.uib-notice-container span {
+  display: inline-block;
+  vertical-align: middle;
+}
+.uib-notice-container i {
+  color: #505050;
+  font-size: 24px;
+  margin-right: 6px;
+}
+.uib-notice-container i.fa-check {
+  color: #4682b4;
+}
+.uib-notice-container i.fa-check-circle {
+  color: #4682b4;
 }

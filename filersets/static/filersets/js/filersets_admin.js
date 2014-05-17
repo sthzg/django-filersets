@@ -220,6 +220,8 @@ var fs_categorizr = {
         var $pk_item = $(".action-checkbox input[value="+data.id+"]");
         $pk_item.trigger('PUT_category_by_item_complete');
 
+        uib_notice.add_note('Categories saved!', 5, 'check-circle');
+
         // TODO  Untie this method from the change list page. Sep logic needed
         var $cat_col = $pk_item.closest('tr')
                                .find('td:nth-child('+this.cat_col_num+')');
@@ -285,6 +287,146 @@ var fs_categorizr = {
   }
 };
 
+// _____________________________________________________________________________
+//                                                                        Notice
+/**
+ * Notice
+ * ------
+ * This widget shows short notices like success or error badges. It complements
+ * the default messaging system as it is only thought for short-lived notices
+ * that indicate status after ajax'ified actions.
+ */
+
+    // Dev-Note
+    // --------
+    // When it turns out that this widget gets used a lot it might make sense to
+    // turn it into an event-based process. Currently the display queue is
+    // checked by a timer that runs periodically (1/s at the moment), which is
+    // not the nicest design. But on the other hand, checking state once per
+    // second does not put much stress on the CPU and seems well enough to make
+    // this prototype run.
+
+var uib_notice = {
+  $notice: undefined,
+  standard: '',
+  queue: {
+    widget: undefined,
+    is_busy: false,
+    dismiss_at: undefined,
+    note_loop: undefined,
+    items: [],
+    history: [],
+
+    /**
+     * Initialize the queing system.
+     *
+     * @param widget
+     */
+    init: function(widget) {
+      this.widget = widget;
+      var that = this;
+      this.note_loop = setInterval(
+          function()
+            { that._check_messages(that) }, 1000);
+    },
+
+    /**
+     * Checks the queue for messages to display.
+     *
+     * @param that
+     * @private
+     */
+    _check_messages: function(that) {
+
+      if (!that.is_busy && that.items.length > 0) {
+        var current_item = that.items.splice(0, 1);
+        that._display_message(current_item[0]);
+
+      } else if (that.is_busy) {
+        if (new Date().getTime() >= that.dismiss_at) {
+          that.widget.$notice.fadeOut(188, function() {
+            that.is_busy = false;
+          })
+        }
+      }
+    },
+
+    /**
+     * Displays one message in the Notice widget.
+     *
+     * @param item
+     * @private
+     */
+    _display_message: function(item) {
+      this.is_busy = true;
+      this.dismiss_at = new Date(new Date().getTime() + 1000*item.duration);
+      this.widget.$notice.html(item.$note);
+      this.widget.$notice.hide(0).fadeIn(188);
+    }
+  },
+
+  /**
+   * Initialize the Notice widget.
+   */
+  init: function()
+    { this.queue.init(this); },
+
+  /**
+   * Returns the Notice widget and creates it if it does not already exist.
+   *
+   * @returns {*}
+   */
+  get_or_create: function() {
+    if (this.$notice == undefined) {
+      $el = $('<div class="uib-notice-container"></div>');
+      $el.html('<span class="inactive"></span>');
+      this.$notice = $el;
+    }
+    return this.$notice;
+  },
+
+  /**
+   * Adds a note to the display queue.
+   *
+   * @param label
+   * @param duration in seconds.
+   * @param icon
+   * @param msg
+   */
+  add_note: function(label, duration, icon, msg) {
+    var $note = this._assemble_note(label, icon, msg);
+    this.queue.items.push({'duration': duration, '$note': $note});
+  },
+
+  /**
+   * Construct the HTML for a note object and return it to the caller.
+   *
+   * @param label
+   * @param icon
+   * @param msg
+   * @returns {*|jQuery|HTMLElement}
+   * @private
+   */
+  _assemble_note: function(label, icon, msg) {
+    $note = $('<span class="uib-note"></span>');
+
+    if (icon != undefined)
+      { $icon = $('<i class="fa fa-'+icon+'"></i>'); }
+    else
+      { $icon = $('<i class="fa fa-bullhorn"></i>'); }
+
+    $note.append($icon);
+
+    $label = $('<span class="uib-label"> '+label+'</span>');
+
+    if (msg != undefined)
+      { $label.attr('title', msg); }
+
+    $note.append($label);
+    return $note;
+  }
+};
+
 /**
  * UI controller
  * -------------
@@ -292,8 +434,15 @@ var fs_categorizr = {
  */
 $(window).load(function() {
   $uib = fs_uiband.get_or_create();
-  $cz = fs_categorizr.get_or_create();
-  fs_uiband.$region_middle.append($cz);
+
+  $categorizr = fs_categorizr.get_or_create();
+  fs_uiband.$region_middle.append($categorizr);
+
+  $notice = uib_notice.get_or_create();
+  fs_uiband.$region_east.append($notice);
+
+  uib_notice.init();
+
   $('body').append($uib);
 });
 
