@@ -151,7 +151,9 @@ var fs_categorizr = {
   },
 
   /**
-   * GET currently assigned categories for item with PK pk_item.
+   * GET currently assigned categories for an item with PK pk_item. Optionally
+   * pass a jQuery object to the second argument ``$fire_on`` to specify this
+   * object as trigger-target for the ``categories_lookup_ready`` event.
    *
    * @param pk_item
    * @param $fire_on
@@ -220,11 +222,12 @@ var fs_categorizr = {
         var $pk_item = $(".action-checkbox input[value="+data.id+"]");
         $pk_item.trigger('PUT_category_by_item_complete');
 
-        uib_notice.add_note('Categories saved!', 5, 'check-circle');
-
         // TODO  Untie this method from the change list page. Sep logic needed
         var $cat_col = $pk_item.closest('tr')
                                .find('td:nth-child('+this.cat_col_num+')');
+
+        var label = 'Assigned category to ' + data.id;
+        uib_notice.add_note(label, 2, 'check-circle');
 
 
         var categories = [];
