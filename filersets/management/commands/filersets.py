@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import sys
 # ______________________________________________________________________________
 #                                                                         Django
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 # ______________________________________________________________________________
 #                                                                        Package
@@ -14,7 +15,7 @@ from filersets.models import Set
 
 
 class Command(BaseCommand):
-    args = ''
+    args = '<set_id>'
     help = 'Build filersets data'
     can_import_settings = True
 
@@ -34,7 +35,20 @@ class Command(BaseCommand):
         TODO    create a way to alternatively handle this logic in a celery task
         """
 
-        op_stats = Set.objects.create_or_update_set()
+        if len(args) is not int(1):
+            self.stderr.write('Please provide one set_id as argument')
+            return
+        elif not isinstance(int(args[0]), int):
+            self.stderr.write('Argument must be an integer')
+
+        set_id = int(args[0])
+        try:
+            fset = Set.objects.get(pk=set_id)
+        except ObjectDoesNotExist:
+            self.stderr.write('No set with this set_id')
+            exit(1)
+
+        op_stats = fset.create_or_update_set()
 
         self.stdout.write('No change:\n{}'.format(
             '\n'.join([str(s) for s in op_stats['noop']])))

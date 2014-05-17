@@ -31,63 +31,13 @@ logger = logging.getLogger(__name__)
 # ______________________________________________________________________________
 #                                                                   Manager: Set
 class SetManager(models.Manager):
-    def create_or_update_set(self, set_id=None):
-        """ Creates or updates filersets
-
-        If ``set_id``is not given, all sets are created/updated. You can pass
-        either no value, a single id or a list of ids.
-
-        :param set_id: Single is as int, multiple ids as list or None (= All)
+    def create_or_update_all_sets(self):
         """
+        Creates or updates all filersets.
+        """
+        # TODO  Write it
 
         logsig = str(inspect.stack()[0][3]) + '() '
-
-        # Param handling for set_id, because it can take None, int and list
-        if not set_id:
-            filter_query = {}
-        elif isinstance(set_id, int):
-            filter_query = {'pk': set_id}
-        else:
-            raise TypeError()
-
-        fset = Set.objects.get(pk=set_id)
-        if fset.recursive:
-            set_ids = fset.folder.get_descendants(include_self=True)
-            filter_query = {'pk__in': [set_.id for set_ in set_ids]}
-
-        op_stats = dict({'added': list(), 'updated': list(), 'noop': list()})
-        for filerset in Set.objects.filter(**filter_query):
-
-            folder_id = filerset.folder
-
-            for f in File.objects.filter(folder_id=folder_id):
-
-                # Check if there is an item already
-                try:
-                    # Update routine
-                    # TODO  Find orphanes and act
-                    Item.objects.get(set=fset.pk, filer_file__id=f.id)
-
-                    msg = '{}File {} in Set {} already exists'
-                    op_stats['noop'].append(msg.format('', f.id, filerset.id))
-                    logger.info(msg.format(logsig, f.id, set_id))
-
-                except ObjectDoesNotExist:
-                    # Creation routine
-                    item = Item()
-                    item.set = fset
-                    item.ct= ContentType.objects.get(pk=f.polymorphic_ctype_id)
-                    item.filer_file = f
-                    item.save()
-
-                    msg = '{}File {} saved for Set {}'
-                    op_stats['added'].append(msg.format('', f.id, filerset.id))
-                    logger.info(msg.format(logsig, f.id, set_id))
-
-            filerset.is_processed = True
-            filerset.save()
-
-        return op_stats
 
 
 # ______________________________________________________________________________
@@ -231,6 +181,44 @@ class Set(TimeStampedModel):
         blank=True,
         default=False
     )
+
+    def create_or_update_set(self):
+        """
+        Creates or updates the items in this filerset.
+        """
+        logsig = str(inspect.stack()[0][3]) + '() '
+
+        if self.recursive:
+            folder_ids = self.folder.get_descendants(include_self=True)
+            filter_query = {'folder_id__in': [f.id for f in folder_ids]}
+        else:
+            filter_query = {'folder_id': self.folder.id}
+
+        op_stats = dict({'added': list(), 'updated': list(), 'noop': list()})
+        for f in File.objects.filter(**filter_query):
+            # Check if there is an item already
+            try:
+                # Update routine
+                # TODO  Find orphanes and act
+                Item.objects.get(set=self.pk, filer_file__id=f.id)
+
+                msg = '{}File {} in Set {} already exists'
+                op_stats['noop'].append(msg.format('', f.id, self.pk))
+                logger.info(msg.format(logsig, f.id, self.pk))
+
+            except ObjectDoesNotExist:
+                # Creation routine
+                item = Item()
+                item.set = self
+                item.ct = ContentType.objects.get(pk=f.polymorphic_ctype_id)
+                item.filer_file = f
+                item.save()
+
+                msg = '{}File {} saved for Set {}'
+                op_stats['added'].append(msg.format('', f.id, self.pk))
+                logger.info(msg.format(logsig, f.id, self.pk))
+
+        return op_stats
 
     def save(self, *args, **kwargs):
         super(Set, self).save(*args, **kwargs)

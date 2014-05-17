@@ -215,7 +215,8 @@ class ProcessSetView(View):
         """
 
         try:
-            op_stats = Set.objects.create_or_update_set(int(set_id))
+            fset = Set.objects.get(pk=int(set_id))
+            op_stats = fset.create_or_update_set()
         except:
             # TODO Exception handling
             pass
