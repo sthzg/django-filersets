@@ -436,17 +436,20 @@ var uib_notice = {
  * This little piece just initializes our UI prototype
  */
 $(window).load(function() {
-  $uib = fs_uiband.get_or_create();
+  // Change list enhancements
+  if ($('body').hasClass('change-list')) {
+    $uib = fs_uiband.get_or_create();
 
-  $categorizr = fs_categorizr.get_or_create();
-  fs_uiband.$region_middle.append($categorizr);
+    $categorizr = fs_categorizr.get_or_create();
+    fs_uiband.$region_middle.append($categorizr);
 
-  $notice = uib_notice.get_or_create();
-  fs_uiband.$region_east.append($notice);
+    $notice = uib_notice.get_or_create();
+    fs_uiband.$region_east.append($notice);
 
-  uib_notice.init();
+    uib_notice.init();
 
-  $('body').append($uib);
+    $('body').append($uib);
+  }
 });
 
 
