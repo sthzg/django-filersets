@@ -108,6 +108,7 @@ class ItemAdmin(admin.ModelAdmin):
     filter_vertical = ('category',)
     search_fields = ('filer_file__file', 'title', 'set__title')
     list_per_page = 25
+    ordering = ['created']
 
     def item_thumb(self, obj):
         """
