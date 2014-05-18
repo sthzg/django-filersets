@@ -216,7 +216,7 @@ class Set(TimeStampedModel):
 
         diff = set(files_in_db) - set(files_in_folders)
         for item in Item.objects.filter(filer_file__id__in=list(diff)):
-            # item.delete()
+            item.delete()
             msg = 'Deleted item {}, {} from set.'
             msg = msg.format(item.pk, item.filer_file.original_filename)
             op_stats['removed'].append(msg)
