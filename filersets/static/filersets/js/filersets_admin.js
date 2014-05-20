@@ -312,6 +312,13 @@ var fs_categorizr = {
    * @param pk_category
    * @param extra_categories
    */
+
+      // Dev-Note
+      // --------
+      // This method is biased because details make it rather useless for
+      // DRY. Needs refactoring and further splitting up.
+      // TODO  Refactor to be general purpose. Split assuming parts apart.
+
   _PUT_category_by_item: function(pk_item, pk_category, extra_categories) {
 
     var that = this;
@@ -328,7 +335,8 @@ var fs_categorizr = {
     if (extra_categories.join('|').match(re) != undefined)
       { throw 'FS_DuplicateError'; }
 
-    extra_categories.push(new_category);
+    if (pk_category > -1)
+      { extra_categories.push(new_category); }
 
     $.ajax({
       type:'PUT',
@@ -352,20 +360,39 @@ var fs_categorizr = {
         var $cat_col = $pk_item.closest('tr')
                                .find('td:nth-child('+this.cat_col_num+')');
 
-        var label = 'Assigned category to ' + data.id;
-        uib_notice.add_note(label, 2, 'check-circle');
+        var label = undefined;
+        if (pk_category > -1)
+          { label = 'Assigned category on ' + data.id; }
+        else
+          { label = 'Removed category on ' + data.id; }
 
+        uib_notice.add_note(label, 2, 'check-circle');
 
         var categories = [];
         var ajax_requests = [];
         $.each(data.category, function(key, val) {
           ajax_requests.push(
-              $.get(val, function(cdata) { categories.push(cdata.name); })
+              $.get(val, function(cdata) { categories.push(cdata); })
           );
         });
 
         $.when.apply($, ajax_requests).then(function() {
-          $cat_col.text(categories.join(', '));
+
+          var $categories = [];
+          $.each(categories, function(key, val) {
+            var $span = $('<span class="label cat">' + val.name + '</span>');
+            var $atag = $('<a class="cat-del" ' +
+                             'data-catpk="' + val.id + '"' +
+                             'data-itempk="' + pk_item + '">x</a>');
+            $span.append($atag);
+            fs_categorizr.bind_quick_delete($span);
+
+            $categories.push($span);
+
+          });
+
+          $cat_col.text('');
+          $.each($categories, function(key, val) {$cat_col.append(val); });
         });
       }
     });
@@ -386,6 +413,53 @@ var fs_categorizr = {
       { this._fetch_categories() }
 
     return this.categories
+  },
+
+  /**
+   * This method binds click events to the quick delete elements passed in.
+   *
+   * @param $el
+   */
+  bind_quick_delete: function($el) {
+    $el.find('a').bind('click', function(ev) {
+
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      var $this = $(this);
+      var pk_item = $this.data('itempk');
+      var pk_cat = $this.data('catpk');
+
+      fs_categorizr.remove_category(pk_item, pk_cat);
+
+    });
+  },
+
+  /**
+   * Removes category from item via ajax.
+   *
+   * @param pk_item
+   * @param pk_cat
+   */
+  remove_category: function(pk_item, pk_cat) {
+    var that = this;
+    $(this).one('categories_lookup_ready',
+        function(ev, pk_item, categories) {
+
+          var rem = '/api/v1/fscategories/'+pk_cat+'/';
+          var re = new RegExp(rem, "g");
+
+          $.each(categories, function(key, val) {
+            if (val.match(re)) {
+              categories.splice(key, 1);
+              return false;
+            }
+          });
+
+          that._PUT_category_by_item(pk_item, -1, categories);
+    });
+
+    this._GET_categories_by_item(pk_item, $(this));
   },
 
   /**
@@ -438,6 +512,11 @@ var fs_timelinr = {
   $timelinr: undefined,
 
 
+  /**
+   * Return timelinr or create it if it does not exist.
+   *
+   * @returns {*}
+   */
   get_or_create: function() {
 
     if (this.$timelinr == undefined) {
@@ -455,9 +534,11 @@ var fs_timelinr = {
       //                                                           _____________
       //                                                           Build Buttons
       $li_add = $('<li></li>');
-      $atag_add = $('<a href="#" class="fs-timelinr-action" data-trigger="add"><b>Add</b> to timeline</a>');
+      $atag_add = $('<a href="#" class="fs-timelinr-action" ' +
+                    'data-trigger="add"><b>Add</b> to timeline</a>');
       $li_rem = $('<li></li>');
-      $atag_rem = $('<a href="#" class="fs-timelinr-action" data-trigger="remove"><b>Remove</b> from timeline</a>');
+      $atag_rem = $('<a href="#" class="fs-timelinr-action" ' +
+                    'data-trigger="remove"><b>Remove</b> from timeline</a>');
 
       $li_add.append($atag_add);
       $li_rem.append($atag_rem);
@@ -705,6 +786,7 @@ var uib_notice = {
 $(window).load(function() {
   // Change list enhancements
   if ($('body').hasClass('change-list')) {
+
     $uib = fs_uiband.get_or_create();
     $('body').append($uib);
 
@@ -716,6 +798,8 @@ $(window).load(function() {
 
     $notice = uib_notice.get_or_create();
     fs_uiband.$region_east.append($notice);
+
+    fs_categorizr.bind_quick_delete($('span.label.cat'));
 
     uib_notice.init();
   }

@@ -16,6 +16,39 @@ select.filtered { min-height: 240px; }
 }
 
 // _____________________________________________________________________________
+//                                                                   Change List
+.column-current_categories {
+  width: 205px;
+}
+
+td {
+  span.label.cat {
+    background-color: rgb(242,242,242);
+    color: rgb(120,120,120);
+    text-shadow: none;
+    border: 1px solid rgb(233,233,233);
+    font-size: 9px;
+    padding-top: 0;
+    padding-bottom: 0;
+    display: inline-block;
+    margin: 3px;
+
+    a {
+      display: inline-block;
+      background-color: rgba(255,255,255,.2);
+      padding: 1px 1px 1px 3px;
+      font-weight: bold;
+      text-decoration: none !important;
+      color: rgb(0, 136, 204) !important;  // important to prevent overriding
+                                           // by selected row styles.
+      &:hover, &:active, &:focus {
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+// _____________________________________________________________________________
 //                                                                       UI Band
 .uib-uiband {
   width: 100%;

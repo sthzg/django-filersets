@@ -137,7 +137,12 @@ class ItemAdmin(admin.ModelAdmin):
         Return a string of currently assign categories to one item.
         """
         try:
-            cats = u', '.join([cat.name for cat in obj.category.all()])
+            span = '<span class="label cat">{} ' \
+                   '<a class="cat-del" data-catpk="{}" data-itempk="{}">x</a>' \
+                   '</span>'
+            cats = u''.join([span.format(cat.name, cat.pk, obj.pk)
+                               for cat in obj.category.all()])
+
         except TypeError:
             cats = _(u'None')
         return cats
@@ -149,6 +154,7 @@ class ItemAdmin(admin.ModelAdmin):
         kwargs.setdefault('form', ItemForm)
         return super(ItemAdmin, self).get_changelist_form(request, **kwargs)
 
+    current_categories.allow_tags = True
     item_thumb.short_description = _('Item')
     item_thumb.allow_tags = True
     set_admin_link.short_description = _('Set')
