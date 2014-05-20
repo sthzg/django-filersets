@@ -23,19 +23,53 @@ $('document').ready(function() {
 /**
  * UI band
  * -------
- * Widget container on the bottom of the screen that can hold various UI
+ * Widget container on the bottom of the screen that can hold arbitrary UI
  * elements/widgets like the Categorizr.
+ *
+ * The UI band is currently structured as a 3-split-container
+ *
+ * -----------------------------------------------------------------------------
+ * | Widget Icons  |            Widget Display          |   Notification Area  |
+ * -----------------------------------------------------------------------------
+ *
+ * Widget Icons:
+ * Every registered widget is represented by an icon (clickable/tababble).
+ *
+ * Widget Display:
+ * The currently active widget is displayed in this main area.
+ *
+ * Notification Area:
+ * Features a queue in which time-based notifications could be added.
+ *
  */
 var fs_uiband = {
+
+  current_widget_id: undefined,
+  $current_widget: undefined,
+
   $uib: undefined,
   $region_west: undefined,
   $region_middle: undefined,
   $region_east: undefined,
 
+  widget_registry: {
+    widgets: {}
+  },
+
+  /**
+   * Returns the current UI band instance or creates it if it does not exist.
+   *
+   * @returns {*}
+   */
   get_or_create: function() {
+
     if (this.$uib == undefined) {
+      this.$uib_widget_menu = $('<ul class="uib-widget-menu"></ul>');
       this.$region_west = $('<div class="uib-region uib-region-west fs_iblock"></div>');
+      this.$region_west.append(this.$uib_widget_menu);
       this.$region_middle = $('<div class="uib-region uib-region-middle fs_iblock"></div>');
+      this.$region_middle_canvas = $('<div class="uib-middle-container"></div>');
+      this.$region_middle.append(this.$region_middle_canvas);
       this.$region_east = $('<div class="uib-region  uib-region-east fs_iblock"></div>');
       this.$uib = $('<div class="uib-uiband"></div>');
       this.$uib.append(this.$region_west)
@@ -43,7 +77,87 @@ var fs_uiband = {
                .append(this.$region_east);
     }
     return this.$uib;
+
+  },
+
+  /**
+   * Show widget with id in the UI band.
+   *
+   * @param id
+   */
+  show_widget: function(id) {
+
+    if (id == this.current_widget_id)
+      { return; }
+
+    $w = this.widget_registry.widgets[id];
+    cur_idx = this.$current_widget.index();
+    target_idx = $w.index();
+
+    cur_y = parseInt(fs_uiband.$region_middle_canvas.css('margin-top'));
+    offset =  cur_y + (cur_idx - target_idx) * 30;
+    this.$region_middle_canvas.stop().animate({
+      'margin-top': offset + 'px'
+    }, 160);
+
+    this._set_current_widget(id);
+
+  },
+
+  /**
+   * Adds $widget with id to the widget registry.
+   *
+   * @param id
+   * @param $widget
+   */
+  register_widget: function(id, $widget) {
+
+    // Check if the widgets implements necessary settings.
+    try {
+      var controller = $widget.controller;
+      var icon = $widget.controller.icon;
+      var label = $widget.controller.label;
+    } catch(err) {
+      throw "Please provide a controller attribute on your widget and " +
+            "configure icon and label.";
+    }
+
+    var that = this;
+
+    $menu_item = $('<li class="uib-menu-item"></li>');
+    $menu_item.append($('<i class="fa '+icon+'" title="'+ label +'"></i>'));
+    $menu_item.attr('data-target', id);
+    $menu_item.bind("click", function()
+      { that.show_widget($(this).data('target')); });
+    this.$uib_widget_menu.append($menu_item);
+
+    $widget.addClass('uib-widget');
+    $widget.attr('id', id);
+    this.widget_registry.widgets[id] = $widget;
+    this.$region_middle_canvas.append(this.widget_registry.widgets[id]);
+
+    if (this.current_widget_id == undefined)
+      { this._set_current_widget(id); }
+  },
+
+
+  remove_widget: function(id) {
+    // TODO
+  },
+
+  /**
+   * Sets quick access variables pointing to currently active widget.
+   *
+   * @param id
+   * @private
+   */
+  _set_current_widget: function(id) {
+    $('.uib-menu-item').removeClass('active');
+    $('li[data-target="'+id+'"]').addClass('active');
+    this.current_widget_id = id;
+    this.$current_widget = this.widget_registry.widgets[id];
   }
+
 };
 
 // _____________________________________________________________________________
@@ -55,9 +169,16 @@ var fs_uiband = {
  * user batch assign the selected items to a category.
  */
 var fs_categorizr = {
+
   categories: undefined,
   cat_col_num: undefined,
   ui_lock: false,
+
+  label: 'Categorizr',
+  icon: 'fa-list',
+  icon_type: 'fontawesome',   // TODO  Support fontawesome, PNG and SVG
+  band_bgcolor: 'inherit',    // inherit or color value
+  band_colormode: 'normal',   // normal or inverted
 
   $api: $(this),
   $uib: fs_uiband.get_or_create(),
@@ -76,6 +197,7 @@ var fs_categorizr = {
       this.get_categories(false);
 
       this.$categorizr = $('<div class="fs_categorizr_container"></div>');
+      this.$categorizr.controller = this;
       this.cat_col_num = $('th.current_categories-column').prevAll().length +1;
     }
     return this.$categorizr;
@@ -92,7 +214,7 @@ var fs_categorizr = {
         '<i class="fa fa-question-circle" title="Select one or more items ' +
         'in the list view and click on a category to assign that item to ' +
         'the list. (will not be duplicated if already included)"></i>' +
-        '</li><li class="fs-feature-title">Quick Assign</li>');
+        '</li><li class="fs-feature-title">Categories</li>');
     $ul.append($li);
 
     //                                                    ______________________
@@ -293,6 +415,40 @@ var fs_categorizr = {
   }
 };
 
+
+// _____________________________________________________________________________
+//                                                                      Timelinr
+/**
+ * Timelinr
+ * --------
+ * Provides an ajax'ified way to add or remove all currently selected items
+ * from the timeline display.
+ */
+var fs_timelinr = {
+
+  label: 'Timelinr',
+  icon: 'fa-clock-o',
+  icon_type: 'fontawesome',
+  band_bgcolor: 'inherit',    // inherit or color value
+  band_colormode: 'normal',   // normal or inverted
+
+  $timelinr: undefined,
+
+
+  get_or_create: function() {
+
+    if (this.$timelinr == undefined) {
+      this.$timelinr = $('<div class="fs_timelinr_container"></div>');
+      this.$timelinr.append($('<div>I am Timelinr!</div>'));
+      this.$timelinr.controller = this;
+    }
+    return this.$timelinr;
+
+  }
+
+}
+
+
 // _____________________________________________________________________________
 //                                                                        Notice
 /**
@@ -442,16 +598,18 @@ $(window).load(function() {
   // Change list enhancements
   if ($('body').hasClass('change-list')) {
     $uib = fs_uiband.get_or_create();
+    $('body').append($uib);
 
     $categorizr = fs_categorizr.get_or_create();
-    fs_uiband.$region_middle.append($categorizr);
+    fs_uiband.register_widget('categorizr', $categorizr);
+
+    $timelinr = fs_timelinr.get_or_create();
+    fs_uiband.register_widget('timelinr', $timelinr);
 
     $notice = uib_notice.get_or_create();
     fs_uiband.$region_east.append($notice);
 
     uib_notice.init();
-
-    $('body').append($uib);
   }
 });
 

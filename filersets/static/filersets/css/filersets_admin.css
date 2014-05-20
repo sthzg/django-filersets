@@ -69,6 +69,28 @@ select.filtered {
   opacity: .5;
   color: #282828;
 }
+.uib-uiband .uib-widget {
+  overflow: hidden;
+  height: 30px;
+}
+.uib-uiband .uib-widget-menu li {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  text-align: center;
+  font-size: 18px;
+  line-height: 28px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  color: #646464;
+}
+.uib-uiband .uib-widget-menu li.active {
+  color: white;
+  background-color: #3399b7;
+}
+.uib-uiband .uib-widget-menu li:hover {
+  cursor: pointer;
+}
 .uib-region {
   box-sizing: border-box;
   overflow: hidden;

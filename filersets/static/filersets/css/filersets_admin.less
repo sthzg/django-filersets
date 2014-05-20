@@ -74,6 +74,34 @@ select.filtered { min-height: 240px; }
     }
 
   }
+
+  .uib-widget {
+    overflow: hidden;
+    height: 30px;
+  }
+
+  .uib-widget-menu {
+    li {
+      .fs_iblock();
+      width: 28px;
+      height: 28px;
+      text-align: center;
+      font-size: 18px;
+      line-height: 28px;
+      vertical-align: middle;
+      box-sizing: border-box;
+      color: rgb(100,100,100);
+
+      &.active {
+        color: white;
+        background-color: #3399b7;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
 }
 
 // _____________________________________________________________________________
