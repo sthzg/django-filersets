@@ -5,6 +5,7 @@
     {# STYLING FOR THE REGULAR ADMIN #}
     {% block object-tools-items %}
         {{ block.super }}
+        <input type="hidden" id="item_pk" value="{{ object_id }}">
         {% if object_id and not "suit"|installed %}
             {% if set_filer_folder_id > -1 and set_is_processed %}
             <li>
@@ -35,6 +36,7 @@
     {# STYLING FOR DJANGO SUIT #}
     {% block object-tools %}
         {{ block.super }}
+        <input type="hidden" id="item_pk" value="{{ object_id }}">
         {% if "suit"|installed and object_id %}
             <h4 class="italic-title" style="margin-top: 20px">
                 {% trans "Current Set" %}

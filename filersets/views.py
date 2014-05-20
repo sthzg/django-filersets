@@ -234,7 +234,7 @@ class ProcessSetView(View):
 
 
 # ______________________________________________________________________________
-#                                                            API Views: Category
+#                                                             API View: Category
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows categories to be viewed
@@ -244,7 +244,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 # ______________________________________________________________________________
-#                                                                API Views: Item
+#                                                                 API View: Item
 class ItemViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows categories to be viewed
