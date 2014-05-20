@@ -12,4 +12,4 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Item
-        fields = ('id', 'title', 'category')
+        fields = ('id', 'title', 'category', 'is_timeline',)

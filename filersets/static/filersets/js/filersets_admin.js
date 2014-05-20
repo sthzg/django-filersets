@@ -112,12 +112,13 @@ var fs_uiband = {
    */
   register_widget: function(id, $widget) {
 
-    // Check if the widgets implements necessary settings.
+    // Check if the widget implements necessary settings.
     try {
       var controller = $widget.controller;
       var icon = $widget.controller.icon;
       var label = $widget.controller.label;
     } catch(err) {
+      // TODO  Should link to documentation
       throw "Please provide a controller attribute on your widget and " +
             "configure icon and label.";
     }
@@ -426,11 +427,13 @@ var fs_categorizr = {
  */
 var fs_timelinr = {
 
-  label: 'Timelinr',
+  label: 'Tools to assign/unassign selected items to/from the timeline.',
   icon: 'fa-clock-o',
   icon_type: 'fontawesome',
   band_bgcolor: 'inherit',    // inherit or color value
   band_colormode: 'normal',   // normal or inverted
+
+  ui_lock: false,
 
   $timelinr: undefined,
 
@@ -438,12 +441,117 @@ var fs_timelinr = {
   get_or_create: function() {
 
     if (this.$timelinr == undefined) {
+
+      var that = this;
+
+      $ul = $('<ul class=""></ul>');
+      $li = $('<li class="fs-inline-help">' +
+          '<i class="fa fa-question-circle" title="Select items in the list ' +
+          'and click on “Add to timeline“ or “Remove from timeline“"></i>' +
+          '</li><li class="fs-feature-title">On timeline?</li>');
+      $ul.append($li);
+
+
+      //                                                           _____________
+      //                                                           Build Buttons
+      $li_add = $('<li></li>');
+      $atag_add = $('<a href="#" class="fs-timelinr-action" data-trigger="add"><b>Add</b> to timeline</a>');
+      $li_rem = $('<li></li>');
+      $atag_rem = $('<a href="#" class="fs-timelinr-action" data-trigger="remove"><b>Remove</b> from timeline</a>');
+
+      $li_add.append($atag_add);
+      $li_rem.append($atag_rem);
+
+      //                                                                     ___
+      //                                                             Bind: CLICK
+      $atag_add.add($atag_rem).bind('click', function(ev) {
+
+        ev.stopPropagation();
+        ev.preventDefault();
+
+        // TODO  Refactor to method, since we use it in various widgets
+        var $tr_selected = $('tr.selected');
+        if ($tr_selected.length < 1)
+          { return false; }
+
+        if (that.ui_lock === true)
+          { return false; }
+        else
+          { that._toggle_ui_lock(); }
+
+        var is_timeline = undefined;
+        var action = $(this).data('trigger');
+        if (action == 'add')
+          { is_timeline = true; }
+        else if (action == 'remove')
+          { is_timeline = false; }
+        else
+          { throw "Illegal action"; }
+
+        // TODO  Refactor to reusable class
+        // quick prototype of a tiny poor man's queue counter.
+        var $queue_count = {
+          num_items: $tr_selected.length,
+          decrease: function() {
+            if (this.num_items == 1)
+              { that._toggle_ui_lock(); }
+            else
+              { this.num_items -= 1; }}};
+
+        $.each($tr_selected, function(key, val) {
+          this.$pk_item = $(val).find('input.action-select');
+          this.pk = this.$pk_item.val();
+          var csrftoken = getCookie('csrftoken');
+
+          $.ajax({
+            type: 'PATCH',
+            url: '/api/v1/fsitems/'+this.pk+'/',
+            context: this,
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: JSON.stringify({
+              'is_timeline': is_timeline.toString()
+            }),
+            beforeSend: function(xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
+            //                                                           _______
+            //                                                           Success
+            success: function(data) {
+              var $inp = $(this.$pk_item.parents('tr').find('[id *= "is_timeline"]')[0]);
+              $inp.prop('checked', is_timeline);
+              $queue_count.decrease();
+
+              var label = undefined;
+              if (is_timeline === true)
+                { label = ''+ data.id + ' added to timeline'; }
+              else
+                { label = ''+ data.id + ' removed from timeline'; }
+              uib_notice.add_note(label, 2, 'check-circle');
+            }
+          });
+        });
+
+      });
+
+      $ul.append($li_add).append($li_rem);
+
       this.$timelinr = $('<div class="fs_timelinr_container"></div>');
-      this.$timelinr.append($('<div>I am Timelinr!</div>'));
+      this.$timelinr.append($ul);
       this.$timelinr.controller = this;
     }
     return this.$timelinr;
 
+  },
+
+  /**
+   * Toggle ``ui_lock`` state for Widget.
+   *
+   * @private
+   */
+  _toggle_ui_lock: function() {
+    this.ui_lock = !this.ui_lock;
+    $('.fs_category_item a').toggleClass('ui-lock');
   }
 
 }
