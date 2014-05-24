@@ -245,7 +245,43 @@ class Set(TimeStampedModel):
                 op_stats['added'].append(msg.format('', f.id, self.pk))
                 logger.info(msg.format(logsig, f.id, self.pk))
 
+        self.save_item_sort()
+
         return op_stats
+
+    def save_item_sort(self, custom=None):
+        """ Traverses all items on the set and saves their sort position. """
+
+        sort_by = self.ordering
+
+        if sort_by == 'custom' and custom is None:
+            # When the user wants custom sorting and the set is initially saved
+            # with custom as its ordering option then create the initial sort
+            # positions in exactly the ordering that is currently set.
+            sort_by = ''
+
+        elif sort_by == 'custom':
+            pass
+
+        items = list()
+        for idx, item in enumerate(
+                Item.objects.filter(set=self).order_by(sort_by)):
+
+            try:
+                sort_obj = SetItemSort.objects.get(set=self, item=item)
+            except SetItemSort.DoesNotExist:
+                sort_obj = SetItemSort()
+
+            sort_obj.set = self
+            sort_obj.item = item
+            sort_obj.sort = idx
+
+            # delaying save() to avoid unique constraint exceptions
+            items.append(sort_obj)
+
+        for item in items:
+            item.save()
+
 
     def save(self, *args, **kwargs):
         super(Set, self).save(*args, **kwargs)
@@ -253,11 +289,16 @@ class Set(TimeStampedModel):
     def __unicode__(self):
         return u'{}'.format(self.title)
 
+
 # ______________________________________________________________________________
 #                                                                    Model: Item
 class Item(TimeStampedModel):
     """ The item model holds items that are contained within a Set. """
-    # TODO: Mark the combination of `set` and `filer_file` as unique
+
+    class Meta:
+        verbose_name = _('item')
+        verbose_name_plural = _('items')
+        ordering = ('item_sort__sort',)
 
     set = models.ForeignKey(
         'Set',
@@ -353,6 +394,11 @@ class Item(TimeStampedModel):
 
         super(Item, self).save(*args, **kwargs)
 
+    def get_ordering(self, request):
+        set_id = request.path.split('/')[-2]
+        set = Set.objects.get(pk=int(set_id))
+        return [set.ordering]
+
     def __unicode__(self):
         return u'{}'.format(self.filer_file.original_filename)
         # return u'Set: {}'.format(self.set.title)
@@ -369,6 +415,7 @@ class SetItemSort(models.Model):
         verbose_name = _('Item sort in sets')
         verbose_name_plural = _('Item sort in sets')
         unique_together = ('item', 'set', 'sort',)
+        ordering = ('sort', 'item', 'set')
 
     item = models.OneToOneField(
         Item,
