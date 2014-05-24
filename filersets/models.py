@@ -359,6 +359,45 @@ class Item(TimeStampedModel):
 
 
 # ______________________________________________________________________________
+#                                                             Model: SetItemSort
+class SetItemSort(models.Model):
+    """
+    Stores the sort position for each item in a particular set.
+    """
+
+    class Meta:
+        verbose_name = _('Item sort in sets')
+        verbose_name_plural = _('Item sort in sets')
+        unique_together = ('item', 'set', 'sort',)
+
+    item = models.OneToOneField(
+        Item,
+        verbose_name=_('item'),
+        related_name='item_sort',
+        blank=False,
+        null=False,
+        default=None
+    )
+
+    set = models.ForeignKey(
+        Set,
+        verbose_name=_('set'),
+        related_name='set_sort',
+        blank=False,
+        null=False,
+        default=None
+    )
+
+    sort = models.PositiveIntegerField(
+        _('sort'),
+        blank=False,
+        null=True,
+        default=None
+    )
+
+
+
+# ______________________________________________________________________________
 #                                                                Model: Category
 class Category(MP_Node):
 
