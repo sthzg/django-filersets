@@ -396,7 +396,6 @@ class SetItemSort(models.Model):
     )
 
 
-
 # ______________________________________________________________________________
 #                                                                Model: Category
 class Category(MP_Node):
