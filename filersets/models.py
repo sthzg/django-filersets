@@ -395,6 +395,10 @@ class SetItemSort(models.Model):
         default=None
     )
 
+    def __unicode__(self):
+        msg = u'Item {} on position {} in set {}'
+        return msg.format(self.item.id, self.sort, self.set.id)
+
 
 # ______________________________________________________________________________
 #                                                                Model: Category
