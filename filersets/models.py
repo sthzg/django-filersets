@@ -11,7 +11,7 @@ import logging
 from django.db import models
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
 # ______________________________________________________________________________
@@ -23,6 +23,7 @@ from filer.fields.file import FilerFileField
 from filer.fields.folder import FilerFolderField
 from treebeard.mp_tree import MP_Node, MP_NodeManager
 # from taggit.managers import TaggableManager
+from easy_thumbnails.files import get_thumbnailer
 from taggit_autosuggest_select2.managers import TaggableManager
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,7 @@ class Set(TimeStampedModel):
         ('-filer_file__uploaded_at', _('upload date descending')),
         ('filer_file__modified_at', _('modfied date ascending')),
         ('-filer_file__modified_at', _('modified date descending')),
+        ('custom', _('custom sort order')),
     )
 
     STATUS_OPTIONS = Choices(
@@ -249,8 +251,29 @@ class Set(TimeStampedModel):
 
         return op_stats
 
+    def get_items_sorted(self):
+        """
+        Returns a list of items in current sorting order.
+        """
+        return [item.item
+                for item in SetItemSort.objects.filter(set=self)
+                                               .order_by('sort')]
+
+    def get_items_sorted_pks_serialized(self):
+        """
+        Returns a serialized string with sorted itempks for use in GET queries.
+        """
+        items = self.get_items_sorted()
+        ret = []
+        for item in items:
+            ret.append('itempk[]={}'.format(item.pk))
+
+        return "&".join(ret)
+
     def save_item_sort(self, custom=None):
-        """ Traverses all items on the set and saves their sort position. """
+        """
+        Traverses all items on the set and saves their sort position.
+        """
 
         sort_by = self.ordering
 
@@ -261,27 +284,42 @@ class Set(TimeStampedModel):
             sort_by = ''
 
         elif sort_by == 'custom':
-            pass
+            items = list()
+            objects = Item.objects.in_bulk(custom)
+            sorted_objects = [objects[id] for id in custom]
+            for idx, item in enumerate(sorted_objects):
 
-        items = list()
-        for idx, item in enumerate(
-                Item.objects.filter(set=self).order_by(sort_by)):
+                try:
+                    sort_obj = SetItemSort.objects.get(set=self, item=item)
+                except SetItemSort.DoesNotExist:
+                    sort_obj = SetItemSort()
 
-            try:
-                sort_obj = SetItemSort.objects.get(set=self, item=item)
-            except SetItemSort.DoesNotExist:
-                sort_obj = SetItemSort()
+                sort_obj.set = self
+                sort_obj.item = item
+                sort_obj.sort = idx
 
-            sort_obj.set = self
-            sort_obj.item = item
-            sort_obj.sort = idx
+                # delaying save() to avoid unique constraint exceptions
+                items.append(sort_obj)
 
-            # delaying save() to avoid unique constraint exceptions
-            items.append(sort_obj)
+        else:
+            items = list()
+            for idx, item in enumerate(
+                    Item.objects.filter(set=self).order_by(sort_by)):
+
+                try:
+                    sort_obj = SetItemSort.objects.get(set=self, item=item)
+                except SetItemSort.DoesNotExist:
+                    sort_obj = SetItemSort()
+
+                sort_obj.set = self
+                sort_obj.item = item
+                sort_obj.sort = idx
+
+                # delaying save() to avoid unique constraint exceptions
+                items.append(sort_obj)
 
         for item in items:
             item.save()
-
 
     def save(self, *args, **kwargs):
         super(Set, self).save(*args, **kwargs)
@@ -293,7 +331,9 @@ class Set(TimeStampedModel):
 # ______________________________________________________________________________
 #                                                                    Model: Item
 class Item(TimeStampedModel):
-    """ The item model holds items that are contained within a Set. """
+    """
+    The item model holds items that are contained within a Set.
+    """
 
     class Meta:
         verbose_name = _('item')
@@ -386,6 +426,34 @@ class Item(TimeStampedModel):
         null=False
     )
 
+    def get_item_thumb(self):
+        """
+        Return a thumbnail represenation of the current item.
+        """
+        if self.filer_file.polymorphic_ctype.name == 'image':
+            options = {'size': (100, 100), 'crop': True}
+            thumb_url = get_thumbnailer(
+                self.filer_file.file).get_thumbnail(options).url
+            output = '<img src="{}">'.format(thumb_url)
+        else:
+            output = '{}'.format(ugettext('Edit'))
+
+        return output
+
+    get_item_thumb.allow_tags = True
+
+    def get_original_filename(self):
+        """
+        Return the original filename of the item.
+        """
+        return self.filer_file.original_filename
+
+    def get_sort_position(self):
+        """
+        Return 0-based sort position of the item.
+        """
+        return self.item_sort.sort
+
     def save(self, *args, **kwargs):
 
         if not self.ct_id:
@@ -393,11 +461,6 @@ class Item(TimeStampedModel):
                 pk=self.filer_file.polymorphic_ctype_id).id
 
         super(Item, self).save(*args, **kwargs)
-
-    def get_ordering(self, request):
-        set_id = request.path.split('/')[-2]
-        set = Set.objects.get(pk=int(set_id))
-        return [set.ordering]
 
     def __unicode__(self):
         return u'{}'.format(self.filer_file.original_filename)

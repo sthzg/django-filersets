@@ -15,6 +15,15 @@ select.filtered { min-height: 240px; }
   list-style-image: none;
 }
 
+.ui-state-highlight {
+  height: 104px;
+  line-height: 1.2em;
+  border: 2px dashed rgba(37, 59, 118, .3);
+  background-color: rgba(255,255,255,.8);
+}
+
+.field-item_sort_positions { display: none !important; }
+
 // _____________________________________________________________________________
 //                                                                   Change List
 .column-current_categories {
@@ -44,6 +53,45 @@ td {
       &:hover, &:active, &:focus {
         cursor: pointer;
       }
+    }
+  }
+}
+
+// _____________________________________________________________________________
+//                                                                    Set Inline
+.fs-inline {
+  .fs_list-unstyled();
+  margin: 0;
+
+  li {
+    margin: 10px;
+    margin-left: 0;
+  }
+
+  td {
+    vertical-align: middle;
+    text-align: center;
+  }
+  td.field-get_item_thumb {width: 120px; text-align: center; }
+  td.field-get_original_filename {
+    width: 160px;
+    p {
+      font-size: 9px;
+      background-color: rgb(255,255,255);
+      border-radius: 2px;
+      border: 1px solid rgb(230,230,230);
+      display: inline-block;
+      padding: 0 6px;
+      color: rgb(150,150,150);
+    }
+  }
+  td.field-get_sort_position {
+    p {
+      font-size: 42px;
+      font-family: sans-serif;
+      color: rgb(235,235,235);
+      text-shadow: 1px 1px 1px white;
+      font-weight: bold;
     }
   }
 }

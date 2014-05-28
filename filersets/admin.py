@@ -4,9 +4,10 @@
 from __future__ import absolute_import
 # ______________________________________________________________________________
 #                                                                         Django
+from django import forms
 from django.contrib import admin
 from django.forms.models import ModelForm
-from django.forms.widgets import SelectMultiple
+from django.forms.widgets import SelectMultiple, HiddenInput
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -53,13 +54,12 @@ if has_suit:
         Allows to view filer_files referenced in a set.
         """
         form = ItemInlineForm
-        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
-        list_editable = ('description', 'is_cover',)
-        list_display = ('title', 'is_cover', 'description', 'is_cover', 'is_timeline',)
-        list_display_links = ('title',)
+        fields = ('get_sort_position', 'get_item_thumb', 'get_original_filename', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
+        readonly_fields = ('get_sort_position', 'get_item_thumb', 'get_original_filename',)
         model = Item
         extra = 0
         list_per_page = 30
+        template = 'filersets/set_inline_suit.html'
 
     class ItemForm(ModelForm):
         class Meta:
@@ -164,10 +164,75 @@ class ItemAdmin(admin.ModelAdmin):
 # ______________________________________________________________________________
 #                                                                 ModelForm: Set
 class SetForm(ModelForm):
+
+    item_sort_positions = forms.Field()
+
+    class Media:
+        """ Provide additional static files for the set admin """
+        css = {'all': [
+            'filersets/css/filersets_admin.css',
+            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
+        ]}
+        js = [
+            'filersets/vendor/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js',
+            'filersets/js/filersets_admin.js'
+        ]
+
     class Meta:
         model = Set
-        widgets = {'category': SelectMultiple(attrs={'size': '12'})}
+        widgets = {
+            'category': SelectMultiple(attrs={'size': '12'}),
+        }
 
+    def __init__(self, *args, **kwargs):
+        super(SetForm, self).__init__(*args, **kwargs)
+
+        # Add a HiddenInput() to hold sorting and populate it with current value
+        self.fields['item_sort_positions'] = forms.CharField(
+            widget=forms.HiddenInput())
+
+        if 'instance' in kwargs.keys():
+            self.fields['item_sort_positions'].initial = Set.objects.get(
+                pk=kwargs['instance'].pk).get_items_sorted_pks_serialized()
+
+    def clean(self):
+        """
+        Checks if we have custom ordering on the set and if so prepare the
+        values for storing.
+        """
+        cleaned_data = super(SetForm, self).clean()
+
+        if cleaned_data.get('ordering') != 'custom':
+            return cleaned_data
+
+        if not cleaned_data.get('item_sort_positions'):
+            raise ValueError
+
+        item_pks = cleaned_data.get('item_sort_positions') \
+                               .replace('itempk[]', '') \
+                               .replace('&', '') \
+                               .split('=')
+
+        del_keys = list()
+        for idx, item_pk in enumerate(item_pks):
+            try:
+                item_pks[idx] = int(item_pk)
+            except ValueError:
+                del_keys.append(idx)
+
+        del_keys = sorted(del_keys, reverse=True)
+        for key in del_keys:
+            del item_pks[key]
+
+        cleaned_data['item_sort_positions'] = item_pks
+
+        return cleaned_data
+
+    def save(self, *args, **kwargs):
+        instance = super(SetForm, self).save(*args, **kwargs)
+        instance.save_item_sort(self.cleaned_data.get('item_sort_positions'))
+
+        return instance
 
 # ______________________________________________________________________________
 #                                                                     Admin: Set

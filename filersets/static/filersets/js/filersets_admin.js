@@ -784,7 +784,8 @@ var uib_notice = {
  * This little piece just initializes our UI prototype
  */
 $(window).load(function() {
-  // Change list enhancements
+  //                                                    ________________________
+  //                                                    Change list enhancements
   if ($('body').hasClass('change-list')) {
 
     $uib = fs_uiband.get_or_create();
@@ -803,7 +804,52 @@ $(window).load(function() {
 
     uib_notice.init();
   }
+
+  //                                                       _____________________
+  //                                                       Set page enhancements
+  if ($('body').hasClass('filersets-set') &&
+      $('body').hasClass('change-form'))
+  {
+    sortr.init();
+  }
 });
+
+// _____________________________________________________________________________
+//                                                                         Sortr
+/**
+ * Sortr
+ * -----
+ * Allow users to sort sets by drag and drop.
+ */
+var sortr = {
+
+  $sortable: undefined,
+
+  init: function() {
+
+    var that = this;
+
+    this.$sortable = $( ".fs_list-sortable" );
+
+    this.$sortable.sortable({
+      placeholder: "ui-state-highlight",
+      sort: function(event, ui) {},
+      start: function(event, ui) {},
+      stop: function(event, ui) {
+        $('#id_item_sort_positions').val(
+            that.$sortable.sortable('serialize', 'itempk'));
+      },
+      update: function(event, ui) {
+        var $id_ordering = $('#id_ordering');
+        $id_ordering.find('option[value="custom"]').prop('selected', true);
+        $id_ordering.css('background-color', '#dff5e2');
+      }
+    });
+    this.$sortable.sortable("option", "opacity", 0.8);
+    this.$sortable.sortable("option", "revert", 150);
+    this.$sortable.disableSelection();
+  }
+};
 
 
 // Get Cookie

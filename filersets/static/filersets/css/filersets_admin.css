@@ -15,6 +15,15 @@ select.filtered {
   list-style-type: none;
   list-style-image: none;
 }
+.ui-state-highlight {
+  height: 104px;
+  line-height: 1.2em;
+  border: 2px dashed rgba(37, 59, 118, 0.3);
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.field-item_sort_positions {
+  display: none !important;
+}
 .column-current_categories {
   width: 205px;
 }
@@ -41,6 +50,42 @@ td span.label.cat a:hover,
 td span.label.cat a:active,
 td span.label.cat a:focus {
   cursor: pointer;
+}
+.fs-inline {
+  list-style-type: none;
+  list-style-image: none;
+  margin: 0;
+}
+.fs-inline li {
+  margin: 10px;
+  margin-left: 0;
+}
+.fs-inline td {
+  vertical-align: middle;
+  text-align: center;
+}
+.fs-inline td.field-get_item_thumb {
+  width: 120px;
+  text-align: center;
+}
+.fs-inline td.field-get_original_filename {
+  width: 160px;
+}
+.fs-inline td.field-get_original_filename p {
+  font-size: 9px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  border: 1px solid #e6e6e6;
+  display: inline-block;
+  padding: 0 6px;
+  color: #969696;
+}
+.fs-inline td.field-get_sort_position p {
+  font-size: 42px;
+  font-family: sans-serif;
+  color: #ebebeb;
+  text-shadow: 1px 1px 1px white;
+  font-weight: bold;
 }
 .uib-uiband {
   width: 100%;
