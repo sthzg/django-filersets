@@ -191,10 +191,13 @@ class SetForm(ModelForm):
         # Add a HiddenInput() to hold sorting and populate it with current value
         self.fields['item_sort_positions'] = forms.CharField(
             widget=forms.HiddenInput())
-
+        self.fields['item_sort_positions'].required = False
         if 'instance' in kwargs.keys():
             self.fields['item_sort_positions'].initial = Set.objects.get(
-                pk=kwargs['instance'].pk).get_items_sorted_pks_serialized()
+                    pk=kwargs['instance'].pk).get_items_sorted_pks_serialized()
+        else:
+            self.fields['item_sort_positions'].initial = ''
+
 
     def clean(self):
         """
