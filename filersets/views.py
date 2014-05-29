@@ -185,11 +185,11 @@ class SetView(View):
 
         t_settings = get_template_settings()
 
-        # TODO  Support various predefined ordering options
         # TODO  Make ordering options available on set edit form
         fitems = (
             fitem
-            for fitem in Item.objects.filter(set=fset).order_by(fset.ordering)
+            for fitem in Item.objects.filter(set=fset)
+                                     .order_by('item_sort__sort')
         )
 
         return render(

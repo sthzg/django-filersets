@@ -186,9 +186,10 @@ class SetForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        """
+        Add a HiddenInput() to hold sorting and populate it with current value
+        """
         super(SetForm, self).__init__(*args, **kwargs)
-
-        # Add a HiddenInput() to hold sorting and populate it with current value
         self.fields['item_sort_positions'] = forms.CharField(
             widget=forms.HiddenInput())
         self.fields['item_sort_positions'].required = False
@@ -201,7 +202,7 @@ class SetForm(ModelForm):
 
     def clean(self):
         """
-        Checks if we have custom ordering on the set and if so prepare the
+        Checks if we have custom ordering on the set and if so prepares the
         values for storing.
         """
         cleaned_data = super(SetForm, self).clean()
@@ -278,8 +279,8 @@ class SetAdmin(admin.ModelAdmin):
 
         form.instance.save_item_sort(item_pks)
 
-    #                                                                    _______
-    #                                                                    Customs
+    #                                                              _____________
+    #                                                              Model Methods
     def create_or_update_filerset(self, request, queryset):
         """
         This action triggers the creation or update process for selected sets
@@ -341,8 +342,8 @@ class SetAdmin(admin.ModelAdmin):
         return super(SetAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context)
 
-    #                                                            _______________
-    #                                                            Customs Options
+    #                                                      _____________________
+    #                                                      Model Methods Options
     create_or_update_filerset.short_description = _('Create/Update filerset')
     watch_online.allow_tags = True
     process_set.allow_tags = True
