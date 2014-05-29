@@ -21,9 +21,6 @@ select.filtered {
   border: 2px dashed rgba(37, 59, 118, 0.3);
   background-color: rgba(255, 255, 255, 0.8);
 }
-.field-item_sort_positions {
-  display: none !important;
-}
 .column-current_categories {
   width: 205px;
 }
@@ -51,6 +48,9 @@ td span.label.cat a:active,
 td span.label.cat a:focus {
   cursor: pointer;
 }
+td.field-item_sort_positions {
+  display: none !important;
+}
 .fs-inline {
   list-style-type: none;
   list-style-image: none;
@@ -59,6 +59,11 @@ td span.label.cat a:focus {
 .fs-inline li {
   margin: 10px;
   margin-left: 0;
+  background-color: #f9f9f9;
+}
+.fs-inline li table > span {
+  display: block;
+  padding: 5px;
 }
 .fs-inline td {
   vertical-align: middle;
@@ -86,6 +91,9 @@ td span.label.cat a:focus {
   color: #ebebeb;
   text-shadow: 1px 1px 1px white;
   font-weight: bold;
+}
+.fs-inline td.field-filer_file {
+  display: none;
 }
 .uib-uiband {
   width: 100%;

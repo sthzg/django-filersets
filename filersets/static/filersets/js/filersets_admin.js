@@ -836,8 +836,7 @@ var sortr = {
       sort: function(event, ui) {},
       start: function(event, ui) {},
       stop: function(event, ui) {
-        $('#id_item_sort_positions').val(
-            that.$sortable.sortable('serialize', 'itempk'));
+            that.update_sortr_values();
       },
       update: function(event, ui) {
         var $id_ordering = $('#id_ordering');
@@ -848,6 +847,12 @@ var sortr = {
     this.$sortable.sortable("option", "opacity", 0.8);
     this.$sortable.sortable("option", "revert", 150);
     this.$sortable.disableSelection();
+  },
+
+  update_sortr_values: function() {
+    $('#id_item_sort_positions').val(
+        this.$sortable.sortable('serialize', {attribute: 'data-itempk'})
+    );
   }
 };
 

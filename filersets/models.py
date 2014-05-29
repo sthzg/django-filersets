@@ -455,7 +455,6 @@ class Item(TimeStampedModel):
         return self.item_sort.sort
 
     def save(self, *args, **kwargs):
-
         if not self.ct_id:
             self.ct_id = ContentType.objects.get(
                 pk=self.filer_file.polymorphic_ctype_id).id

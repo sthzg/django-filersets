@@ -6,6 +6,7 @@ from __future__ import absolute_import
 #                                                                         Django
 from django import forms
 from django.contrib import admin
+from django.http.request import QueryDict
 from django.forms.models import ModelForm
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.core.exceptions import ObjectDoesNotExist
@@ -54,7 +55,7 @@ if has_suit:
         Allows to view filer_files referenced in a set.
         """
         form = ItemInlineForm
-        fields = ('get_sort_position', 'get_item_thumb', 'get_original_filename', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
+        fields = ('get_sort_position', 'get_item_thumb', 'filer_file', 'get_original_filename', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
         readonly_fields = ('get_sort_position', 'get_item_thumb', 'get_original_filename',)
         model = Item
         extra = 0
@@ -202,23 +203,32 @@ class SetForm(ModelForm):
         """
         cleaned_data = super(SetForm, self).clean()
 
+        # We only need to care about this if the user uses custom sorting.
         if cleaned_data.get('ordering') != 'custom':
             return cleaned_data
 
         if not cleaned_data.get('item_sort_positions'):
             raise ValueError
 
-        item_pks = cleaned_data.get('item_sort_positions') \
-                               .replace('itempk[]', '') \
-                               .replace('&', '') \
-                               .split('=')
+        # We are reading the sorting order from jQuery's sortable.
+        item_sort_positions = cleaned_data.get('item_sort_positions')
+        item_pks = QueryDict(item_sort_positions).getlist('itempk[]')
 
+        # Check all items and clean up the list.
         del_keys = list()
         for idx, item_pk in enumerate(item_pks):
-            try:
-                item_pks[idx] = int(item_pk)
-            except ValueError:
-                del_keys.append(idx)
+            if 'filepk:' in item_pk:
+                # When adding new items inline we don't have a PK before saving.
+                # Instead they pass the PK of the filer object so that we can
+                # afterwards look the item PK through the file pk. If this is
+                # the case then entries are prefixed with 'filepk:'
+                continue
+            else:
+                # All other entries need to be of type int in order to be valid.
+                try:
+                    item_pks[idx] = int(item_pk)
+                except ValueError:
+                    del_keys.append(idx)
 
         del_keys = sorted(del_keys, reverse=True)
         for key in del_keys:
@@ -227,12 +237,6 @@ class SetForm(ModelForm):
         cleaned_data['item_sort_positions'] = item_pks
 
         return cleaned_data
-
-    def save(self, *args, **kwargs):
-        instance = super(SetForm, self).save(*args, **kwargs)
-        instance.save_item_sort(self.cleaned_data.get('item_sort_positions'))
-
-        return instance
 
 # ______________________________________________________________________________
 #                                                                     Admin: Set
@@ -243,6 +247,20 @@ class SetAdmin(admin.ModelAdmin):
     class Media:
         """ Provide additional static files for the set admin """
         js = ("filersets/js/filersets.js",)
+
+    #                                                               ____________
+    #                                                               Save Formset
+    def save_formset(self, request, form, formset, change):
+        formset.save(commit=True)
+        # All items are saved now, so we can update the sort positions.
+        item_pks = form.cleaned_data.get('item_sort_positions')
+        for idx, item_pk in enumerate(item_pks):
+            if 'filepk:' in str(item_pk):
+                fpk = int(item_pk.split(':')[1])
+                item_pks[idx] = Item.objects.get(
+                    filer_file__id=fpk, set=form.instance).pk
+
+        form.instance.save_item_sort(item_pks)
 
     #                                                                    _______
     #                                                                    Customs

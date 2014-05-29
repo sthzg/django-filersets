@@ -22,8 +22,6 @@ select.filtered { min-height: 240px; }
   background-color: rgba(255,255,255,.8);
 }
 
-.field-item_sort_positions { display: none !important; }
-
 // _____________________________________________________________________________
 //                                                                   Change List
 .column-current_categories {
@@ -58,6 +56,10 @@ td {
 }
 
 // _____________________________________________________________________________
+//                                                                     Set Admin
+td.field-item_sort_positions { display: none !important; }
+
+// _____________________________________________________________________________
 //                                                                    Set Inline
 .fs-inline {
   .fs_list-unstyled();
@@ -66,6 +68,12 @@ td {
   li {
     margin: 10px;
     margin-left: 0;
+    background-color: rgb(249,249,249);
+
+    table > span {
+      display: block;
+      padding: 5px;
+    }
   }
 
   td {
@@ -94,7 +102,11 @@ td {
       font-weight: bold;
     }
   }
+  td.field-filer_file {
+    display: none;
+  }
 }
+
 
 // _____________________________________________________________________________
 //                                                                       UI Band
