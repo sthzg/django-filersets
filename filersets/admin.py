@@ -210,8 +210,9 @@ class SetForm(ModelForm):
         if cleaned_data.get('ordering') != 'custom':
             return cleaned_data
 
+        # We have a set without items
         if not cleaned_data.get('item_sort_positions'):
-            raise ValueError
+            return cleaned_data
 
         # We are reading the sorting order from jQuery's sortable.
         item_sort_positions = cleaned_data.get('item_sort_positions')
@@ -257,11 +258,23 @@ class SetAdmin(admin.ModelAdmin):
         formset.save(commit=True)
         # All items are saved now, so we can update the sort positions.
         item_pks = form.cleaned_data.get('item_sort_positions')
+        del_keys = list()
         for idx, item_pk in enumerate(item_pks):
             if 'filepk:' in str(item_pk):
+                # This is a new item. Look it up by the file id.
                 fpk = int(item_pk.split(':')[1])
                 item_pks[idx] = Item.objects.get(
                     filer_file__id=fpk, set=form.instance).pk
+            else:
+                # Make sure the exists in the database (relevant after deleting)
+                try:
+                    Item.objects.get(pk=item_pk)
+                except Item.DoesNotExist:
+                    del_keys.append(idx)
+
+        del_keys = sorted(del_keys, reverse=True)
+        for key in del_keys:
+            del item_pks[key]
 
         form.instance.save_item_sort(item_pks)
 
