@@ -21,6 +21,25 @@ select.filtered {
   border: 2px dashed rgba(37, 59, 118, 0.3);
   background-color: rgba(255, 255, 255, 0.8);
 }
+.filename-label {
+  font-size: 9px;
+  line-height: 1.2em;
+  background-color: #ffffff;
+  border-radius: 2px;
+  border: 1px solid #e6e6e6;
+  display: inline-block;
+  padding: 0 6px;
+  color: #969696;
+}
+a.naked {
+  text-decoration: none !important;
+  font-size: 9px;
+}
+.control-group .controls i {
+  display: inline-block;
+  text-shadow: 1px 1px 1px white !important;
+  font-size: 12px;
+}
 .column-current_categories {
   width: 205px;
 }
