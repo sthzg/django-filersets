@@ -184,6 +184,8 @@ class Set(TimeStampedModel):
         default=False
     )
 
+    #                                                          _________________
+    #                                                          Create/Update Set
     def create_or_update_set(self):
         """
         Creates items and removes orphans in the current set.
@@ -251,6 +253,8 @@ class Set(TimeStampedModel):
 
         return op_stats
 
+    #                                                            _______________
+    #                                                            Sorting Methods
     def get_items_sorted(self):
         """
         Returns a list of items in current sorting order.

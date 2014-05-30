@@ -8,7 +8,7 @@ from django import forms
 from django.contrib import admin
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
-from django.forms.widgets import SelectMultiple, HiddenInput
+from django.forms.widgets import SelectMultiple
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -55,8 +55,22 @@ if has_suit:
         Allows to view filer_files referenced in a set.
         """
         form = ItemInlineForm
-        fields = ('get_sort_position', 'get_item_thumb', 'filer_file', 'get_original_filename', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
-        readonly_fields = ('get_sort_position', 'get_item_thumb', 'get_original_filename',)
+        fields = (
+            'get_sort_position',
+            'get_item_thumb',
+            'filer_file',
+            'get_original_filename',
+            'title',
+            'description',
+            'is_cover',
+            'is_locked',
+            'is_timeline',
+        )
+        readonly_fields = (
+            'get_sort_position',
+            'get_item_thumb',
+            'get_original_filename',
+        )
         model = Item
         extra = 0
         list_per_page = 30
@@ -75,8 +89,19 @@ else:
         """
         Allows to view filer_files referenced in a set.
         """
-        fields = ('filer_file', 'title', 'description', 'is_cover', 'is_locked', 'is_timeline',)
-        list_editable = ('description', 'is_cover', 'is_timeline',)
+        fields = (
+            'filer_file',
+            'title',
+            'description',
+            'is_cover',
+            'is_locked',
+            'is_timeline',
+        )
+        list_editable = (
+            'description',
+            'is_cover',
+            'is_timeline',
+        )
         list_display = ('title', 'is_cover', 'description', 'is_cover',)
         list_display_links = ('title',)
         model = Item
@@ -101,7 +126,15 @@ class ItemAdmin(admin.ModelAdmin):
         js = ['filersets/js/filersets_admin.js']
 
     form = ItemForm
-    list_display = ('item_thumb', 'set_admin_link', 'current_categories', 'title', 'description', 'created', 'is_timeline',)
+    list_display = (
+        'item_thumb',
+        'set_admin_link',
+        'current_categories',
+        'title',
+        'description',
+        'created',
+        'is_timeline',
+    )
     list_editable = ('title', 'description', 'is_timeline',)
     list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
     list_display_links = ('item_thumb',)
@@ -142,7 +175,7 @@ class ItemAdmin(admin.ModelAdmin):
                    '<a class="cat-del" data-catpk="{}" data-itempk="{}">x</a>' \
                    '</span>'
             cats = u''.join([span.format(cat.name, cat.pk, obj.pk)
-                               for cat in obj.category.all()])
+                             for cat in obj.category.all()])
 
         except TypeError:
             cats = _(u'None')
@@ -195,10 +228,9 @@ class SetForm(ModelForm):
         self.fields['item_sort_positions'].required = False
         if 'instance' in kwargs.keys():
             self.fields['item_sort_positions'].initial = Set.objects.get(
-                    pk=kwargs['instance'].pk).get_items_sorted_pks_serialized()
+                pk=kwargs['instance'].pk).get_items_sorted_pks_serialized()
         else:
             self.fields['item_sort_positions'].initial = ''
-
 
     def clean(self):
         """
@@ -243,6 +275,7 @@ class SetForm(ModelForm):
 
         return cleaned_data
 
+
 # ______________________________________________________________________________
 #                                                                     Admin: Set
 class SetAdmin(admin.ModelAdmin):
@@ -257,27 +290,33 @@ class SetAdmin(admin.ModelAdmin):
     #                                                               Save Formset
     def save_formset(self, request, form, formset, change):
         formset.save(commit=True)
+
         # All items are saved now, so we can update the sort positions.
-        item_pks = form.cleaned_data.get('item_sort_positions')
-        del_keys = list()
-        for idx, item_pk in enumerate(item_pks):
-            if 'filepk:' in str(item_pk):
-                # This is a new item. Look it up by the file id.
-                fpk = int(item_pk.split(':')[1])
-                item_pks[idx] = Item.objects.get(
-                    filer_file__id=fpk, set=form.instance).pk
-            else:
-                # Make sure the exists in the database (relevant after deleting)
-                try:
-                    Item.objects.get(pk=item_pk)
-                except Item.DoesNotExist:
-                    del_keys.append(idx)
+        cleaned_data = form.cleaned_data
+        if cleaned_data.get('ordering') != 'custom':
+            form.instance.save_item_sort()
+        else:
+            item_pks = cleaned_data.get('item_sort_positions')
 
-        del_keys = sorted(del_keys, reverse=True)
-        for key in del_keys:
-            del item_pks[key]
+            del_keys = list()
+            for idx, item_pk in enumerate(item_pks):
+                if 'filepk:' in str(item_pk):
+                    # This is a new item. Look it up by the file id.
+                    fpk = int(item_pk.split(':')[1])
+                    item_pks[idx] = Item.objects.get(
+                        filer_file__id=fpk, set=form.instance).pk
+                else:
+                    # Make sure that the item exists (relevant after deleting).
+                    try:
+                        Item.objects.get(pk=item_pk)
+                    except Item.DoesNotExist:
+                        del_keys.append(idx)
 
-        form.instance.save_item_sort(item_pks)
+            del_keys = sorted(del_keys, reverse=True)
+            for key in del_keys:
+                del item_pks[key]
+
+            form.instance.save_item_sort(item_pks)
 
     #                                                              _____________
     #                                                              Model Methods
@@ -354,7 +393,7 @@ class SetAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     inlines = (ItemInlineAdmin,)
     actions = [create_or_update_filerset]
-    readonly_fields = ('is_processed',)
+    readonly_fields = ('is_processed',)‹
     list_filter = ('date', 'is_processed', 'status',)
     list_display = ('title', 'date', 'status', 'is_processed', 'watch_online',
                     'process_set',)
@@ -391,10 +430,7 @@ class CategoryAdmin(TreeAdmin):
     watch_online.allow_tags = True
 
     form = movenodeform_factory(Category)
-    list_display = ('name', 'slug', 'is_active',)
-
-    list_display = ('name', 'number_of_sets', 'slug',
-                    'is_active',)
+    list_display = ('name', 'number_of_sets', 'slug', 'is_active',)
     list_editable = ('is_active',)
     exclude = ('slug_composed', 'path', 'depth', 'numchild', 'parent',)
     inlines = [AffiliateInlineAdmin]
