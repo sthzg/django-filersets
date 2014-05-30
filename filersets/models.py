@@ -250,6 +250,8 @@ class Set(TimeStampedModel):
                 logger.info(msg.format(logsig, f.id, self.pk))
 
         self.save_item_sort()
+        self.is_processed = True
+        self.save()
 
         return op_stats
 
