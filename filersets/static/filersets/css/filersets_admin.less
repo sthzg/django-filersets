@@ -1,6 +1,5 @@
 select.filtered { min-height: 240px; }
 
-
 .selector-chosen select[multiple=multiple] {
   height: 265px;
 }
@@ -16,7 +15,7 @@ select.filtered { min-height: 240px; }
 }
 
 .ui-state-highlight {
-  height: 104px;
+  height: 135px;
   line-height: 1.2em;
   border: 2px dashed rgba(37, 59, 118, .3);
   background-color: rgba(255,255,255,.8);
@@ -76,13 +75,26 @@ div.field-item_sort_positions { display: none !important; }
     }
   }
 
+  th {
+    font-size: 9px;
+    font-weight: normal;
+    font-family: Arial;
+    color: rgb(195,195,195);
+    text-shadow: none;
+    background: none !important;
+    background-color: rgb(237,237,237) !important;
+  }
+
   td {
     vertical-align: middle;
     text-align: center;
   }
   td.field-get_item_thumb {width: 120px; text-align: center; }
+  th.field-filename,
   td.field-get_original_filename {
     width: 160px;
+  }
+  td.field-get_original_filename {
     p {
       font-size: 9px;
       line-height: 1.2em;
@@ -103,6 +115,7 @@ div.field-item_sort_positions { display: none !important; }
       font-weight: bold;
     }
   }
+  th.field-filer-file,
   td.field-filer_file {
     display: none;
   }

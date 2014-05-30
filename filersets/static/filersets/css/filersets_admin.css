@@ -16,7 +16,7 @@ select.filtered {
   list-style-image: none;
 }
 .ui-state-highlight {
-  height: 104px;
+  height: 135px;
   line-height: 1.2em;
   border: 2px dashed rgba(37, 59, 118, 0.3);
   background-color: rgba(255, 255, 255, 0.8);
@@ -65,6 +65,15 @@ div.field-item_sort_positions {
   display: block;
   padding: 5px;
 }
+.fs-inline th {
+  font-size: 9px;
+  font-weight: normal;
+  font-family: Arial;
+  color: #c3c3c3;
+  text-shadow: none;
+  background: none !important;
+  background-color: #ededed !important;
+}
 .fs-inline td {
   vertical-align: middle;
   text-align: center;
@@ -73,6 +82,7 @@ div.field-item_sort_positions {
   width: 120px;
   text-align: center;
 }
+.fs-inline th.field-filename,
 .fs-inline td.field-get_original_filename {
   width: 160px;
 }
@@ -93,6 +103,7 @@ div.field-item_sort_positions {
   text-shadow: 1px 1px 1px white;
   font-weight: bold;
 }
+.fs-inline th.field-filer-file,
 .fs-inline td.field-filer_file {
   display: none;
 }

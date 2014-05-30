@@ -411,7 +411,7 @@ class Item(TimeStampedModel):
     )
 
     is_timeline = models.BooleanField(
-        _('on timeline?'),
+        _('tl?'),
         help_text=_('This field indicates whether the item is displayed on '
                     'a timeline view.'),
         blank=True,
@@ -420,7 +420,7 @@ class Item(TimeStampedModel):
     )
 
     is_locked = models.BooleanField(
-        _('locked'),
+        _('locked?'),
         help_text=_('Reprocessing a set searches for and deletes files that '
                     'are not/no longer contained within the root folder. Check '
                     'locked if you wish to keep this file as part of the '
@@ -445,6 +445,7 @@ class Item(TimeStampedModel):
         return output
 
     get_item_thumb.allow_tags = True
+    get_item_thumb.short_description = 'Thumb'
 
     def get_original_filename(self):
         """
@@ -452,11 +453,15 @@ class Item(TimeStampedModel):
         """
         return self.filer_file.original_filename
 
+    get_original_filename.short_description = 'filename'
+
     def get_sort_position(self):
         """
         Return 0-based sort position of the item.
         """
         return self.item_sort.sort
+
+    get_sort_position.short_description = 'Pos'
 
     def save(self, *args, **kwargs):
         if not self.ct_id:

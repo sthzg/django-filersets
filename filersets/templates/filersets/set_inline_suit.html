@@ -15,6 +15,16 @@
             {% if inline_admin_form.form.non_field_errors %}
             <tr><td colspan="{{ inline_admin_form|cell_count }}"><div class="control-group error"><div class="help-block">{{ inline_admin_form.form.non_field_errors }}</div></div></td></tr>
             {% endif %}
+            <thead><tr>
+            {% for field in inline_admin_formset.fields %}
+              {% if not field.widget.is_hidden %}
+                <th{% if forloop.first %} colspan="1"{% endif %} class="{% if field.required %}required{% endif %} field-{{ field.label|slugify }}">{{ field.label|capfirst }}
+                {% if field.help_text %}&nbsp;<i class="fa fa-question-circle" title="{{ field.help_text|striptags }}" /></i>{% endif %}
+                </th>
+              {% endif %}
+            {% endfor %}
+            {% if inline_admin_formset.formset.can_delete %}<th>{% trans "Delete?" %}</th>{% endif %}
+            </tr></thead>
             <tr class="form-row {% cycle "row1" "row2" %} {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}">
 
             {% for fieldset in inline_admin_form %}
@@ -62,11 +72,6 @@
   </ul>
 
 </fieldset>
-
-
-
-
-
   </div>
 </div>
 
@@ -110,16 +115,19 @@
             });
         }
         var positionRemoveSpan = function(row) {
-            $td = $('<td></td>').append(row.find('table > span')[0]);
-            $td.insertAfter(row.find('table tr td:last-child'));
+            $td = row.find('td.delete').append(row.find('table > span')[0]);
+{#            $td.insertAfter(row.find('table tr td:last-child'));#}
         };
         var prepareItemInlineForm = function(row) {
           var count = $('li.dynamic-filer_set').length - 1;
           row.find('.field-get_sort_position p').text(count);
           row.attr('data-sortpos', count);
-          row.find('.field-filer_file').css('display', 'block');
-          row.find('.field-get_item_thumb').css('display', 'none');
-          row.find('.field-get_original_filename').css('display', 'none');
+          row.find('th.field-filer-file').css('display', 'block');
+          row.find('td.field-filer_file').css('display', 'block');
+          row.find('th.field-thumb').css('display', 'none');
+          row.find('td.field-get_item_thumb').css('display', 'none');
+          row.find('th.field-filename').css('display', 'none');
+          row.find('td.field-get_original_filename').css('display', 'none');
           row.find('.vForeignKeyRawIdAdminField').bind(
               'selected_file_changed',
               function(ev, data) {

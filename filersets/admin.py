@@ -393,7 +393,7 @@ class SetAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     inlines = (ItemInlineAdmin,)
     actions = [create_or_update_filerset]
-    readonly_fields = ('is_processed',)‹
+    readonly_fields = ('is_processed',)
     list_filter = ('date', 'is_processed', 'status',)
     list_display = ('title', 'date', 'status', 'is_processed', 'watch_online',
                     'process_set',)
