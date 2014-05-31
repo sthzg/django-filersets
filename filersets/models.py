@@ -437,10 +437,12 @@ class Item(TimeStampedModel):
         Return a thumbnail represenation of the current item.
         """
         if self.filer_file.polymorphic_ctype.name == 'image':
+            admin_link = self.filer_file.get_admin_url_path()
             options = {'size': (100, 100), 'crop': True}
             thumb_url = get_thumbnailer(
                 self.filer_file.file).get_thumbnail(options).url
             output = '<img src="{}">'.format(thumb_url)
+            output = '<a href="{}">{}</a>'.format(admin_link, output)
         else:
             output = '{}'.format(ugettext('Edit'))
 
