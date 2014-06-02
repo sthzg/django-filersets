@@ -8,6 +8,7 @@ import inspect
 import logging
 # ______________________________________________________________________________
 #                                                                         Django
+from django import dispatch
 from django.db import models
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
@@ -25,6 +26,8 @@ from treebeard.mp_tree import MP_Node, MP_NodeManager
 # from taggit.managers import TaggableManager
 from easy_thumbnails.files import get_thumbnailer
 from taggit_autosuggest_select2.managers import TaggableManager
+
+from filersets.signals import fset_processed
 
 logger = logging.getLogger(__name__)
 
@@ -253,6 +256,8 @@ class Set(TimeStampedModel):
         self.is_processed = True
         self.save()
 
+        fset_processed.send(sender=self.__class__, fset=self)
+
         return op_stats
 
     #                                                            _______________
@@ -458,6 +463,7 @@ class Item(TimeStampedModel):
         return self.filer_file.original_filename
 
     get_original_filename.short_description = 'filename'
+    get_original_filename.allow_tags = True
 
     def get_sort_position(self):
         """
