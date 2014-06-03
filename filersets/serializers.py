@@ -24,6 +24,7 @@ class FileSerializer(serializers.HyperlinkedModelSerializer):
 
 class FilemodelExtSerializer(serializers.HyperlinkedModelSerializer):
     filer_file = serializers.HyperlinkedRelatedField(view_name='file-detail')
+
     class Meta:
         model = FilemodelExt
-        fields = ('filer_file', 'is_timeline',)
+        fields = ('filer_file', 'is_timeline', 'category',)

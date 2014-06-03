@@ -127,6 +127,8 @@ class ItemAdmin(admin.ModelAdmin):
         ]}
         js = ['filersets/js/filersets_admin.js']
 
+    #                                                                        ___
+    #                                                           Filter: Timeline
     class TimelineFilter(admin.SimpleListFilter):
         """
         Provides a filter for objects on timeline / not on timeline.
@@ -142,13 +144,42 @@ class ItemAdmin(admin.ModelAdmin):
 
         def queryset(self, request, queryset):
             q_filter = {}
-            q_exclude = {'filer_file__filemodelext_file__is_timeline': True}
+            q_exclude = {}
 
             if self.value() == 'yes':
                 q_filter = {'filer_file__filemodelext_file__is_timeline': True}
                 q_exclude = {}
 
+            elif self.value() == 'no':
+                q_filter = {}
+                q_exclude = {'filer_file__filemodelext_file__is_timeline': True}
+
             return queryset.filter(**q_filter).exclude(**q_exclude)
+
+    #                                                                        ___
+    #                                                           Filter: Category
+    class CategoryFilter(admin.SimpleListFilter):
+        """
+        Provides a filter by object category.
+        """
+        title = _('category')
+        parameter_name = 'category'
+
+        def lookups(self, request, model_admin):
+            # TODO Respect affiliate settings
+            data = list()
+            for category in Category.objects.all().order_by('name'):
+                data.append((category.pk, category.name,))
+            return data
+
+        def queryset(self, request, queryset):
+            if self.value():
+                q_filter = {
+                    'filer_file__filemodelext_file__category': self.value()
+                }
+                return queryset.filter(**q_filter)
+            else:
+                return queryset
 
     form = ItemForm
     list_display = (
@@ -162,11 +193,16 @@ class ItemAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('get_is_timeline',)
     list_editable = ('title', 'description',)
-    list_filter = ('set', 'is_cover', 'category', 'created', 'modified', TimelineFilter,)
+    list_filter = (
+        'set',
+        CategoryFilter,
+        'is_cover',
+        'created',
+        'modified',
+        TimelineFilter,)
     list_display_links = ('item_thumb',)
     list_per_page = 25
-    fields = ('filer_file', 'title', 'description', 'category', 'tags',)
-    filter_vertical = ('category',)
+    fields = ('filer_file', 'title', 'description', 'tags',)
     search_fields = ('filer_file__file', 'title', 'set__title')
     ordering = ['-created']
 
@@ -205,10 +241,10 @@ class ItemAdmin(admin.ModelAdmin):
         """
         try:
             span = '<span class="label cat">{} ' \
-                   '<a class="cat-del" data-catpk="{}" data-itempk="{}">x</a>' \
+                   '<a class="cat-del" data-catpk="{}" data-filepk="{}">x</a>' \
                    '</span>'
-            cats = u''.join([span.format(cat.name, cat.pk, obj.pk)
-                             for cat in obj.category.all()])
+            cats = u''.join([span.format(cat.name, cat.pk, obj.filer_file.pk)
+                             for cat in obj.filer_file.filemodelext_file.all()[0].category.all()])
 
         except TypeError:
             cats = _(u'None')
@@ -228,8 +264,6 @@ class ItemAdmin(admin.ModelAdmin):
     item_thumb.allow_tags = True
     set_admin_link.short_description = _('Set')
     set_admin_link.allow_tags = True
-
-
 
 
 # ______________________________________________________________________________

@@ -234,16 +234,18 @@ var fs_categorizr = {
 
         var pk_category = $(this).data('pk');
 
+        // Get all selected rows.
         var $tr_selected = $('tr.selected');
         if ($tr_selected.length < 1)
           { return false; }
 
+        // Respect the lock state of the UI.
         if (that.ui_lock === true)
           { return false; }
         else
           { that._toggle_ui_lock(); }
 
-        // quick prototype of a tiny poor man's queue counter.
+        // Quick prototype of a tiny poor man's queue counter.
         var $queue_count = {
           num_items: $tr_selected.length,
           decrease: function() {
@@ -252,15 +254,17 @@ var fs_categorizr = {
             else
               { this.num_items -= 1; }}};
 
+        // Start ajax actions for each selected item.
         $.each($tr_selected, function(key, val) {
           var $pk_item = $(val).find('input.action-select');
-          that._GET_categories_by_item($pk_item.val(), $pk_item);
+          var pk_file = $(val).find('.fs_filepk').attr('data-filepk');
+          that._GET_categories_by_file(pk_file, $pk_item);
           $pk_item.unbind().bind(
               'categories_lookup_ready',
-              function(ev, pk_item, categories) {
+              function(ev, pk_file, categories) {
                 try {
-                  that._PUT_category_by_item(pk_item, pk_category, categories);
-                  $pk_item.unbind().bind('PUT_category_by_item_complete', function()
+                  that._PATCH_category_by_file(pk_file, pk_category, categories);
+                  $pk_item.unbind().bind('PUT_category_by_file_complete', function()
                     { $queue_count.decrease(); })
                 }
                 catch(err)
@@ -277,15 +281,15 @@ var fs_categorizr = {
   },
 
   /**
-   * GET currently assigned categories for an item with PK pk_item. Optionally
+   * GET currently assigned categories for a file with PK pk_item. Optionally
    * pass a jQuery object to the second argument ``$fire_on`` to specify this
    * object as trigger-target for the ``categories_lookup_ready`` event.
    *
-   * @param pk_item
+   * @param pk_file
    * @param $fire_on
    * @constructor
    */
-  _GET_categories_by_item: function(pk_item, $fire_on) {
+  _GET_categories_by_file: function(pk_file, $fire_on) {
 
     if ($fire_on == undefined)
       { $fire_on = this.$api; }
@@ -293,22 +297,22 @@ var fs_categorizr = {
     var csrftoken = getCookie('csrftoken');
     $.ajax({
       type: 'GET',
-      url: '/api/v1/fsitems/'+pk_item+'/',
+      url: '/api/v1/fsfilemodelext/'+pk_file+'/',
       context: this,
       contentType: 'application/json; charset=utf-8',
       beforeSend: function(xhr, settings)
         { xhr.setRequestHeader("X-CSRFToken", csrftoken); },
       success: function(data) {
         $fire_on.trigger(
-            'categories_lookup_ready', [pk_item, data.category]);
+            'categories_lookup_ready', [pk_file, data.category]);
       }
     });
   },
-
+  
   /**
-   * PUT request to assign an item to categories.
+   * PATCH request to assign an item to files.
    *
-   * @param pk_item
+   * @param pk_file
    * @param pk_category
    * @param extra_categories
    */
@@ -319,9 +323,8 @@ var fs_categorizr = {
       // DRY. Needs refactoring and further splitting up.
       // TODO  Refactor to be general purpose. Split assuming parts apart.
 
-  _PUT_category_by_item: function(pk_item, pk_category, extra_categories) {
+  _PATCH_category_by_file: function(pk_file, pk_category, extra_categories) {
 
-    var that = this;
     var csrftoken = getCookie('csrftoken');
 
     if (extra_categories == undefined)
@@ -339,12 +342,13 @@ var fs_categorizr = {
       { extra_categories.push(new_category); }
 
     $.ajax({
-      type:'PUT',
-      url:'/api/v1/fsitems/'+pk_item+'/',
+      type:'PATCH',
+      url:'/api/v1/fsfilemodelext/'+pk_file+'/',
       context: this,
       contentType:'application/json; charset=utf-8',
       dataType:'json',
       data: JSON.stringify({
+        "filer_file": '/api/v1/fsfile/'+pk_file+'/',
         "category": extra_categories
       }),
       beforeSend: function(xhr, settings) {
@@ -353,18 +357,20 @@ var fs_categorizr = {
       //                                                                     ___
       //                                                                 Success
       success: function(data) {
-        var $pk_item = $(".action-checkbox input[value="+data.id+"]");
-        $pk_item.trigger('PUT_category_by_item_complete');
-
         // TODO  Untie this method from the change list page. Sep logic needed
+        var $pk_item = $('a').find("[data-filepk='"+pk_file+"']")
+                             .parents('tr')
+                             .find('.action-checkbox input');
+        $pk_item.trigger('PUT_category_by_file_complete');
+
         var $cat_col = $pk_item.closest('tr')
                                .find('td:nth-child('+this.cat_col_num+')');
 
         var label = undefined;
         if (pk_category > -1)
-          { label = 'Assigned category on ' + data.id; }
+          { label = 'Assigned category on ' + pk_file; }
         else
-          { label = 'Removed category on ' + data.id; }
+          { label = 'Removed category on ' + pk_file; }
 
         uib_notice.add_note(label, 2, 'check-circle');
 
@@ -383,7 +389,7 @@ var fs_categorizr = {
             var $span = $('<span class="label cat">' + val.name + '</span>');
             var $atag = $('<a class="cat-del" ' +
                              'data-catpk="' + val.id + '"' +
-                             'data-itempk="' + pk_item + '">x</a>');
+                             'data-filepk="' + pk_file + '">x</a>');
             $span.append($atag);
             fs_categorizr.bind_quick_delete($span);
 
@@ -427,10 +433,10 @@ var fs_categorizr = {
       ev.stopPropagation();
 
       var $this = $(this);
-      var pk_item = $this.data('itempk');
+      var pk_file = $this.data('filepk');
       var pk_cat = $this.data('catpk');
 
-      fs_categorizr.remove_category(pk_item, pk_cat);
+      fs_categorizr.remove_category(pk_file, pk_cat);
 
     });
   },
@@ -438,13 +444,13 @@ var fs_categorizr = {
   /**
    * Removes category from item via ajax.
    *
-   * @param pk_item
+   * @param pk_file
    * @param pk_cat
    */
-  remove_category: function(pk_item, pk_cat) {
+  remove_category: function(pk_file, pk_cat) {
     var that = this;
     $(this).one('categories_lookup_ready',
-        function(ev, pk_item, categories) {
+        function(ev, pk_file, categories) {
 
           var rem = '/api/v1/fscategories/'+pk_cat+'/';
           var re = new RegExp(rem, "g");
@@ -456,10 +462,10 @@ var fs_categorizr = {
             }
           });
 
-          that._PUT_category_by_item(pk_item, -1, categories);
+          that._PATCH_category_by_file(pk_file, -1, categories);
     });
 
-    this._GET_categories_by_item(pk_item, $(this));
+    this._GET_categories_by_file(pk_file, $(this));
   },
 
   /**
@@ -588,7 +594,7 @@ var fs_timelinr = {
           var csrftoken = getCookie('csrftoken');
 
           $.ajax({
-            type: 'PUT',
+            type: 'PATCH',
             url: '/api/v1/fsfilemodelext/' + filepk + '/',
             context: this,
             contentType: 'application/json; charset=utf-8',
