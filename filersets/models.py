@@ -8,7 +8,6 @@ import inspect
 import logging
 # ______________________________________________________________________________
 #                                                                         Django
-from django import dispatch
 from django.db import models
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
@@ -417,15 +416,6 @@ class Item(TimeStampedModel):
         blank=True
     )
 
-    is_timeline = models.BooleanField(
-        _('tl?'),
-        help_text=_('This field indicates whether the item is displayed on '
-                    'a timeline view.'),
-        blank=True,
-        default=False,
-        null=False
-    )
-
     is_locked = models.BooleanField(
         _('locked?'),
         help_text=_('Reprocessing a set searches for and deletes files that '
@@ -437,16 +427,19 @@ class Item(TimeStampedModel):
         null=False
     )
 
+    #                                                                        ___
+    #                                                             get_item_thumb
     def get_item_thumb(self):
         """
-        Return a thumbnail represenation of the current item.
+        Return a thumbnail representation of the current item.
         """
         if self.filer_file.polymorphic_ctype.name == 'image':
             admin_link = self.filer_file.get_admin_url_path()
             options = {'size': (100, 100), 'crop': True}
             thumb_url = get_thumbnailer(
                 self.filer_file.file).get_thumbnail(options).url
-            output = '<img src="{}">'.format(thumb_url)
+            output = '<img class="fs_filepk" src="{}" data-filepk="{}">'
+            output = output.format(thumb_url, self.filer_file.id)
             output = '<a href="{}">{}</a>'.format(admin_link, output)
         else:
             output = '{}'.format(ugettext('Edit'))
@@ -456,6 +449,8 @@ class Item(TimeStampedModel):
     get_item_thumb.allow_tags = True
     get_item_thumb.short_description = 'Thumb'
 
+    #                                                                        ___
+    #                                                      get_original_filename
     def get_original_filename(self):
         """
         Return the original filename of the item.
@@ -465,6 +460,8 @@ class Item(TimeStampedModel):
     get_original_filename.short_description = 'filename'
     get_original_filename.allow_tags = True
 
+    #                                                                        ___
+    #                                                          get_sort_position
     def get_sort_position(self):
         """
         Return 0-based sort position of the item.
@@ -473,6 +470,34 @@ class Item(TimeStampedModel):
 
     get_sort_position.short_description = 'Pos'
 
+    #                                                                        ___
+    #                                                                is_timeline
+    def is_timeline(self):
+        """
+        Check is_timeline flag on the file and return True or False.
+        """
+        is_timeline = False
+        try:
+            is_timeline = self.filer_file.filemodelext_file.all()[0].is_timeline
+        except IndexError:
+            pass
+        return is_timeline
+
+    #                                                                        ___
+    #                                                            get_is_timeline
+    def get_is_timeline(self):
+        """
+        Render green check or red x according to is_timeline flag.
+        """
+        yesno = 'check-circle' if self.is_timeline() else 'times-circle'
+        output = '<i class="fs_is-timeline-indicator fa fa-{}"></i>'
+        return output.format(yesno)
+
+    get_is_timeline.allow_tags = True
+    get_is_timeline.short_description = _('Tl.?')
+
+    #                                                                        ___
+    #                                                                       save
     def save(self, *args, **kwargs):
         if not self.ct_id:
             self.ct_id = ContentType.objects.get(
@@ -480,6 +505,8 @@ class Item(TimeStampedModel):
 
         super(Item, self).save(*args, **kwargs)
 
+    #                                                                        ___
+    #                                                                    unicode
     def __unicode__(self):
         return u'{}'.format(self.filer_file.original_filename)
         # return u'Set: {}'.format(self.set.title)
@@ -617,7 +644,7 @@ class Category(MP_Node):
 
 
 # ______________________________________________________________________________
-#                                                              Model: Membership
+#                                                               Model: Affiliate
 class Affiliate(models.Model):
     """
     Configure categories that belong to certain logical entities of filersets
@@ -677,3 +704,37 @@ class Affiliate(models.Model):
 
     def __unicode__(self):
         return u'{}'.format(self.label)
+
+
+# ______________________________________________________________________________
+#                                                            Model: FilemodelExt
+class FilemodelExt(models.Model):
+
+    class Meta:
+        verbose_name = _('file model extension')
+        verbose_name_plural = _('file model extensions')
+
+    filer_file = FilerFileField(
+        related_name='filemodelext_file',
+        verbose_name=_('Filer file'),
+        null=False,
+        default=None,
+        blank=False,
+        unique=True,
+        primary_key=True
+    )
+
+    is_timeline = models.BooleanField(
+        _('tl?'),
+        help_text=_('This field indicates whether the file is displayed on '
+                    'a timeline view.'),
+        blank=True,
+        default=False,
+        null=False
+    )
+
+    # TODO Tags
+    # TODO Category
+
+    def __unicode__(self):
+        return u'{}'.format(self.filer_file)

@@ -40,6 +40,16 @@ a.naked {
   text-shadow: 1px 1px 1px white !important;
   font-size: 12px;
 }
+i.fa-times-circle {
+  color: #969696;
+}
+i.fa-check-circle {
+  color: lightseagreen;
+}
+tr.selected i.fa-times-circle,
+tr.selected i.fa-check-circle {
+  color: white;
+}
 .column-current_categories {
   width: 205px;
 }

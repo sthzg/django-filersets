@@ -501,7 +501,7 @@ var fs_categorizr = {
  */
 var fs_timelinr = {
 
-  label: 'Tools to assign/unassign selected items to/from the timeline.',
+  label: 'Tools to assign/remove selected items to/from the timeline.',
   icon: 'fa-clock-o',
   icon_type: 'fontawesome',
   band_bgcolor: 'inherit',    // inherit or color value
@@ -555,11 +555,13 @@ var fs_timelinr = {
         if ($tr_selected.length < 1)
           { return false; }
 
+        // Respect ui_lock and toggle it if UI is not locked.
         if (that.ui_lock === true)
           { return false; }
         else
           { that._toggle_ui_lock(); }
 
+        // Check if we want to add or remove the selected items.
         var is_timeline = undefined;
         var action = $(this).data('trigger');
         if (action == 'add')
@@ -570,7 +572,7 @@ var fs_timelinr = {
           { throw "Illegal action"; }
 
         // TODO  Refactor to reusable class
-        // quick prototype of a tiny poor man's queue counter.
+        // Quick prototype of a tiny poor man's queue counter.
         var $queue_count = {
           num_items: $tr_selected.length,
           decrease: function() {
@@ -582,15 +584,17 @@ var fs_timelinr = {
         $.each($tr_selected, function(key, val) {
           this.$pk_item = $(val).find('input.action-select');
           this.pk = this.$pk_item.val();
+          var filepk = $(val).find('.fs_filepk').attr('data-filepk');
           var csrftoken = getCookie('csrftoken');
 
           $.ajax({
-            type: 'PATCH',
-            url: '/api/v1/fsitems/'+this.pk+'/',
+            type: 'PUT',
+            url: '/api/v1/fsfilemodelext/' + filepk + '/',
             context: this,
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             data: JSON.stringify({
+              'filer_file': '/api/v1/fsfile/' + filepk + '/',
               'is_timeline': is_timeline.toString()
             }),
             beforeSend: function(xhr, settings) {
@@ -599,15 +603,20 @@ var fs_timelinr = {
             //                                                           _______
             //                                                           Success
             success: function(data) {
-              var $inp = $(this.$pk_item.parents('tr').find('[id *= "is_timeline"]')[0]);
-              $inp.prop('checked', is_timeline);
+              // Tell the counter it's one less to go.
               $queue_count.decrease();
 
+              // Update UI: 1) Toggle symbol in list. 2) Add notification.
+              var $ind = $(this.$pk_item.parents('tr').find('.fs_is-timeline-indicator')[0]);
               var label = undefined;
-              if (is_timeline === true)
-                { label = ''+ data.id + ' added to timeline'; }
-              else
-                { label = ''+ data.id + ' removed from timeline'; }
+              if (is_timeline === true) {
+                label = 'File added to timeline';
+                $ind.removeClass('fa-times-circle').addClass('fa-check-circle');
+              } else {
+                label = 'File removed from timeline';
+                $ind.removeClass('fa-check-circle').addClass('fa-times-circle');
+              }
+              // Push note to the notifier widget
               uib_notice.add_note(label, 2, 'check-circle');
             }
           });

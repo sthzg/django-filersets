@@ -17,11 +17,15 @@ from django.utils.translation import ugettext_lazy as _
 # ______________________________________________________________________________
 #                                                                        Contrib
 from rest_framework import viewsets
+from filer.models import File
 # ______________________________________________________________________________
 #                                                                        Package
 from filersets.config import get_template_settings
-from filersets.models import Set, Item, Category
-from filersets.serializers import CategorySerializer, ItemSerializer
+from filersets.models import Set, Item, Category, FilemodelExt
+from filersets.serializers import (CategorySerializer,
+                                   ItemSerializer,
+                                   FileSerializer,
+                                   FilemodelExtSerializer)
 
 
 # ______________________________________________________________________________
@@ -247,7 +251,27 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 #                                                                 API View: Item
 class ItemViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows categories to be viewed
+    API endpoint that allows categories to be viewed and modified.
     """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
+
+
+# ______________________________________________________________________________
+#                                                         API View: FilemodelExt
+class FilemodelExtViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows Filemodel Extensions to be viewed and modified.
+    """
+    queryset = FilemodelExt.objects.all()
+    serializer_class = FilemodelExtSerializer
+
+
+# ______________________________________________________________________________
+#                                                                 API View: File
+class FileViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows Filemodel Extensions to be viewed and modified.
+    """
+    queryset = File.objects.all()
+    serializer_class = FileSerializer

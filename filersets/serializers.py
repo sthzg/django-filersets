@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from filersets.models import Category, Item
+from filersets.models import Category, Item, FilemodelExt
+from filer.models import File
 from rest_framework import serializers
 
 
@@ -12,4 +13,17 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Item
-        fields = ('id', 'title', 'category', 'is_timeline',)
+        fields = ('id', 'title', 'category',)
+
+
+class FileSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = File
+        fields = ('id',)
+
+
+class FilemodelExtSerializer(serializers.HyperlinkedModelSerializer):
+    filer_file = serializers.HyperlinkedRelatedField(view_name='file-detail')
+    class Meta:
+        model = FilemodelExt
+        fields = ('filer_file', 'is_timeline',)

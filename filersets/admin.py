@@ -14,12 +14,13 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 # ______________________________________________________________________________
 #                                                                        Contrib
+from filer.admin.imageadmin import ImageAdmin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 from easy_thumbnails.files import get_thumbnailer
 # ______________________________________________________________________________
 #                                                                         Custom
-from filersets.models import Set, Item, Category, Affiliate
+from filersets.models import Set, Item, Category, Affiliate, FilemodelExt
 # ______________________________________________________________________________
 #                                                                    Django Suit
 try:
@@ -64,7 +65,6 @@ if has_suit:
             'description',
             'is_cover',
             'is_locked',
-            'is_timeline',
         )
         readonly_fields = (
             'get_sort_position',
@@ -118,12 +118,37 @@ else:
 class ItemAdmin(admin.ModelAdmin):
 
     class Media:
-        """ Provide additional static files for the set admin """
+        """
+        Provides additional static files for the set admin.
+        """
         css = {'all': [
             'filersets/css/filersets_admin.css',
             '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
         ]}
         js = ['filersets/js/filersets_admin.js']
+
+    class TimelineFilter(admin.SimpleListFilter):
+        """
+        Provides a filter for objects on timeline / not on timeline.
+        """
+        title = _('on timeline?')
+        parameter_name = 'timeline'
+
+        def lookups(self, request, model_admin):
+            return (
+                ('yes', _('yes')),
+                ('no', _('no')),
+            )
+
+        def queryset(self, request, queryset):
+            q_filter = {}
+            q_exclude = {'filer_file__filemodelext_file__is_timeline': True}
+
+            if self.value() == 'yes':
+                q_filter = {'filer_file__filemodelext_file__is_timeline': True}
+                q_exclude = {}
+
+            return queryset.filter(**q_filter).exclude(**q_exclude)
 
     form = ItemForm
     list_display = (
@@ -133,31 +158,37 @@ class ItemAdmin(admin.ModelAdmin):
         'title',
         'description',
         'created',
-        'is_timeline',
+        'get_is_timeline',
     )
-    list_editable = ('title', 'description', 'is_timeline',)
-    list_filter = ('set', 'is_cover', 'category', 'created', 'modified',)
+    readonly_fields = ('get_is_timeline',)
+    list_editable = ('title', 'description',)
+    list_filter = ('set', 'is_cover', 'category', 'created', 'modified', TimelineFilter,)
     list_display_links = ('item_thumb',)
+    list_per_page = 25
     fields = ('filer_file', 'title', 'description', 'category', 'tags',)
     filter_vertical = ('category',)
     search_fields = ('filer_file__file', 'title', 'set__title')
-    list_per_page = 25
     ordering = ['-created']
 
+    #                                                                        ___
+    #                                                                 item_thumb
     def item_thumb(self, obj):
         """
-        Return a thumbnail represenation of the current item.
+        Return a thumbnail representation of the current item.
         """
         if obj.filer_file.polymorphic_ctype.name == 'image':
             options = {'size': (80, 0), 'crop': True}
             thumb_url = get_thumbnailer(
                 obj.filer_file.file).get_thumbnail(options).url
-            output = '<img src="{}">'.format(thumb_url)
+            output = '<img class="fs_filepk" src="{}"  data-filepk="{}">'
+            output = output.format(thumb_url, obj.filer_file.id)
         else:
             output = '{}'.format(ugettext('Edit'))
 
         return output
 
+    #                                                                        ___
+    #                                                             set_admin_link
     def set_admin_link(self, obj):
         """
         Return a link to th admin change page of the set
@@ -166,6 +197,8 @@ class ItemAdmin(admin.ModelAdmin):
         link = '<a href="{}">{}</a>'
         return link.format(url, obj.set.title)
 
+    #                                                                        ___
+    #                                                         current_categories
     def current_categories(self, obj):
         """
         Return a string of currently assign categories to one item.
@@ -181,6 +214,8 @@ class ItemAdmin(admin.ModelAdmin):
             cats = _(u'None')
         return cats
 
+    #                                                                        ___
+    #                                                        get_changelist_form
     def get_changelist_form(self, request, **kwargs):
         """
         Alter change list to use custom widgets
@@ -193,6 +228,8 @@ class ItemAdmin(admin.ModelAdmin):
     item_thumb.allow_tags = True
     set_admin_link.short_description = _('Set')
     set_admin_link.allow_tags = True
+
+
 
 
 # ______________________________________________________________________________
@@ -435,6 +472,17 @@ class CategoryAdmin(TreeAdmin):
     exclude = ('slug_composed', 'path', 'depth', 'numchild', 'parent',)
     inlines = [AffiliateInlineAdmin]
 
+
+# ______________________________________________________________________________
+#                                                      InlineAdmin: FilemodelExt
+class FilemodelExtInline(admin.TabularInline):
+
+    model = FilemodelExt
+    extra = 0
+    max_num = 1
+    can_delete = False
+
+ImageAdmin.inlines = ItemAdmin.inlines + [FilemodelExtInline]
 
 # ______________________________________________________________________________
 #                                                                   Registration
