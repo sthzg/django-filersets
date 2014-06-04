@@ -106,7 +106,7 @@ class Set(TimeStampedModel):
     )
 
     status = models.CharField(
-        _('Status'),
+        _('status'),
         choices=STATUS_OPTIONS,
         max_length=15,
         blank=True,
@@ -115,13 +115,13 @@ class Set(TimeStampedModel):
     )
 
     date = models.DateField(
-        _('Date'),
+        _('date'),
         blank=True,
         default=None,
     )
 
     ordering = models.CharField(
-        _('Ordering rule'),
+        _('ordering rule'),
         max_length=50,
         blank=True,
         choices=ORDERING_OPTIONS,
@@ -130,14 +130,14 @@ class Set(TimeStampedModel):
     )
 
     title = models.CharField(
-        _('Title'),
+        _('title'),
         max_length=60,
         blank=False,
         default=None
     )
 
     slug = AutoSlugField(
-        _('Slug'),
+        _('slug'),
         always_update=True,
         max_length=80,
         blank=True,
@@ -146,19 +146,19 @@ class Set(TimeStampedModel):
     )
 
     description = models.TextField(
-        _('Description'),
+        _('description'),
         blank=True,
         default=None
     )
 
     folder = FilerFolderField(
-        verbose_name=_('Set folders'),
+        verbose_name=_('set folders'),
         help_text=_('Choose the directory you wish to have integrated into '
                     'the current set.')
     )
 
     recursive = models.BooleanField(
-        verbose_name=_('Include sub-folders?'),
+        verbose_name=_('include sub-folders?'),
         help_text=_('If checked, items from all subfolders will be included '
                     'into the set as well.'),
         blank=True,
@@ -166,8 +166,20 @@ class Set(TimeStampedModel):
         null=False
     )
 
+    is_autoupdate = models.BooleanField(
+        _('autoupdate?'),
+        help_text=_('If autoupdate is activated, new files uploaded to '
+                    'the folder will be automatically added, deleted files '
+                    'automatically removed from the set. If you leave this '
+                    'setting off you can update a set manually by clicking '
+                    'the process set button on the list or edit page.'),
+        blank=False,
+        default=False,
+        null=False
+    )
+
     category = models.ManyToManyField(
-        'Category',
+        'category',
         verbose_name=_('Category'),
         related_name='category_set',
         help_text=_('Assign the set to as many categories as you like'),
@@ -179,7 +191,7 @@ class Set(TimeStampedModel):
     # Sets are not directly available for displaying when they are saved. First
     # a task needs to process all the items and after success sets flag to True
     is_processed = models.BooleanField(
-        _('Is processed?'),
+        _('processed?'),
         null=False,
         blank=True,
         default=False
@@ -361,7 +373,7 @@ class Item(TimeStampedModel):
     # TODO:   Name the content type field as suggested in the django docs
     ct = models.ForeignKey(
         ContentType,
-        verbose_name=_('Content type'),
+        verbose_name=_('content type'),
         related_name='contenttype',
         null=False,
         default=None,
@@ -369,7 +381,7 @@ class Item(TimeStampedModel):
     )
 
     is_cover = models.BooleanField(
-        _('Cover item?'),
+        _('cover item?'),
         null=False,
         blank=True,
         default=False

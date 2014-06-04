@@ -467,8 +467,8 @@ class SetAdmin(admin.ModelAdmin):
     readonly_fields = ('is_processed',)
     list_filter = ('date', 'is_processed', 'status',)
     list_display = ('title', 'date', 'status', 'is_processed', 'watch_online',
-                    'process_set',)
-    list_editable = ('status',)
+                    'process_set', 'is_autoupdate',)
+    list_editable = ('status', 'is_autoupdate',)
 
 
 # ______________________________________________________________________________
