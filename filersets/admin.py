@@ -246,7 +246,7 @@ class ItemAdmin(admin.ModelAdmin):
             cats = u''.join([span.format(cat.name, cat.pk, obj.filer_file.pk)
                              for cat in obj.filer_file.filemodelext_file.all()[0].category.all()])
 
-        except TypeError:
+        except (TypeError, IndexError):
             cats = _(u'None')
         return cats
 

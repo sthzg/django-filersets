@@ -9,8 +9,10 @@ import logging
 # ______________________________________________________________________________
 #                                                                         Django
 from django.db import models
+from django.dispatch import receiver
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
@@ -18,7 +20,7 @@ from django.contrib.contenttypes.models import ContentType
 #                                                                        Contrib
 from model_utils.choices import Choices
 from autoslug import AutoSlugField
-from filer.models import File
+from filer.models import File, Image
 from filer.fields.file import FilerFileField
 from filer.fields.folder import FilerFolderField
 from treebeard.mp_tree import MP_Node, MP_NodeManager
@@ -179,8 +181,8 @@ class Set(TimeStampedModel):
     )
 
     category = models.ManyToManyField(
-        'category',
-        verbose_name=_('Category'),
+        'Category',
+        verbose_name=_('category'),
         related_name='category_set',
         help_text=_('Assign the set to as many categories as you like'),
         blank=True,
@@ -258,6 +260,13 @@ class Set(TimeStampedModel):
                 item.filer_file = f
                 item.save()
 
+                # SetItemSort
+                set_item_sort = SetItemSort()
+                set_item_sort.item = item
+                set_item_sort.set = self
+                set_item_sort.sort = SetItemSort.objects.filter(set=self).count()
+                set_item_sort.save()
+
                 msg = '{}File {} saved for Set {}'
                 op_stats['added'].append(msg.format('', f.id, self.pk))
                 logger.info(msg.format(logsig, f.id, self.pk))
@@ -319,7 +328,7 @@ class Set(TimeStampedModel):
                 sort_obj.item = item
                 sort_obj.sort = idx
 
-                # delaying save() to avoid unique constraint exceptions
+                # Delaying save() to avoid unique constraint exceptions.
                 items.append(sort_obj)
 
         else:
@@ -339,8 +348,11 @@ class Set(TimeStampedModel):
                 # delaying save() to avoid unique constraint exceptions
                 items.append(sort_obj)
 
-        for item in items:
-            item.save()
+        try:
+            for item in items:
+                item.save()
+        except:
+            pass
 
     def save(self, *args, **kwargs):
         super(Set, self).save(*args, **kwargs)
@@ -744,5 +756,39 @@ class FilemodelExt(models.Model):
         blank=True
     )
 
+    def get_tags_display(self):
+        """
+        Provides assigned tags in compatible format for DRF serializer.
+        """
+        return self.tags.values_list('name', flat=True)
+
     def __unicode__(self):
         return u'{}'.format(self.filer_file)
+
+
+# ______________________________________________________________________________
+#                                                               Signal Listeners
+@receiver(post_save, sender=Image)
+def filersets_post_save_file(sender, **kwargs):
+    instance = kwargs.get('instance')
+
+    #                                                                        ___
+    #                                                               FilemodelExt
+    try:
+        FilemodelExt.objects.get(filer_file=instance)
+    except FilemodelExt.DoesNotExist:
+        filemodelext = FilemodelExt()
+        filemodelext.filer_file = instance
+        filemodelext.save()
+
+    #                                                                        ___
+    #                                                                 autoupdate
+    if not instance.folder:
+        return
+
+    folders = instance.folder.get_ancestors(include_self=True)
+    fsets = Set.objects.filter(folder__in=folders)
+
+    for fset in fsets:
+        if fset.is_autoupdate:
+            fset.create_or_update_set()
