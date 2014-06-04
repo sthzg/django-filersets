@@ -202,7 +202,7 @@ class ItemAdmin(admin.ModelAdmin):
         TimelineFilter,)
     list_display_links = ('item_thumb',)
     list_per_page = 25
-    fields = ('filer_file', 'title', 'description', 'tags',)
+    fields = ('filer_file', 'title', 'description',)
     search_fields = ('filer_file__file', 'title', 'set__title')
     ordering = ['-created']
 
@@ -509,8 +509,28 @@ class CategoryAdmin(TreeAdmin):
 
 # ______________________________________________________________________________
 #                                                      InlineAdmin: FilemodelExt
-class FilemodelExtInline(admin.TabularInline):
+class FilemodelExtForm(ModelForm):
 
+    class Media:
+        """ Provide additional static files for the set admin """
+        css = {'all': [
+            'filersets/css/filersets_admin.css',
+            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
+        ]}
+        js = [
+            'filersets/vendor/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js',
+            'filersets/js/filersets_admin.js'
+        ]
+
+    class Meta:
+        model = FilemodelExt
+        widgets = {
+            'category': SelectMultiple(attrs={'size': '9'}),
+        }
+
+
+class FilemodelExtInline(admin.StackedInline):
+    form = FilemodelExtForm
     model = FilemodelExt
     extra = 0
     max_num = 1

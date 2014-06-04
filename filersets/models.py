@@ -401,10 +401,6 @@ class Item(TimeStampedModel):
         null=True
     )
 
-    tags = TaggableManager(
-        blank=True
-    )
-
     is_locked = models.BooleanField(
         _('locked?'),
         help_text=_('Reprocessing a set searches for and deletes files that '
@@ -732,7 +728,9 @@ class FilemodelExt(models.Model):
         null=True
     )
 
-    # TODO Tags
+    tags = TaggableManager(
+        blank=True
+    )
 
     def __unicode__(self):
         return u'{}'.format(self.filer_file)
