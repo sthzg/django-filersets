@@ -5,6 +5,7 @@ from __future__ import absolute_import
 # ______________________________________________________________________________
 #                                                                         Django
 from django import forms
+from django.conf.urls import patterns
 from django.contrib import admin
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
@@ -127,7 +128,52 @@ class ItemAdmin(admin.ModelAdmin):
         ]}
         js = ['filersets/js/filersets_admin.js']
 
-    #                                                                        ___
+    #                                                                ___________
+    #                                                                Custom URLs
+    def get_urls(self):
+        """
+        Provides custom admin views for affiliates that have their
+        ``has_mediastream`` flag checked.
+        """
+        urls = super(ItemAdmin, self).get_urls()
+
+        # Queries affiliates and collects entries that need a stream view.
+        my_urls = patterns('')
+        for affiliate in Affiliate.objects.all():
+
+            # We don't need a view for this affiliate.
+            if not affiliate.base_folder or not affiliate.has_mediastream:
+                continue
+
+            my_urls += patterns('', (
+                r'^'+affiliate.slug+'stream/$',
+                self.admin_site.admin_view(
+                    self.affiliatestream_view
+                ), {'fset': Set.objects.get(folder=affiliate.base_folder)}
+            ))
+
+        return my_urls + urls
+
+    #                                                          _________________
+    #                                                          View: Mediastream
+    def affiliatestream_view(self, request, fset):
+        """
+        Filters the queryset to show only items in the affiliate's base set.
+        """
+        def get_queryset(request):
+            qs = super(ItemAdmin, self).get_queryset(request)
+            return qs.filter(set=Set.objects.get(pk=fset.pk))
+
+        self.get_queryset = get_queryset
+
+        # Remove the set filter on this view.
+        for idx, lfilter in enumerate(self.list_filter):
+            if lfilter == 'set':
+                del self.list_filter[idx]
+
+        return self.changelist_view(request)
+
+    #                                                           ________________
     #                                                           Filter: Timeline
     class TimelineFilter(admin.SimpleListFilter):
         """
@@ -156,7 +202,7 @@ class ItemAdmin(admin.ModelAdmin):
 
             return queryset.filter(**q_filter).exclude(**q_exclude)
 
-    #                                                                        ___
+    #                                                           ________________
     #                                                           Filter: Category
     class CategoryFilter(admin.SimpleListFilter):
         """
@@ -193,13 +239,12 @@ class ItemAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('get_is_timeline',)
     list_editable = ('title', 'description',)
-    list_filter = (
-        'set',
-        CategoryFilter,
-        'is_cover',
-        'created',
-        'modified',
-        TimelineFilter,)
+    list_filter = ['set',
+                   CategoryFilter,
+                   'is_cover',
+                   'created',
+                   'modified',
+                   TimelineFilter]
     list_display_links = ('item_thumb',)
     list_per_page = 25
     fields = ('filer_file', 'title', 'description',)
@@ -474,14 +519,26 @@ class SetAdmin(admin.ModelAdmin):
 # ______________________________________________________________________________
 #                                                         InlineAdmin: Affiliate
 class AffiliateInlineAdmin(admin.StackedInline):
-    """ Adds affiliate settings as inline to category admin """
+    """
+    Adds affiliate settings as inline to category admin
+    """
     model = Affiliate.category.through
     extra = 0
 
 
 # ______________________________________________________________________________
+#                                                           ModelForm: Affiliate
+class AffiliateModelForm(forms.ModelForm):
+    class Meta:
+        model = Affiliate
+        widgets = {
+            'category': SelectMultiple(attrs={'size': '12'}),
+        }
+
+# ______________________________________________________________________________
 #                                                               Admin: Affiliate
 class AffiliateAdmin(admin.ModelAdmin):
+    form = AffiliateModelForm
     list_display = ('label', 'namespace', 'memo',)
 
 

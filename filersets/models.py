@@ -681,6 +681,15 @@ class Affiliate(models.Model):
         null=False
     )
 
+    slug = AutoSlugField(
+        _('slug'),
+        always_update=True,
+        max_length=80,
+        blank=True,
+        default=None,
+        populate_from='label'
+    )
+
     namespace = models.CharField(
         _('namespace'),
         help_text=_('Enter the namespace that will be associated with this '
@@ -689,6 +698,25 @@ class Affiliate(models.Model):
         blank=True,
         default=None,
         null=True
+    )
+
+    base_folder = FilerFolderField(
+        verbose_name=_('base folder'),
+        help_text=_('All media for this affiliate should be uploaded to '
+                    'child directories of this folder.'),
+        blank=True,
+        null=True,
+        default=None
+    )
+
+    has_mediastream = models.BooleanField(
+        _('provide stream'),
+        help_text=_('Check this setting if you want to organize items '
+                    'within this affiliate\'s base folder on a centraliszed '
+                    'list page'),
+        blank=False,
+        null=False,
+        default=False
     )
 
     memo = models.TextField(
