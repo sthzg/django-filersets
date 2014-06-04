@@ -12,4 +12,5 @@
 - Easy to extend rendering modes
 - High test coverage
 - A backend demo
+- Dependency check and reduction
 - Support for file/view permissions
