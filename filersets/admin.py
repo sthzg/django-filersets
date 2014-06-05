@@ -5,7 +5,7 @@ from __future__ import absolute_import
 # ______________________________________________________________________________
 #                                                                         Django
 from django import forms
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
@@ -132,7 +132,7 @@ class ItemAdmin(admin.ModelAdmin):
     #                                                                Custom URLs
     def get_urls(self):
         """
-        Provides custom admin views for affiliates that have their
+        Provides pre-filtered change list views for affiliates that have their
         ``has_mediastream`` flag checked.
         """
         urls = super(ItemAdmin, self).get_urls()
@@ -140,38 +140,46 @@ class ItemAdmin(admin.ModelAdmin):
         # Queries affiliates and collects entries that need a stream view.
         my_urls = patterns('')
         for affiliate in Affiliate.objects.all():
-
-            # We don't need a view for this affiliate.
+            # Checks if we really need a custom view for this affiliate.
             if not affiliate.base_folder or not affiliate.has_mediastream:
                 continue
 
-            my_urls += patterns('', (
+            # Assembles the urls for the custom views.
+            my_urls += patterns('', url(
                 r'^'+affiliate.slug+'stream/$',
-                self.admin_site.admin_view(
-                    self.affiliatestream_view
-                ), {'fset': Set.objects.get(folder=affiliate.base_folder)}
+                self.admin_site.admin_view(self.affiliatestream_view),
+                {
+                    'modeladmin': self,
+                    'fset': Set.objects.get(folder=affiliate.base_folder)
+                },
+                name='{}stream'.format(affiliate.slug)
             ))
 
         return my_urls + urls
 
     #                                                          _________________
     #                                                          View: Mediastream
-    def affiliatestream_view(self, request, fset):
+    def affiliatestream_view(self, request, modeladmin, fset):
         """
         Filters the queryset to show only items in the affiliate's base set.
         """
-        def get_queryset(request):
-            qs = super(ItemAdmin, self).get_queryset(request)
-            return qs.filter(set=Set.objects.get(pk=fset.pk))
+        class AffiliateItemAdmin(admin.site._registry[Item].__class__):
 
-        self.get_queryset = get_queryset
+            def __init__(self, model, admin_site, request):
+                self.request = request
+                super(AffiliateItemAdmin, self).__init__(model, admin_site)
 
-        # Remove the set filter on this view.
-        for idx, lfilter in enumerate(self.list_filter):
-            if lfilter == 'set':
-                del self.list_filter[idx]
+            def get_queryset(self, request):
+                qs = super(ItemAdmin, self).get_queryset(request)
+                return qs.filter(set=Set.objects.get(pk=fset.pk))
 
-        return self.changelist_view(request)
+            # Remove the set filter on this view.
+            for idx, lfilter in enumerate(self.list_filter):
+                if lfilter == 'set':
+                    del self.list_filter[idx]
+
+        inst = AffiliateItemAdmin(modeladmin.model, admin.site, request)
+        return inst.changelist_view(request, extra_context={})
 
     #                                                           ________________
     #                                                           Filter: Timeline
@@ -251,6 +259,10 @@ class ItemAdmin(admin.ModelAdmin):
     search_fields = ('filer_file__file', 'title', 'set__title')
     ordering = ['-created']
 
+    def __init__(self, *args, **kwargs):
+        super(ItemAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = (None,)
+
     #                                                                        ___
     #                                                                 item_thumb
     def item_thumb(self, obj):
@@ -266,7 +278,11 @@ class ItemAdmin(admin.ModelAdmin):
         else:
             output = '{}'.format(ugettext('Edit'))
 
-        return output
+        # link = '<a href="{}?_popup=1" onclick="return showAddAnotherPopup(this);">{}</a>'
+        # url = reverse('admin:filersets_item_change', args={(obj.filer_file.get_admin_url_path())})
+        link = '<a href="{}?_popup=1" onclick="return showAddAnotherPopup(this);">{}</a>'
+        url = obj.filer_file.get_admin_url_path()
+        return link.format(url, output)
 
     #                                                                        ___
     #                                                             set_admin_link
@@ -305,9 +321,9 @@ class ItemAdmin(admin.ModelAdmin):
         return super(ItemAdmin, self).get_changelist_form(request, **kwargs)
 
     current_categories.allow_tags = True
-    item_thumb.short_description = _('Item')
+    item_thumb.short_description = _('file')
     item_thumb.allow_tags = True
-    set_admin_link.short_description = _('Set')
+    set_admin_link.short_description = _('set')
     set_admin_link.allow_tags = True
 
 
