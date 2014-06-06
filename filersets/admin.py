@@ -307,7 +307,7 @@ class ItemAdmin(admin.ModelAdmin):
         Return a link to th admin change page of the set
         """
         url = reverse('admin:filersets_set_change', args={(obj.set.pk)})
-        link = '<a href="{}">{}</a>'
+        link = u'<a href="{}">{}</a>'
         return link.format(url, obj.set.title)
 
     #                                                                        ___
