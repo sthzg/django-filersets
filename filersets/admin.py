@@ -126,7 +126,9 @@ class ItemAdmin(admin.ModelAdmin):
             'filersets/css/filersets_admin.css',
             '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
         ]}
-        js = ['filersets/js/filersets_admin.js']
+        js = [
+            'filersets/js/filersets_admin.js'
+        ]
 
     #                                                                ___________
     #                                                                Custom URLs
@@ -144,13 +146,19 @@ class ItemAdmin(admin.ModelAdmin):
             if not affiliate.base_folder or not affiliate.has_mediastream:
                 continue
 
+            # If there is no set connected to the base folder continue.
+            try:
+                fset = Set.objects.get(folder=affiliate.base_folder)
+            except Set.DoesNotExist:
+                continue
+
             # Assembles the urls for the custom views.
             my_urls += patterns('', url(
                 r'^'+affiliate.slug+'stream/$',
                 self.admin_site.admin_view(self.affiliatestream_view),
                 {
                     'modeladmin': self,
-                    'fset': Set.objects.get(folder=affiliate.base_folder)
+                    'fset': fset
                 },
                 name='{}stream'.format(affiliate.slug)
             ))
