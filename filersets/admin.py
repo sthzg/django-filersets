@@ -56,6 +56,7 @@ if has_suit:
         """
         Allows to view filer_files referenced in a set.
         """
+        suit_classes = 'suit-tab suit-tab-items'
         form = ItemInlineForm
         fields = (
             'get_sort_position',
@@ -538,6 +539,23 @@ class SetAdmin(admin.ModelAdmin):
     list_display = ('title', 'date', 'status', 'is_processed', 'watch_online',
                     'process_set', 'is_autoupdate',)
     list_editable = ('status', 'is_autoupdate',)
+
+    if has_suit:
+        fieldsets = [
+            (None, {
+                'classes': ('suit-tab suit-tab-general',),
+                'fields': [
+                    'status', 'date', 'ordering', 'title', 'description',
+                    'folder', 'recursive', 'is_autoupdate', 'category',
+                    'is_processed'
+                ]
+            })
+        ]
+
+        suit_form_tabs = (
+            ('general', _('Info')),
+            ('items', _('Set media'))
+        )
 
 
 # ______________________________________________________________________________
