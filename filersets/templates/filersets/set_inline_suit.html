@@ -1,4 +1,4 @@
-{% load i18n admin_static admin_modify %}
+{% load i18n admin_static admin_modify trans_to pdbtemplate %}
 <div class="inline-group {{ inline_admin_formset.opts.suit_classes }}" id="{{ inline_admin_formset.formset.prefix }}-group">
   <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
 {{ inline_admin_formset.formset.management_form }}
@@ -18,7 +18,7 @@
             <thead><tr>
             {% for field in inline_admin_formset.fields %}
               {% if not field.widget.is_hidden %}
-                <th{% if forloop.first %} colspan="1"{% endif %} class="{% if field.required %}required{% endif %} field-{{ field.label|slugify }}">{{ field.label|capfirst }}
+                <th{% if forloop.first %} colspan="1"{% endif %} class="{% if field.required %}required{% endif %} field-{% trans_to field.label "en"%}{{trans_string|slugify}} {{ field.label|slugify }}">{{ field.label|capfirst }}
                 {% if field.help_text %}&nbsp;<i class="fa fa-question-circle" title="{{ field.help_text|striptags }}" /></i>{% endif %}
                 </th>
               {% endif %}
