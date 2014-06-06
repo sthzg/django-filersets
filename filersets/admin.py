@@ -32,6 +32,13 @@ try:
 except ImportError:
     has_suit = False
 # ______________________________________________________________________________
+#                                                                       Redactor
+try:
+    from suit_redactor.widgets import RedactorWidget
+    has_redactor = True
+except ImportError:
+    has_redactor = False
+# ______________________________________________________________________________
 #                                                                 Django Select2
 try:
     from django_select2 import AutoSelect2MultipleField, Select2MultipleWidget
@@ -356,8 +363,12 @@ class SetForm(ModelForm):
     class Meta:
         model = Set
         widgets = {
-            'category': SelectMultiple(attrs={'size': '12'}),
+            'category': SelectMultiple(attrs={'size': '12'})
         }
+
+        if has_redactor:
+            widgets.update({'description':
+                                RedactorWidget(editor_options={'lang': 'en'})})
 
     def __init__(self, *args, **kwargs):
         """
@@ -545,15 +556,21 @@ class SetAdmin(admin.ModelAdmin):
             (None, {
                 'classes': ('suit-tab suit-tab-general',),
                 'fields': [
-                    'status', 'date', 'ordering', 'title', 'description',
-                    'folder', 'recursive', 'is_autoupdate', 'category',
-                    'is_processed'
+                    'status', 'date', 'ordering', 'title', 'folder',
+                    'recursive', 'is_autoupdate', 'category', 'is_processed'
+                ]
+            }),
+            (None, {
+                'classes': ('suit-tab suit-tab-writing', 'full-width',),
+                'fields': [
+                    'description'
                 ]
             })
         ]
 
         suit_form_tabs = (
             ('general', _('Info')),
+            ('writing', _('Text')),
             ('items', _('Set media'))
         )
 
