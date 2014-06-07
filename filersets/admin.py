@@ -294,8 +294,6 @@ class ItemAdmin(admin.ModelAdmin):
         else:
             output = '{}'.format(ugettext('Edit'))
 
-        # link = '<a href="{}?_popup=1" onclick="return showAddAnotherPopup(this);">{}</a>'
-        # url = reverse('admin:filersets_item_change', args={(obj.filer_file.get_admin_url_path())})
         link = '<a href="{}?_popup=1" onclick="return showAddAnotherPopup(this);">{}</a>'
         url = obj.filer_file.get_admin_url_path()
         return link.format(url, output)
@@ -490,6 +488,28 @@ class SetAdmin(admin.ModelAdmin):
                '</a>'
         return link.format(cat_url, label)
 
+    def get_cover_item_thumbnail(self, obj):
+        output = ''
+        if obj.filer_set.count() > 0:
+            q_order = ('item_sort__sort',)
+            if obj.filer_set.filter(is_cover=True).count() > 0:
+                cover_item = obj.filer_set.filter(is_cover=True) \
+                                .order_by(*q_order)[0]
+            else:
+                cover_item = obj.filer_set.all().order_by(*q_order)[0]
+
+            if cover_item.ct.name == u'image':
+                options = {'size': (50, 0), 'crop': True}
+                thumb_url = get_thumbnailer(
+                    cover_item.filer_file).get_thumbnail(options).url
+                output = '<img class="" src="{}"  data-filepk="{}">'
+                output = output.format(thumb_url, cover_item.filer_file.id)
+
+        return output
+
+    get_cover_item_thumbnail.allow_tags = True
+    get_cover_item_thumbnail.short_description = _('Cover thumb')
+
     def process_set(self, obj):
         """ Extra field for change list displays a link to process a set """
         set_url = reverse('filersets_api:set_process_view',
@@ -545,11 +565,13 @@ class SetAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     inlines = (ItemInlineAdmin,)
     actions = [create_or_update_filerset]
-    readonly_fields = ('is_processed',)
+    readonly_fields = ('get_cover_item_thumbnail', 'is_processed',)
     list_filter = ('date', 'is_processed', 'status',)
-    list_display = ('title', 'date', 'status', 'is_processed', 'watch_online',
-                    'process_set', 'is_autoupdate',)
+    list_display = ('get_cover_item_thumbnail', 'title', 'date', 'status',
+                    'is_processed', 'watch_online', 'process_set',
+                    'is_autoupdate',)
     list_editable = ('status', 'is_autoupdate',)
+    list_display_links = ('get_cover_item_thumbnail', 'title',)
 
     if has_suit:
         fieldsets = [
