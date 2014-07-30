@@ -119,7 +119,8 @@ class Set(TimeStampedModel):
     date = models.DateField(
         _('date'),
         blank=True,
-        default=None,
+        null=False,
+        auto_now_add=True
     )
 
     ordering = models.CharField(
@@ -150,7 +151,8 @@ class Set(TimeStampedModel):
     description = models.TextField(
         _('description'),
         blank=True,
-        default=None
+        default=None,
+        null=True
     )
 
     folder = FilerFolderField(
@@ -746,6 +748,9 @@ class Affiliate(models.Model):
 # ______________________________________________________________________________
 #                                                            Model: FilemodelExt
 class FilemodelExt(models.Model):
+    """
+    TODO Document!
+    """
 
     class Meta:
         verbose_name = _('file model extension')
@@ -780,9 +785,7 @@ class FilemodelExt(models.Model):
         null=True
     )
 
-    tags = TaggableManager(
-        blank=True
-    )
+    tags = TaggableManager(blank=True)
 
     def get_tags_display(self):
         """
@@ -799,6 +802,11 @@ class FilemodelExt(models.Model):
 @receiver(post_save, sender=Image)
 def filersets_post_save_file(sender, **kwargs):
     instance = kwargs.get('instance')
+
+    # The post_save() signal causes troubles when the instance is saved from
+    # a fixture. We use the raw flag to check if this is the case.
+    if kwargs.get('raw', True):
+        return
 
     #                                                                        ___
     #                                                               FilemodelExt
