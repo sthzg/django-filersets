@@ -76,8 +76,13 @@
 </div>
 
 <script type="text/javascript">
-(function($) {
+(function($) {;
+
     $(document).ready(function($) {
+
+        $('textarea').removeAttr('rows');
+        $('textarea').autosize();
+
         var rows = "#{{ inline_admin_formset.formset.prefix }}-group .tabular.inline-related tbody tr";
         var reinitDateTimeShortCuts = function() {
             // Reinitialize the calendar and clock widgets by force
@@ -149,7 +154,8 @@
                 updateSelectFilter();
                 prepareItemInlineForm(row);
                 positionRemoveSpan(row);
-                Suit.after_inline.run("{{ inline_admin_formset.formset.prefix }}", row);
+                if(typeof Suit != "undefined")
+                  { Suit.after_inline.run("{{ inline_admin_formset.formset.prefix }}", row); }
             })
         });
     });
