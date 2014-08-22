@@ -1,45 +1,32 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
-from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Django
+from __future__ import absolute_import, unicode_literals
 from django import forms
-from django.conf.urls import patterns, url
+from django.conf import settings
 from django.contrib import admin
+from django.conf.urls import patterns, url
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
 from django.forms.widgets import SelectMultiple
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
-# ______________________________________________________________________________
-#                                                                        Contrib
 from filer.admin.imageadmin import ImageAdmin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 from easy_thumbnails.files import get_thumbnailer
-# ______________________________________________________________________________
-#                                                                         Custom
 from filersets.models import Set, Item, Category, Affiliate, FilemodelExt
-# ______________________________________________________________________________
-#                                                                    Django Suit
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
     from suit.widgets import AutosizedTextarea, LinkedSelect
-
     has_suit = True
 except ImportError:
     has_suit = False
-# ______________________________________________________________________________
-#                                                                       Redactor
 try:
     from suit_redactor.widgets import RedactorWidget
     has_redactor = True
 except ImportError:
     has_redactor = False
-# ______________________________________________________________________________
-#                                                                 Django Select2
 try:
     from django_select2 import AutoSelect2MultipleField, Select2MultipleWidget
     has_select2 = True
@@ -47,79 +34,65 @@ except ImportError:
     has_select2 = False
 
 
+try:
+    FILERSETS_CONF = settings.FILERSETS_CONF
+except AttributeError:
+    FILERSETS_CONF = dict()
+
+
 # TODO  Try to make any use of third party packages like suit and cms optional
 
 # ______________________________________________________________________________
 #                                                              InlineAdmin: Item
-if has_suit:
-    class ItemInlineForm(ModelForm):
-        class Meta:
-            model = Item
-            widgets = {
-                'description': AutosizedTextarea
-            }
-
-    class ItemInlineAdmin(admin.TabularInline):
-        """
-        Allows to view filer_files referenced in a set.
-        """
-        suit_classes = 'suit-tab suit-tab-items'
-        form = ItemInlineForm
-        fields = (
-            'get_sort_position',
-            'get_item_thumb',
-            'filer_file',
-            'get_original_filename',
-            'title',
-            'description',
-            'is_cover',
-            'is_locked',
-        )
-        readonly_fields = (
-            'get_sort_position',
-            'get_item_thumb',
-            'get_original_filename',
-        )
+class ItemInlineForm(ModelForm):
+    """
+    Item inline form.
+    """
+    class Meta:
         model = Item
-        extra = 0
-        list_per_page = 30
-        template = 'filersets/set_inline_suit.html'
+        if has_suit:
+            widgets = {'description': AutosizedTextarea}
 
-    class ItemForm(ModelForm):
-        class Meta:
-            model = Item
+
+class ItemForm(ModelForm):
+    """
+    Item form.
+    """
+    class Meta:
+        model = Item
+        if has_suit:
             widgets = {
                 'description': AutosizedTextarea,
-                'set': LinkedSelect,
-            }
+                'set': LinkedSelect}
 
-else:
-    class ItemInlineAdmin(admin.TabularInline):
-        """
-        Allows to view filer_files referenced in a set.
-        """
-        fields = (
-            'filer_file',
-            'title',
-            'description',
-            'is_cover',
-            'is_locked',
-            'is_timeline',
-        )
-        list_editable = (
-            'description',
-            'is_cover',
-            'is_timeline',
-        )
-        list_display = ('title', 'is_cover', 'description', 'is_cover',)
-        list_display_links = ('title',)
-        model = Item
-        extra = 0
 
-    class ItemForm(ModelForm):
-        class Meta:
-            model = Item
-            widgets = {}
+class ItemInlineAdmin(admin.TabularInline):
+    """
+    Allows to view filer_files referenced in a set.
+    """
+    if has_suit:
+        suit_classes = 'suit-tab suit-tab-items'
+
+    form = ItemInlineForm
+    fields = (
+        'get_sort_position',
+        'get_item_thumb',
+        'filer_file',
+        'get_original_filename',
+        'title',
+        'description',
+        'is_cover',
+        'is_locked',
+    )
+    readonly_fields = (
+        'get_sort_position',
+        'get_item_thumb',
+        'get_original_filename',
+    )
+    model = Item
+    extra = 0
+    list_per_page = 30
+    template = 'filersets/set_inline_suit.html'
 
 
 # ______________________________________________________________________________
@@ -349,32 +322,27 @@ class SetForm(ModelForm):
 
     class Media:
         """ Provide additional static files for the set admin """
-        css = {'all': [
-            'filersets/css/filersets_admin.css',
-            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
-        ]}
-        js = [
-            'filersets/vendor/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js',
-            'filersets/js/filersets_admin.js'
-        ]
+        css = {
+            'all': ['filersets/css/filersets_admin.css',
+                    '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}  # NOQA
+
+        js = ['filersets/vendor/jquery-ui-1.10.4/js/jquery-ui-1.10.4.js',
+              static('vendor/jquery-autosize/jquery.autosize.js'),
+              'filersets/js/filersets_admin.js']
 
     class Meta:
         model = Set
-        widgets = {
-            'category': SelectMultiple(attrs={'size': '12'})
-        }
+        widgets = {'category': SelectMultiple(attrs={'size': '12'})}
 
         if has_redactor:
-            widgets.update({'description':
-                                RedactorWidget(editor_options={'lang': 'en'})})
+            widgets.update({'description': RedactorWidget(editor_options={'lang': 'en'})})  # NOQA
 
     def __init__(self, *args, **kwargs):
         """
         Add a HiddenInput() to hold sorting and populate it with current value
         """
         super(SetForm, self).__init__(*args, **kwargs)
-        self.fields['item_sort_positions'] = forms.CharField(
-            widget=forms.HiddenInput())
+        self.fields['item_sort_positions'] = forms.CharField(widget=forms.HiddenInput())  # NOQA
         self.fields['item_sort_positions'].required = False
         if 'instance' in kwargs.keys():
             self.fields['item_sort_positions'].initial = Set.objects.get(
@@ -550,6 +518,7 @@ class SetAdmin(admin.ModelAdmin):
 
         extra_context['set_filer_folder_id'] = sffid
         extra_context['set_is_processed'] = is_processed
+
         return super(SetAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context)
 
@@ -573,28 +542,29 @@ class SetAdmin(admin.ModelAdmin):
     list_editable = ('status', 'is_autoupdate',)
     list_display_links = ('get_cover_item_thumbnail', 'title',)
 
-    if has_suit:
-        fieldsets = [
-            (None, {
-                'classes': ('suit-tab suit-tab-general',),
-                'fields': [
-                    'status', 'date', 'ordering', 'title', 'folder',
-                    'recursive', 'is_autoupdate', 'category', 'is_processed'
-                ]
-            }),
-            (None, {
-                'classes': ('suit-tab suit-tab-writing', 'full-width',),
-                'fields': [
-                    'description'
-                ]
-            })
-        ]
+    fieldsets = [
+        (None, {
+            'classes': ('suit-tab suit-tab-general',),
+            'fields': ['status', 'date', 'ordering', 'title', 'folder',
+                       'recursive', 'is_autoupdate', 'category', 'is_processed']}),  # NOQA
+        ('Description', {
+            'classes': ('suit-tab suit-tab-writing', 'full-width',),
+            'fields': ['description']})]
 
+    if FILERSETS_CONF.get('no_categories', False):
+        fieldsets[0][1]['fields'].remove('category')
+
+    if FILERSETS_CONF.get('no_date', False):
+        fieldsets[0][1]['fields'].remove('date')
+
+    if FILERSETS_CONF.get('no_description', False):
+        del fieldsets[1]
+
+    if has_suit:
         suit_form_tabs = (
             ('general', _('Info')),
             ('writing', _('Text')),
-            ('items', _('Set media'))
-        )
+            ('items', _('Set media')))
 
 
 # ______________________________________________________________________________
