@@ -1,73 +1,163 @@
-{% load i18n admin_static admin_modify %}{% load cycle from future %}
-<div class="inline-group" id="{{ inline_admin_formset.formset.prefix }}-group">
+{% load i18n admin_static admin_modify trans_to %}
+<div class="inline-group {{ inline_admin_formset.opts.suit_classes }}" id="{{ inline_admin_formset.formset.prefix }}-group">
   <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
 {{ inline_admin_formset.formset.management_form }}
 <fieldset class="module">
-   <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }} Foobar</h2>
+   <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
    {{ inline_admin_formset.formset.non_form_errors }}
-   <table>
-     <thead><tr>
-     {% for field in inline_admin_formset.fields %}
-       {% if not field.widget.is_hidden %}
-         <th{% if forloop.first %} colspan="2"{% endif %}{% if field.required %} class="required"{% endif %}>{{ field.label|capfirst }}
-         {% if field.help_text %}&nbsp;<img src="{% static "admin/img/icon-unknown.gif" %}" class="help help-tooltip" width="10" height="10" alt="({{ field.help_text|striptags }})" title="{{ field.help_text|striptags }}" />{% endif %}
-         </th>
-       {% endif %}
-     {% endfor %}
-     {% if inline_admin_formset.formset.can_delete %}<th>{% trans "Delete?" %}</th>{% endif %}
-     </tr></thead>
 
-     <tbody>
-     {% for inline_admin_form in inline_admin_formset %}
-        {% if inline_admin_form.form.non_field_errors %}
-        <tr><td colspan="{{ inline_admin_form|cell_count }}">{{ inline_admin_form.form.non_field_errors }}</td></tr>
-        {% endif %}
-        <tr class="form-row {% cycle "row1" "row2" %} {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}{% if forloop.last %} empty-form{% endif %}"
-             id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
-        <td class="original">
-          {% if inline_admin_form.original or inline_admin_form.show_url %}<p>
-          {% if inline_admin_form.original %} {{ inline_admin_form.original }}{% endif %}
-          {% if inline_admin_form.show_url %}<a href="{% url 'admin:view_on_site' inline_admin_form.original_content_type_id inline_admin_form.original.pk %}">{% trans "View on site" %}</a>{% endif %}
-            </p>{% endif %}
-          {% if inline_admin_form.needs_explicit_pk_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
-          {{ inline_admin_form.fk_field.field }}
-          {% spaceless %}
-          {% for fieldset in inline_admin_form %}
-            {% for line in fieldset %}
-              {% for field in line %}
-                {% if field.is_hidden %} {{ field.field }} {% endif %}
+  <ul class="fs-inline fs_list-sortable fs_list-unstyled">
+    {% for inline_admin_form in inline_admin_formset %}
+        <li id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}"
+            data-itempk="itempk_{{ inline_admin_form.pk_field.field.value }}" data-sortpos="{{ forloop.counter|add:-1 }}"
+            class="{% if forloop.last %} empty-form{% endif %}">
+          <table class="table table-bordered table-condensed table-striped">
+            {% if inline_admin_form.form.non_field_errors %}
+            <tr><td colspan="{{ inline_admin_form|cell_count }}"><div class="control-group error"><div class="help-block">{{ inline_admin_form.form.non_field_errors }}</div></div></td></tr>
+            {% endif %}
+            <thead><tr>
+            {% for field in inline_admin_formset.fields %}
+              {% if not field.widget.is_hidden %}
+                <th{% if forloop.first %} colspan="1"{% endif %} class="{% if field.required %}required{% endif %} field-{% trans_to field.label "en"%}{{trans_string|slugify}} {{ field.label|slugify }}">{{ field.label|capfirst }}
+                {% if field.help_text %}&nbsp;<i class="fa fa-question-circle" title="{{ field.help_text|striptags }}" /></i>{% endif %}
+                </th>
+              {% endif %}
+            {% endfor %}
+            {% if inline_admin_formset.formset.can_delete %}<th>{% trans "Delete?" %}</th>{% endif %}
+            </tr></thead>
+            <tr class="form-row {% cycle "row1" "row2" %} {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}">
+
+            {% for fieldset in inline_admin_form %}
+              {% for line in fieldset %}
+                {% for field in line %}
+                  <td{% if field.field.name %} class="field-{{ field.field.name }}{{ field.field.errors|yesno:' control-group error,' }}{{ field.field.errors|yesno:' control-group error,' }}"{% endif %}>
+                    {% if forloop.parentloop.first %}
+                    {% if inline_admin_form.has_auto_field or inline_admin_form.needs_explicit_pk_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+                    {{ inline_admin_form.fk_field.field }}
+                    {% spaceless %}
+                      {% for fieldset in inline_admin_form %}
+                        {% for line in fieldset %}
+                          {% for field in line %}
+                            {% if field.is_hidden %} {{ field.field }} {% endif %}
+                          {% endfor %}
+                        {% endfor %}
+                      {% endfor %}
+                    {% endspaceless %}
+                  {% endif %}
+
+                  {% block field_content %}
+                    {% if field.is_readonly %}
+                        <p>{{ field.contents }}</p>
+                    {% else %}
+                      {% if field.field.errors %}
+                        <div class="help-block">
+                        {{ field.field.errors.as_ul }}
+                        </div>
+                      {% endif %}
+                      {{ field.field }}
+                    {% endif %}
+                  {% endblock %}
+                  </td>
+                {% endfor %}
               {% endfor %}
             {% endfor %}
-          {% endfor %}
-          {% endspaceless %}
-        </td>
-        {% for fieldset in inline_admin_form %}
-          {% for line in fieldset %}
-            {% for field in line %}
-              <td{% if field.field.name %} class="field-{{ field.field.name }}"{% endif %}>
-              {% if field.is_readonly %}
-                  <p>{{ field.contents|linebreaksbr }}</p>
-              {% else %}
-                  {{ field.field.errors.as_ul }}
-                  {{ field.field }}
-              {% endif %}
-              </td>
-            {% endfor %}
-          {% endfor %}
-        {% endfor %}
-        {% if inline_admin_formset.formset.can_delete %}
-          <td class="delete">{% if inline_admin_form.original %}{{ inline_admin_form.deletion_field.field }}{% endif %}</td>
-        {% endif %}
-        </tr>
+            {% if inline_admin_formset.formset.can_delete %}
+              <td class="delete">{% if inline_admin_form.original %}{{ inline_admin_form.deletion_field.field }}{% endif %}</td>
+            {% endif %}
+            </tr>
+          </table>
+        </li>
      {% endfor %}
-     </tbody>
-   </table>
+
+  </ul>
+
 </fieldset>
   </div>
 </div>
 
 <script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        var rows = "#{{ inline_admin_formset.formset.prefix }}-group .tabular.inline-related tbody tr";
+        var reinitDateTimeShortCuts = function() {
+            // Reinitialize the calendar and clock widgets by force
+            if (typeof DateTimeShortcuts != "undefined") {
+                $(".datetimeshortcuts").remove();
+                DateTimeShortcuts.init();
+            }
+        }
+        var updateSelectFilter = function() {
+            // If any SelectFilter widgets are a part of the new form,
+            // instantiate a new SelectFilter instance for it.
+            if (typeof SelectFilter != "undefined"){
+                $(".selectfilter").each(function(index, value){
+                  var namearr = value.name.split('-');
+                  SelectFilter.init(value.id, namearr[namearr.length-1], false, "{% static "admin/" %}");
+                });
+                $(".selectfilterstacked").each(function(index, value){
+                  var namearr = value.name.split('-');
+                  SelectFilter.init(value.id, namearr[namearr.length-1], true, "{% static "admin/" %}");
+                });
+            }
+        }
+        var initPrepopulatedFields = function(row) {
+            row.find('.prepopulated_field').each(function() {
+                var field = $(this);
+                var input = field.find('input, select, textarea');
+                var dependency_list = input.data('dependency_list') || [];
+                var dependencies = [];
+                $.each(dependency_list, function(i, field_name) {
+                  dependencies.push('#' + row.find('.field-' + field_name).find('input, select, textarea').attr('id'));
+                });
+                if (dependencies.length) {
+                    input.prepopulate(dependencies, input.attr('maxlength'));
+                }
+            });
+        }
+        var positionRemoveSpan = function(row) {
+            $td = row.find('td.delete').append(row.find('table > span')[0]);
+{#            $td.insertAfter(row.find('table tr td:last-child'));#}
+        };
+        var prepareItemInlineForm = function(row) {
+          var count = $('li.dynamic-filer_set').length - 1;
+          row.find('.field-get_sort_position p').text(count);
+          row.attr('data-sortpos', count);
+          row.find('th.field-filer-file').css('display', 'block');
+          row.find('td.field-filer_file').css('display', 'block');
+          row.find('th.field-thumb').css('display', 'none');
+          row.find('td.field-get_item_thumb').css('display', 'none');
+          row.find('th.field-filename').css('display', 'none');
+          row.find('td.field-get_original_filename').css('display', 'none');
+          row.find('.vForeignKeyRawIdAdminField').bind(
+              'selected_file_changed',
+              function(ev, data) {
+                row.attr('data-itempk', 'itempk_filepk:' + data.chosenId);
+                sortr.update_sortr_values();
+              }
+          );
+        };
+        $('ul.fs_list-sortable > li').formset({
+            prefix: "{{ inline_admin_formset.formset.prefix }}",
+            addText: "{% blocktrans with verbose_name=inline_admin_formset.opts.verbose_name|title %}Add another {{ verbose_name }}{% endblocktrans %}",
+            formCssClass: "dynamic-{{ inline_admin_formset.formset.prefix }}",
+            deleteCssClass: "inline-deletelink",
+            deleteText: "{% trans "Remove" %}",
+            emptyCssClass: "empty-form",
+            added: (function(row) {
+                initPrepopulatedFields(row);
+                reinitDateTimeShortCuts();
+                updateSelectFilter();
+                prepareItemInlineForm(row);
+                positionRemoveSpan(row);
+                $.after_inline.run("{{ inline_admin_formset.formset.prefix }}", row);
+            })
+        });
+    });
+})(django.jQuery);
+</script>
 
+
+<script type="text/javascript">
 (function($) {
   $("#{{ inline_admin_formset.formset.prefix }}-group .tabular.inline-related tbody tr").tabularFormset({
     prefix: "{{ inline_admin_formset.formset.prefix }}",
