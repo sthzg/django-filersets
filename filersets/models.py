@@ -13,6 +13,7 @@ from django.dispatch import receiver
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save
+from django.utils.datetime_safe import datetime
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.contenttypes.models import ContentType
@@ -120,7 +121,7 @@ class Set(TimeStampedModel):
         _('date'),
         blank=True,
         null=False,
-        auto_now_add=True
+        default=datetime.now()
     )
 
     ordering = models.CharField(
