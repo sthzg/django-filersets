@@ -312,7 +312,7 @@ $.extend( $.ui, {
 	}
 });
 
-})( jQuery );
+})( django.jQuery );
 (function( $, undefined ) {
 
 var uuid = 0,
@@ -823,7 +823,7 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 	};
 });
 
-})( jQuery );
+})( django.jQuery );
 (function( $, undefined ) {
 
 var mouseHandled = false;
@@ -979,7 +979,7 @@ $.widget("ui.mouse", {
 	_mouseCapture: function(/* event */) { return true; }
 });
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.ui = $.ui || {};
@@ -1470,7 +1470,7 @@ $.ui.position = {
 	testElementParent.removeChild( testElement );
 })();
 
-}( jQuery ) );
+}( django.jQuery ) );
 (function( $, undefined ) {
 
 var uid = 0,
@@ -2026,7 +2026,7 @@ $.widget( "ui.accordion", {
 	}
 });
 
-})( jQuery );
+})( django.jQuery );
 (function( $, undefined ) {
 
 $.widget( "ui.autocomplete", {
@@ -2616,7 +2616,7 @@ $.widget( "ui.autocomplete", $.ui.autocomplete, {
 	}
 });
 
-}( jQuery ));
+}( django.jQuery ));
 (function( $, undefined ) {
 
 var lastActive,
@@ -2997,10 +2997,10 @@ $.widget( "ui.buttonset", {
 	}
 });
 
-}( jQuery ) );
+}( django.jQuery ) );
 (function( $, undefined ) {
 
-$.extend($.ui, { datepicker: { version: "1.10.4" } });
+django.jQuery.extend(django.jQuery.ui, { datepicker: { version: "1.10.4" } });
 
 var PROP_NAME = "datepicker",
 	instActive;
@@ -3094,11 +3094,11 @@ function Datepicker() {
 		autoSize: false, // True to size the input for the date format, false to leave as is
 		disabled: false // The initial disabled state
 	};
-	$.extend(this._defaults, this.regional[""]);
-	this.dpDiv = bindHover($("<div id='" + this._mainDivId + "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"));
+	django.jQuery.extend(this._defaults, this.regional[""]);
+	this.dpDiv = bindHover(django.jQuery("<div id='" + this._mainDivId + "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"));
 }
 
-$.extend(Datepicker.prototype, {
+django.jQuery.extend(Datepicker.prototype, {
 	/* Class name added to elements to indicate already configured with a date picker. */
 	markerClassName: "hasDatepicker",
 
@@ -4982,7 +4982,7 @@ function extendRemove(target, props) {
    @param  options  string - a command, optionally followed by additional parameters or
 					Object - settings for attaching new datepicker functionality
    @return  jQuery object */
-$.fn.datepicker = function(options){
+django.jQuery.fn.datepicker = function(options){
 
 	/* Verify an empty collection wasn't passed - Fixes #6976 */
 	if ( !this.length ) {
@@ -5017,12 +5017,12 @@ $.fn.datepicker = function(options){
 	});
 };
 
-$.datepicker = new Datepicker(); // singleton instance
-$.datepicker.initialized = false;
-$.datepicker.uuid = new Date().getTime();
-$.datepicker.version = "1.10.4";
+django.jQuery.datepicker = new Datepicker(); // singleton instance
+django.jQuery.datepicker.initialized = false;
+django.jQuery.datepicker.uuid = new Date().getTime();
+django.jQuery.datepicker.version = "1.10.4";
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 var sizeRelatedOptions = {
@@ -5826,7 +5826,7 @@ if ( $.uiBackCompat !== false ) {
 	});
 }
 
-}( jQuery ) );
+}( django.jQuery ) );
 (function( $, undefined ) {
 
 $.widget("ui.draggable", $.ui.mouse, {
@@ -6769,7 +6769,7 @@ $.ui.plugin.add("draggable", "zIndex", {
 	}
 });
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 function isOverAxis( x, reference, size ) {
@@ -7142,7 +7142,7 @@ $.ui.ddmanager = {
 	}
 };
 
-})(jQuery);
+})(django.jQuery);
 (function($, undefined) {
 
 var dataSpace = "ui-effects-";
@@ -7813,7 +7813,7 @@ colors = jQuery.Color.names = {
 	_default: "#ffffff"
 };
 
-})( jQuery );
+})( django.jQuery );
 
 
 /******************************************************************************/
@@ -8421,7 +8421,7 @@ $.each( baseEasings, function( name, easeIn ) {
 
 })();
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 var rvertical = /up|down|vertical/,
@@ -8490,7 +8490,7 @@ $.effects.effect.blind = function( o, done ) {
 
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.bounce = function( o, done ) {
@@ -8590,7 +8590,7 @@ $.effects.effect.bounce = function( o, done ) {
 
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.clip = function( o, done ) {
@@ -8644,7 +8644,7 @@ $.effects.effect.clip = function( o, done ) {
 
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.drop = function( o, done ) {
@@ -8696,7 +8696,7 @@ $.effects.effect.drop = function( o, done ) {
 	});
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.explode = function( o, done ) {
@@ -8780,7 +8780,7 @@ $.effects.effect.explode = function( o, done ) {
 	}
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.fade = function( o, done ) {
@@ -8797,7 +8797,7 @@ $.effects.effect.fade = function( o, done ) {
 	});
 };
 
-})( jQuery );
+})( django.jQuery );
 (function( $, undefined ) {
 
 $.effects.effect.fold = function( o, done ) {
@@ -8860,7 +8860,7 @@ $.effects.effect.fold = function( o, done ) {
 
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.highlight = function( o, done ) {
@@ -8897,7 +8897,7 @@ $.effects.effect.highlight = function( o, done ) {
 		});
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.pulsate = function( o, done ) {
@@ -8947,7 +8947,7 @@ $.effects.effect.pulsate = function( o, done ) {
 	elem.dequeue();
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.puff = function( o, done ) {
@@ -9252,7 +9252,7 @@ $.effects.effect.size = function( o, done ) {
 
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.shake = function( o, done ) {
@@ -9313,7 +9313,7 @@ $.effects.effect.shake = function( o, done ) {
 
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.slide = function( o, done ) {
@@ -9364,7 +9364,7 @@ $.effects.effect.slide = function( o, done ) {
 	});
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.effects.effect.transfer = function( o, done ) {
@@ -9398,7 +9398,7 @@ $.effects.effect.transfer = function( o, done ) {
 			});
 };
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.widget( "ui.menu", {
@@ -10010,7 +10010,7 @@ $.widget( "ui.menu", {
 	}
 });
 
-}( jQuery ));
+}( django.jQuery ));
 (function( $, undefined ) {
 
 $.widget( "ui.progressbar", {
@@ -10141,7 +10141,7 @@ $.widget( "ui.progressbar", {
 	}
 });
 
-})( jQuery );
+})( django.jQuery );
 (function( $, undefined ) {
 
 function num(v) {
@@ -11104,7 +11104,7 @@ $.ui.plugin.add("resizable", "grid", {
 
 });
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 $.widget("ui.selectable", $.ui.mouse, {
@@ -11366,7 +11366,7 @@ $.widget("ui.selectable", $.ui.mouse, {
 
 });
 
-})(jQuery);
+})(django.jQuery);
 (function( $, undefined ) {
 
 // number of pages in a slider
@@ -12027,7 +12027,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 
 });
 
-}(jQuery));
+}(django.jQuery));
 (function( $, undefined ) {
 
 function isOverAxis( x, reference, size ) {
@@ -13301,7 +13301,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 });
 
-})(jQuery);
+})(django.jQuery);
 (function( $ ) {
 
 function modifier( fn ) {
@@ -13783,7 +13783,7 @@ $.widget( "ui.spinner", {
 	}
 });
 
-}( jQuery ) );
+}( django.jQuery ) );
 (function( $, undefined ) {
 
 var tabId = 0,
@@ -14618,7 +14618,7 @@ $.widget( "ui.tabs", {
 	}
 });
 
-})( jQuery );
+})( django.jQuery );
 (function( $ ) {
 
 var increments = 0;
@@ -15005,4 +15005,4 @@ $.widget( "ui.tooltip", {
 	}
 });
 
-}( jQuery ) );
+}( django.jQuery ) );
