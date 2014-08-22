@@ -77,6 +77,18 @@ td span.label.cat a:active,
 td span.label.cat a:focus {
   cursor: pointer;
 }
+.module ul,
+.module ol {
+  margin: 0;
+}
+.module p,
+.module ul,
+.module h3,
+.module h4,
+.module dl,
+.module pre {
+  padding: 0;
+}
 div.field-item_sort_positions {
   display: none !important;
 }
@@ -89,6 +101,8 @@ div.field-item_sort_positions {
   margin: 10px;
   margin-left: 0;
   background-color: #f9f9f9;
+  list-style-type: none;
+  list-style-image: none;
 }
 .fs-inline li table > span {
   display: block;
