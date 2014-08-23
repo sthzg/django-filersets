@@ -327,7 +327,7 @@ class SetForm(ModelForm):
                     '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}  # NOQA
 
         js = ['filersets/vendor/jquery-ui-1.10.4/js/jquery-ui-1.10.4.js',
-              static('vendor/jquery-autosize/jquery.autosize.js'),
+              static('filersets/vendor/jquery-autosize/jquery.autosize.min.js'),
               'filersets/js/filersets_admin.js']
 
     class Meta:
