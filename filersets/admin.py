@@ -397,11 +397,15 @@ class SetForm(ModelForm):
 # ______________________________________________________________________________
 #                                                                     Admin: Set
 class SetAdmin(admin.ModelAdmin):
-    """ Administer a set and show the referenced filer_files in an inline """
+    """
+    Administer a set and show the referenced filer_files in an inline
+    """
     form = SetForm
 
     class Media:
-        """ Provide additional static files for the set admin """
+        """
+        Provide additional static files for the set admin
+        """
         js = ("filersets/js/filersets.js",)
 
     #                                                               ____________
@@ -496,7 +500,9 @@ class SetAdmin(admin.ModelAdmin):
     #                                                                ___________
     #                                                                Change List
     def changelist_view(self, request, extra_context=None):
-        """ Provide current_url parameter to the change list """
+        """
+        Provide current_url parameter to the change list
+        """
         self.__setattr__('current_url', request.get_full_path())
         return super(SetAdmin, self).changelist_view(
             request, extra_context=extra_context)
@@ -504,7 +510,9 @@ class SetAdmin(admin.ModelAdmin):
     #                                                                ___________
     #                                                                Change View
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        """ Provide the filer folder id of the edited set to the change page """
+        """
+        Provide the filer folder id of the edited set to the change page
+        """
         if not extra_context:
             extra_context = dict()
 
