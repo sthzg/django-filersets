@@ -1,34 +1,25 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
 from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Python
 import inspect
 import logging
-# ______________________________________________________________________________
-#                                                                         Django
-from django.db import models
-from django.dispatch import receiver
-from django.db.models import Count
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.db.models import Count
+from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django_extensions.db.models import TimeStampedModel
 from django.utils.datetime_safe import datetime
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django_extensions.db.models import TimeStampedModel
-from django.contrib.contenttypes.models import ContentType
-# ______________________________________________________________________________
-#                                                                        Contrib
-from model_utils.choices import Choices
 from autoslug import AutoSlugField
-from filer.models import File, Image
+from easy_thumbnails.files import get_thumbnailer
+from model_utils.choices import Choices
+from taggit_autosuggest_select2.managers import TaggableManager
+from treebeard.mp_tree import MP_Node, MP_NodeManager
+from filersets.signals import fset_processed
 from filer.fields.file import FilerFileField
 from filer.fields.folder import FilerFolderField
-from treebeard.mp_tree import MP_Node, MP_NodeManager
-from easy_thumbnails.files import get_thumbnailer
-from taggit_autosuggest_select2.managers import TaggableManager
-
-from filersets.signals import fset_processed
+from filer.models import File, Image
 
 logger = logging.getLogger(__name__)
 
@@ -676,7 +667,6 @@ class Settype(models.Model):
     django namespaces:
     https://docs.djangoproject.com/en/1.6/topics/http/urls/#url-namespaces
     """
-
     class Meta:
         verbose_name = _('set type')
         verbose_name_plural = _('set types')
@@ -785,7 +775,7 @@ class FilemodelExt(models.Model):
         null=True
     )
 
-    # tags = TaggableManager(blank=True)
+    tags = TaggableManager(blank=True)
 
     def get_tags_display(self):
         """
