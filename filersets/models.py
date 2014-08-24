@@ -126,6 +126,10 @@ class Set(TimeStampedModel):
 
     ordering = models.CharField(
         _('ordering rule'),
+        help_text=_('Select the file attribute you wish to be respected for '
+                    'order of display. Once you start reordering media by '
+                    'drag and drop this value will be automatically set '
+                    'to custom sort order.'),
         max_length=50,
         blank=True,
         choices=ORDERING_OPTIONS,
