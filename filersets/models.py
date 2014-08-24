@@ -101,7 +101,7 @@ class Set(TimeStampedModel):
         'Settype',
         verbose_name=_('set type'),
         related_name='settype_set',
-        blank=False,
+        blank=True,
         null=False,
         default=1)
 

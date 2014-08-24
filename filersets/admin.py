@@ -534,6 +534,19 @@ class SetAdmin(admin.ModelAdmin):
         return super(SetAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context)
 
+    def get_fieldsets(self, request, obj=None):
+        """
+        Overrides ``get_fieldsets()`` to remove select element for ``Settype`` 
+        if only one set type is configured.
+        """
+        fieldsets = super(SetAdmin, self).get_fieldsets(request, obj)
+        if Settype.objects.all().count() < 2:
+            try:
+                fieldsets[0][1]['fields'].remove('settype')
+            except ValueError:
+                pass
+        return fieldsets
+
     #                                                      _____________________
     #                                                      Model Methods Options
     create_or_update_filerset.short_description = _('Create/Update filerset')
