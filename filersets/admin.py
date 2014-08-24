@@ -447,16 +447,21 @@ class SetAdmin(admin.ModelAdmin):
             Set.objects.create_or_update_set(fset.id)
 
     def watch_online(self, obj):
-        """ Display link on change list to the category view on the website """
+        """
+        Display link on change list to the category view on the website.
+        """
         cat_url = reverse('filersets:set_by_slug_view',
                           kwargs={'set_slug': obj.slug})
         label = ugettext('Watch online')
         link = '<a href="{}">' \
-               '<span class="icon-eye-open icon-alpha75"></span> {}' \
+               '<span class="icon-eye-open icon-alpha75" title="{}"></span>' \
                '</a>'
         return link.format(cat_url, label)
 
     def get_cover_item_thumbnail(self, obj):
+        """
+        Return ``<img />`` tag with thumbnail of the media item marked as cover.
+        """
         output = ''
         if obj.filer_set.count() > 0:
             q_order = ('item_sort__sort',)
@@ -475,17 +480,16 @@ class SetAdmin(admin.ModelAdmin):
 
         return output
 
-    get_cover_item_thumbnail.allow_tags = True
-    get_cover_item_thumbnail.short_description = _('Cover thumb')
-
     def process_set(self, obj):
-        """ Extra field for change list displays a link to process a set """
+        """
+        Extra field for change list displays a link to process a set
+        """
         set_url = reverse('filersets_api:set_process_view',
                           kwargs={'set_id': obj.pk})
         query = '?redirect={}'.format(self.current_url)
         label = ugettext('Process set')
         link = '<a href="{0}{1}">' \
-               '<span class="icon-refresh icon-alpha75"></span> {2}' \
+               '<span class="icon-refresh icon-alpha75" title="{2}"></span>' \
                '</a>'
         return link.format(set_url, query, label)
 
@@ -526,7 +530,11 @@ class SetAdmin(admin.ModelAdmin):
     #                                                      Model Methods Options
     create_or_update_filerset.short_description = _('Create/Update filerset')
     watch_online.allow_tags = True
+    watch_online.short_description = ''
     process_set.allow_tags = True
+    process_set.short_description = ''
+    get_cover_item_thumbnail.allow_tags = True
+    get_cover_item_thumbnail.short_description = _('Cover thumb')
 
     #                                                               ____________
     #                                                               Admin Config
