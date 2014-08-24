@@ -553,8 +553,9 @@ class SetAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {
             'classes': ('suit-tab suit-tab-general',),
-            'fields': ['status', 'date', 'ordering', 'title', 'folder',
-                       'recursive', 'is_autoupdate', 'category', 'is_processed']}),  # NOQA
+            'fields': ['settype', 'status', 'date', 'ordering', 'title',
+                       'folder', 'recursive', 'is_autoupdate', 'category',
+                       'is_processed']}),
         ('Description', {
             'classes': ('suit-tab suit-tab-writing', 'full-width',),
             'fields': ['description']})]

@@ -91,13 +91,19 @@ class Set(TimeStampedModel):
         ('-filer_file__uploaded_at', _('upload date descending')),
         ('filer_file__modified_at', _('modfied date ascending')),
         ('-filer_file__modified_at', _('modified date descending')),
-        ('custom', _('custom sort order')),
-    )
+        ('custom', _('custom sort order')), )
 
     STATUS_OPTIONS = Choices(
         ('unpublished', _('unpublished')),
-        ('published', _('published')),
-    )
+        ('published', _('published')), )
+
+    settype = models.ForeignKey(
+        'Settype',
+        verbose_name=_('set type'),
+        related_name='settype_set',
+        blank=False,
+        null=False,
+        default=None)
 
     status = models.CharField(
         _('status'),
@@ -105,15 +111,13 @@ class Set(TimeStampedModel):
         max_length=15,
         blank=True,
         default='unpublished',
-        null=False
-    )
+        null=False)
 
     date = models.DateField(
         _('date'),
         blank=True,
         null=False,
-        default=datetime.now()
-    )
+        default=datetime.now())
 
     ordering = models.CharField(
         _('ordering rule'),
@@ -125,15 +129,13 @@ class Set(TimeStampedModel):
         blank=True,
         choices=ORDERING_OPTIONS,
         default='filer_file__original_filename',
-        null=True
-    )
+        null=True)
 
     title = models.CharField(
         _('title'),
         max_length=60,
         blank=False,
-        default=None
-    )
+        default=None)
 
     slug = AutoSlugField(
         _('slug'),
@@ -141,21 +143,18 @@ class Set(TimeStampedModel):
         max_length=80,
         blank=True,
         default=None,
-        populate_from='title'
-    )
+        populate_from='title')
 
     description = models.TextField(
         _('description'),
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     folder = FilerFolderField(
         verbose_name=_('set folders'),
         help_text=_('Choose the directory you wish to have integrated into '
-                    'the current set.')
-    )
+                    'the current set.'))
 
     recursive = models.BooleanField(
         verbose_name=_('include sub-folders?'),
@@ -163,8 +162,7 @@ class Set(TimeStampedModel):
                     'into the set as well.'),
         blank=True,
         default=False,
-        null=False
-    )
+        null=False)
 
     is_autoupdate = models.BooleanField(
         _('autoupdate?'),
@@ -175,8 +173,7 @@ class Set(TimeStampedModel):
                     'the process set button on the list or edit page.'),
         blank=False,
         default=False,
-        null=False
-    )
+        null=False)
 
     category = models.ManyToManyField(
         'Category',
@@ -185,8 +182,7 @@ class Set(TimeStampedModel):
         help_text=_('Assign the set to as many categories as you like'),
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     # Sets are not directly available for displaying when they are saved. First
     # a task needs to process all the items and after success sets flag to True
@@ -377,8 +373,7 @@ class Item(TimeStampedModel):
         related_name='filer_set',
         null=False,
         default=None,
-        blank=None
-    )
+        blank=None)
 
     # TODO:   Name the content type field as suggested in the django docs
     ct = models.ForeignKey(
@@ -387,23 +382,20 @@ class Item(TimeStampedModel):
         related_name='contenttype',
         null=False,
         default=None,
-        blank=False
-    )
+        blank=False)
 
     is_cover = models.BooleanField(
         _('cover item?'),
         null=False,
         blank=True,
-        default=False
-    )
+        default=False)
 
     filer_file = FilerFileField(
         related_name='filer_file_obj',
         verbose_name=_('Filer file'),
         null=True,
         default=None,
-        blank=True
-    )
+        blank=True)
 
     title = models.CharField(
         _('title'),
@@ -413,15 +405,13 @@ class Item(TimeStampedModel):
         max_length=150,
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     description = models.TextField(
         _('description'),
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     is_locked = models.BooleanField(
         _('locked?'),
@@ -431,8 +421,7 @@ class Item(TimeStampedModel):
                     'set even though it is reported as an orphan.'),
         blank=False,
         default=False,
-        null=False
-    )
+        null=False)
 
     #                                                                        ___
     #                                                             get_item_thumb
@@ -538,8 +527,7 @@ class SetItemSort(models.Model):
         related_name='item_sort',
         blank=False,
         null=False,
-        default=None
-    )
+        default=None)
 
     set = models.ForeignKey(
         Set,
@@ -547,15 +535,13 @@ class SetItemSort(models.Model):
         related_name='set_sort',
         blank=False,
         null=False,
-        default=None
-    )
+        default=None)
 
     sort = models.PositiveIntegerField(
         _('sort'),
         blank=False,
         null=True,
-        default=None
-    )
+        default=None)
 
     def __unicode__(self):
         msg = u'Item {} on position {} in set {}'
@@ -565,7 +551,10 @@ class SetItemSort(models.Model):
 # ______________________________________________________________________________
 #                                                                Model: Category
 class Category(MP_Node):
+    """
 
+    """
+    # TODO Docstring.
     class Meta:
         verbose_name = _('category')
         verbose_name_plural = _('categories')
@@ -573,43 +562,38 @@ class Category(MP_Node):
     objects = CategoryManager()
 
     is_active = models.BooleanField(
-        _('Is active?'),
+        _('is active?'),
         null=False,
         default=False,
-        blank=True
-    )
+        blank=True)
 
     name = models.CharField(
-        _('Category name'),
+        _('category name'),
         max_length=140,
         blank=False,
-        default=None
-    )
+        default=None)
 
     slug = AutoSlugField(
-        _('Slug'),
+        _('slug'),
         always_update=True,
         max_length=80,
         blank=True,
         default=None,
-        populate_from='name'
-    )
+        populate_from='name')
 
     slug_composed = models.CharField(
-        _('Composed slug'),
+        _('composed slug'),
         unique=True,
         max_length=150,
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     description = models.TextField(
-        _('Description'),
+        _('description'),
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     parent = models.ForeignKey(
         'self',
@@ -617,20 +601,25 @@ class Category(MP_Node):
         related_name='cat_parent',
         blank=True,
         null=True,
-        default=None
-    )
+        default=None)
 
     def number_of_sets(self):
-        """ returns the number of sets contained in current category """
+        """
+        Returns the number of sets contained in current category
+        """
         return Set.objects.filter(category=self, status='published').count()
 
     def get_level_compensation(self, compensate_to=None):
-        """ returns the offset to the root level as int """
+        """
+        Returns the offset to the root level as int
+        """
         # TODO  Implement compensate_to functionality
         return self.get_depth() - 1
 
     def save(self, *args, **kwargs):
-
+        """
+        Overriding save to provide a category slug.
+        """
         super(Category, self).save(*args, **kwargs)
 
         # Providing a composed slug keeps the cost of lookups for category urls
@@ -654,7 +643,6 @@ class Category(MP_Node):
 #                                                                 Model: Settype
 class Settype(models.Model):
     """
-    Configure categories that belong to certain types of filersets
     Enables users to configure different types of sets, like galleries,
     downloads, etc.
 
@@ -739,9 +727,8 @@ class Settype(models.Model):
 #                                                            Model: FilemodelExt
 class FilemodelExt(models.Model):
     """
-    TODO Document!
     """
-
+    # TODO Docstring.
     class Meta:
         verbose_name = _('file model extension')
         verbose_name_plural = _('file model extensions')
@@ -753,8 +740,7 @@ class FilemodelExt(models.Model):
         default=None,
         blank=False,
         unique=True,
-        primary_key=True
-    )
+        primary_key=True)
 
     is_timeline = models.BooleanField(
         _('tl?'),
@@ -762,8 +748,7 @@ class FilemodelExt(models.Model):
                     'a timeline view.'),
         blank=True,
         default=False,
-        null=False
-    )
+        null=False)
 
     category = models.ManyToManyField(
         'Category',
@@ -772,8 +757,7 @@ class FilemodelExt(models.Model):
         help_text=_('Assign the file to as many categories as you like'),
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     tags = TaggableManager(blank=True)
 
