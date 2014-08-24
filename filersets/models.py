@@ -103,7 +103,7 @@ class Set(TimeStampedModel):
         related_name='settype_set',
         blank=False,
         null=False,
-        default=None)
+        default=1)
 
     status = models.CharField(
         _('status'),
