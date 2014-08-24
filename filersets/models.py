@@ -660,12 +660,14 @@ class Category(MP_Node):
 
 
 # ______________________________________________________________________________
-#                                                               Model: Affiliate
-class Affiliate(models.Model):
+#                                                                 Model: Settype
+class Settype(models.Model):
     """
-    Configure categories that belong to certain logical entities of filersets
+    Configure categories that belong to certain types of filersets
+    Enables users to configure different types of sets, like galleries,
+    downloads, etc.
 
-    With affiliates you can configure categories that belong to certain
+    With set types you can configure categories that belong to certain
     logical entities of filersets. For example, if you use filersets for the two
     areas image galleries and downloads then you do not want to show sets
     belonging to the downloads in a list view of the image galleries.
@@ -676,8 +678,8 @@ class Affiliate(models.Model):
     """
 
     class Meta:
-        verbose_name=_('affiliated categories')
-        verbose_name_plural=_('affiliated categories')
+        verbose_name = _('set type')
+        verbose_name_plural = _('set types')
 
     label = models.CharField(
         _('label'),
@@ -685,8 +687,7 @@ class Affiliate(models.Model):
         max_length=30,
         blank=False,
         default=None,
-        null=False
-    )
+        null=False)
 
     slug = AutoSlugField(
         _('slug'),
@@ -694,37 +695,33 @@ class Affiliate(models.Model):
         max_length=80,
         blank=True,
         default=None,
-        populate_from='label'
-    )
+        populate_from='label')
 
     namespace = models.CharField(
         _('namespace'),
         help_text=_('Enter the namespace that will be associated with this '
-                    'particular affiliate.'),
+                    'particular set type.'),
         max_length=30,
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     base_folder = FilerFolderField(
         verbose_name=_('base folder'),
-        help_text=_('All media for this affiliate should be uploaded to '
+        help_text=_('All media for this set type should be uploaded to '
                     'child directories of this folder.'),
         blank=True,
         null=True,
-        default=None
-    )
+        default=None)
 
     has_mediastream = models.BooleanField(
         _('provide stream'),
         help_text=_('Check this setting if you want to organize items '
-                    'within this affiliate\'s base folder on a centraliszed '
+                    'within this set type\'s base folder on a centralized '
                     'list page'),
         blank=False,
         null=False,
-        default=False
-    )
+        default=False)
 
     memo = models.TextField(
         _('internal memo'),
@@ -732,19 +729,17 @@ class Affiliate(models.Model):
                     'yourself or co-workers.'),
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     category = models.ManyToManyField(
         Category,
         verbose_name=_('categories'),
-        related_name='affiliate_categories',
+        related_name='settype_categories',
         help_text=_('Pick the category/ies you wish to include in list '
-                    'displays of filersets associated with this affiliate.'),
+                    'displays of filersets associated with this set type.'),
         blank=True,
         default=None,
-        null=True
-    )
+        null=True)
 
     def __unicode__(self):
         return u'{}'.format(self.label)
@@ -790,7 +785,7 @@ class FilemodelExt(models.Model):
         null=True
     )
 
-    tags = TaggableManager(blank=True)
+    # tags = TaggableManager(blank=True)
 
     def get_tags_display(self):
         """

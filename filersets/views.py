@@ -86,12 +86,12 @@ class ListView(View):
                             'status': 'published'}
 
         # Fetch sets that are affiliated with the current instance namespace
-        # See the Affiliate model in models.py for more information.
+        # See the Settype model in models.py for more information.
         else:
             cat_ids = [
                 cat.pk
                 for cat in Category.objects.filter(
-                    affiliate_categories__namespace=current_app)]
+                    settype_categories__namespace=current_app)]
             filter_query = {'category__in': cat_ids, 'status': 'published'}
 
         t_settings = get_template_settings(namespace=current_app)

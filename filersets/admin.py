@@ -15,7 +15,7 @@ from filer.admin.imageadmin import ImageAdmin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 from easy_thumbnails.files import get_thumbnailer
-from filersets.models import Set, Item, Category, Affiliate, FilemodelExt
+from filersets.models import Set, Item, Category, Settype, FilemodelExt
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
     from suit.widgets import AutosizedTextarea, LinkedSelect
@@ -115,48 +115,48 @@ class ItemAdmin(admin.ModelAdmin):
     #                                                                Custom URLs
     def get_urls(self):
         """
-        Provides pre-filtered change list views for affiliates that have their
+        Provides pre-filtered change list views for set types that have their
         ``has_mediastream`` flag checked.
         """
         urls = super(ItemAdmin, self).get_urls()
 
-        # Queries affiliates and collects entries that need a stream view.
+        # Queries set types and collects entries that need a stream view.
         my_urls = patterns('')
-        for affiliate in Affiliate.objects.all():
-            # Checks if we really need a custom view for this affiliate.
-            if not affiliate.base_folder or not affiliate.has_mediastream:
+        for settype in Settype.objects.all():
+            # Checks if we really need a custom view for this set type.
+            if not settype.base_folder or not settype.has_mediastream:
                 continue
 
             # If there is no set connected to the base folder continue.
             try:
-                fset = Set.objects.get(folder=affiliate.base_folder)
+                fset = Set.objects.get(folder=settype.base_folder)
             except Set.DoesNotExist:
                 continue
 
             # Assembles the urls for the custom views.
             my_urls += patterns('', url(
-                r'^'+affiliate.slug+'stream/$',
-                self.admin_site.admin_view(self.affiliatestream_view),
+                r'^'+settype.slug+'stream/$',
+                self.admin_site.admin_view(self.settypestream_view),
                 {
                     'modeladmin': self,
                     'fset': fset
                 },
-                name='{}stream'.format(affiliate.slug)
+                name='{}stream'.format(settype.slug)
             ))
 
         return my_urls + urls
 
     #                                                          _________________
     #                                                          View: Mediastream
-    def affiliatestream_view(self, request, modeladmin, fset):
+    def settypestream_view(self, request, modeladmin, fset):
         """
-        Filters the queryset to show only items in the affiliate's base set.
+        Filters the queryset to show only items in the set type's base set.
         """
-        class AffiliateItemAdmin(admin.site._registry[Item].__class__):
+        class SettypeItemAdmin(admin.site._registry[Item].__class__):
 
             def __init__(self, model, admin_site, request):
                 self.request = request
-                super(AffiliateItemAdmin, self).__init__(model, admin_site)
+                super(SettypeItemAdmin, self).__init__(model, admin_site)
 
             def get_queryset(self, request):
                 qs = super(ItemAdmin, self).get_queryset(request)
@@ -167,7 +167,7 @@ class ItemAdmin(admin.ModelAdmin):
                 if lfilter == 'set':
                     del self.list_filter[idx]
 
-        inst = AffiliateItemAdmin(modeladmin.model, admin.site, request)
+        inst = SettypeItemAdmin(modeladmin.model, admin.site, request)
         return inst.changelist_view(request, extra_context={})
 
     #                                                           ________________
@@ -209,7 +209,7 @@ class ItemAdmin(admin.ModelAdmin):
         parameter_name = 'category'
 
         def lookups(self, request, model_admin):
-            # TODO Respect affiliate settings
+            # TODO Respect set type settings
             data = list()
             for category in Category.objects.all().order_by('name'):
                 data.append((category.pk, category.name,))
@@ -576,28 +576,28 @@ class SetAdmin(admin.ModelAdmin):
 
 
 # ______________________________________________________________________________
-#                                                         InlineAdmin: Affiliate
-class AffiliateInlineAdmin(admin.StackedInline):
+#                                                           InlineAdmin: Settype
+class SettypeInlineAdmin(admin.StackedInline):
     """
-    Adds affiliate settings as inline to category admin
+    Adds set type settings as inline to category admin
     """
-    model = Affiliate.category.through
+    model = Settype.category.through
     extra = 0
 
 
 # ______________________________________________________________________________
-#                                                           ModelForm: Affiliate
-class AffiliateModelForm(forms.ModelForm):
+#                                                             ModelForm: Settype
+class SettypeModelForm(forms.ModelForm):
     class Meta:
-        model = Affiliate
+        model = Settype
         widgets = {
             'category': SelectMultiple(attrs={'size': '12'}),
         }
 
 # ______________________________________________________________________________
-#                                                               Admin: Affiliate
-class AffiliateAdmin(admin.ModelAdmin):
-    form = AffiliateModelForm
+#                                                                 Admin: Settype
+class SettypeAdmin(admin.ModelAdmin):
+    form = SettypeModelForm
     list_display = ('label', 'namespace', 'memo',)
 
 
@@ -620,7 +620,7 @@ class CategoryAdmin(TreeAdmin):
     list_display = ('name', 'number_of_sets', 'slug', 'is_active',)
     list_editable = ('is_active',)
     exclude = ('slug_composed', 'path', 'depth', 'numchild', 'parent',)
-    inlines = [AffiliateInlineAdmin]
+    inlines = [SettypeInlineAdmin]
 
 
 # ______________________________________________________________________________
@@ -659,4 +659,4 @@ ImageAdmin.inlines = ItemAdmin.inlines + [FilemodelExtInline]
 admin.site.register(Set, SetAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Item, ItemAdmin)
-admin.site.register(Affiliate, AffiliateAdmin)
+admin.site.register(Settype, SettypeAdmin)
