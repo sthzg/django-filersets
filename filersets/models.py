@@ -75,8 +75,8 @@ class Set(TimeStampedModel):
     """
 
     class Meta:
-        verbose_name = _('Filer Set')
-        verbose_name_plural = _('Filer Sets')
+        verbose_name = _('filer set')
+        verbose_name_plural = _('filer sets')
 
     objects = SetManager()
 
@@ -527,8 +527,8 @@ class SetItemSort(models.Model):
     """
 
     class Meta:
-        verbose_name = _('Item sort in sets')
-        verbose_name_plural = _('Item sort in sets')
+        verbose_name = _('item sort in sets')
+        verbose_name_plural = _('item sort in sets')
         unique_together = ('item', 'set', 'sort',)
         ordering = ('sort', 'item', 'set')
 
@@ -567,8 +567,8 @@ class SetItemSort(models.Model):
 class Category(MP_Node):
 
     class Meta:
-        verbose_name = _('Category')
-        verbose_name_plural = _('Categories')
+        verbose_name = _('category')
+        verbose_name_plural = _('categories')
 
     objects = CategoryManager()
 
