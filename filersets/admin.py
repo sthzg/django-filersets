@@ -536,7 +536,7 @@ class SetAdmin(admin.ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         """
-        Overrides ``get_fieldsets()`` to remove select element for ``Settype`` 
+        Overrides ``get_fieldsets()`` to remove select element for ``Settype``
         if only one set type is configured.
         """
         fieldsets = super(SetAdmin, self).get_fieldsets(request, obj)
@@ -576,7 +576,7 @@ class SetAdmin(admin.ModelAdmin):
             'classes': ('suit-tab suit-tab-general',),
             'fields': ['settype', 'status', 'date', 'ordering', 'title',
                        'folder', 'recursive', 'is_autoupdate', 'category',
-                       'is_processed']}),
+                       'is_processed', 'item_sort_positions']}),
         ('Description', {
             'classes': ('suit-tab suit-tab-writing', 'full-width',),
             'fields': ['description']})]
