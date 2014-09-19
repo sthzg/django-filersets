@@ -7,9 +7,9 @@
         {{ block.super }}
         <input type="hidden" id="item_pk" value="{{ object_id }}">
         {% if object_id and not "suit"|installed %}
-            {% if set_filer_folder_id > -1 and set_is_processed %}
+            {% if set_url and set_filer_folder_id > -1 and set_is_processed %}
             <li>
-                <a href="{% url 'filersets:set_by_id_view' object_id %}">
+                <a href="{{ set_url }}">
                     <i class="icon-eye-open icon-alpha75"></i>
                     {% trans "Watch online" %}
                 </a>
@@ -42,9 +42,9 @@
                 {% trans "Current Set" %}
             </h4>
             <ul class="box menu-box">
-                {% if set_filer_folder_id > -1 and set_is_processed %}
+                {% if set_url and set_filer_folder_id > -1 and set_is_processed %}
                 <li>
-                    <a href="{% url 'filersets:set_by_id_view' object_id %}">
+                    <a href="{{ set_url }}">
                         <i class="icon-eye-open icon-alpha75"></i>
                         {% trans "Watch online" %}
                     </a>

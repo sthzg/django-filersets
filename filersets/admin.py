@@ -469,8 +469,8 @@ class SetAdmin(admin.ModelAdmin):
         .. note::
 
             You can override this method in your modules. To do so, extend
-            from SetAdmin and re-register your extended admin. This way
-            you can achieve the 'watch online' link to point to arbitrary urls.
+            from SetAdmin and re-register your extended admin. By overriding
+            ``get_fset_url`` 'watch online' can link to arbitrary urls.
 
         """
         view = 'filersets:set_by_slug_view'
@@ -525,7 +525,7 @@ class SetAdmin(admin.ModelAdmin):
     #                                                                Change View
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
-        Provide the filer folder id of the edited set to the change page
+        Provides additional context to the admin change page template.
         """
         if not extra_context:
             extra_context = dict()
@@ -533,15 +533,19 @@ class SetAdmin(admin.ModelAdmin):
         try:
             fset = Set.objects.get(pk=object_id)
             is_processed = fset.is_processed
+            fset_url = self.get_fset_url(fset)
             try:
                 el = fset.folder
                 sffid = el.pk
             except KeyError:
                 sffid = -1
-        except ObjectDoesNotExist:
+
+        except Set.DoesNotExist:
+            fset_url = None
             sffid = -1
             is_processed = False
 
+        extra_context['set_url'] = fset_url
         extra_context['set_filer_folder_id'] = sffid
         extra_context['set_is_processed'] = is_processed
 
