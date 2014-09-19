@@ -11,11 +11,11 @@ from django.forms.widgets import SelectMultiple
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
+from easy_thumbnails.files import get_thumbnailer
 from filer.admin.imageadmin import ImageAdmin
+from filersets.models import Set, Item, Category, Settype, FilemodelExt
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
-from easy_thumbnails.files import get_thumbnailer
-from filersets.models import Set, Item, Category, Settype, FilemodelExt
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
     from suit.widgets import AutosizedTextarea, LinkedSelect
@@ -452,15 +452,29 @@ class SetAdmin(admin.ModelAdmin):
 
     def watch_online(self, obj):
         """
-        Display link on change list to the category view on the website.
+        Display link on change list to the detail view on the website.
         """
-        cat_url = reverse('filersets:set_by_slug_view',
-                          kwargs={'set_slug': obj.slug})
+        fset_url = self.get_fset_url(obj)
         label = ugettext('Watch online')
         link = '<a href="{}">' \
                '<span class="icon-eye-open icon-alpha75" title="{}"></span>' \
                '</a>'
-        return link.format(cat_url, label)
+
+        return link.format(fset_url, label)
+
+    def get_fset_url(self, obj):
+        """
+        Returns url to filerset detail page.
+
+        .. note::
+
+            You can override this method in your modules. To do so, extend
+            from SetAdmin and re-register your extended admin. This way
+            you can achieve the 'watch online' link to point to arbitrary urls.
+
+        """
+        view = 'filersets:set_by_slug_view'
+        return reverse(view, kwargs={'set_slug': obj.slug})
 
     def get_cover_item_thumbnail(self, obj):
         """
