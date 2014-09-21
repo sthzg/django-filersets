@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from filersets.models import Category, Item, FilemodelExt
+from filersets.models import Category, Item, FilemodelExt, Set
 from filer.models import File
 from rest_framework import serializers
 
@@ -29,3 +29,9 @@ class FilemodelExtSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = FilemodelExt
         fields = ('filer_file', 'is_timeline', 'category', 'tags',)
+
+
+class FilersetSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Set
+        fields = ('id', 'description')

@@ -25,7 +25,7 @@ from filersets.models import Set, Item, Category, FilemodelExt
 from filersets.serializers import (CategorySerializer,
                                    ItemSerializer,
                                    FileSerializer,
-                                   FilemodelExtSerializer)
+                                   FilemodelExtSerializer, FilersetSerializer)
 
 
 # ______________________________________________________________________________
@@ -275,3 +275,11 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = File.objects.all()
     serializer_class = FileSerializer
+
+
+class FilersetViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows retrieving filerset instances.
+    """
+    queryset = Set.objects.all()
+    serializer_class = FilersetSerializer
