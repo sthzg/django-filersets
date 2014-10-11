@@ -630,15 +630,13 @@ class SettypeInlineAdmin(admin.StackedInline):
 class SettypeModelForm(forms.ModelForm):
     class Meta:
         model = Settype
-        widgets = {
-            'category': SelectMultiple(attrs={'size': '12'}),
-        }
 
 # ______________________________________________________________________________
 #                                                                 Admin: Settype
 class SettypeAdmin(admin.ModelAdmin):
     form = SettypeModelForm
     list_display = ('label', 'namespace', 'memo',)
+    exclude = ('category',)
 
 
 # ______________________________________________________________________________
