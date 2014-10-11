@@ -14,12 +14,17 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from autoslug import AutoSlugField
 from easy_thumbnails.files import get_thumbnailer
 from model_utils.choices import Choices
-from taggit_autosuggest_select2.managers import TaggableManager
 from treebeard.mp_tree import MP_Node, MP_NodeManager
 from filersets.signals import fset_processed
 from filer.fields.file import FilerFileField
 from filer.fields.folder import FilerFolderField
 from filer.models import File, Image
+
+try:
+    from taggit_autosuggest_select2.managers import TaggableManager
+except ImportError:
+    from taggit.managers import TaggableManager
+
 
 logger = logging.getLogger(__name__)
 
