@@ -162,15 +162,17 @@ class ListView(View):
 #                                                                      View: Set
 class SetView(View):
     """ Show a detail page for a set. """
-    # TODO  Support various predefined ordering options
-    # TODO  Check for set id or slug
-    # TODO  Create list and position aware back button handling
+    # TODO Support various predefined ordering options
+    # TODO Check for set id or slug
+    # TODO Create list and position aware back button handling
     def get(self, request, set_id=None, set_slug=None):
         """
 
         :param set_id: pk of the set
         :param set_slug: slug of the set
         """
+        user = request.user
+
         current_app = resolve(request.path).namespace
         request.session['fs_referrer'] = '{}:set_view'.format(current_app)
 
@@ -182,7 +184,7 @@ class SetView(View):
 
         try:
             fset = Set.objects.get(**get_query)
-            if fset.status != 'published':
+            if fset.status != 'published' and not user.has_perm('can_edit'):
                 raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             raise Http404
