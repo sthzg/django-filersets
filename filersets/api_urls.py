@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
 from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Django
 from django.conf.urls import patterns, url
-from django.contrib.auth.decorators import login_required, permission_required
-# ______________________________________________________________________________
-#                                                                        Package
+from django.contrib.auth.decorators import permission_required
 from filersets import views
 
 
