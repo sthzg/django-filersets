@@ -1,8 +1,5 @@
 {% extends t_extend %}
-{% load smart_load %}
-{% load static %}
-{% load i18n %}
-{% load thumbnail from sorl.thumbnail as sorl_thumbnail %}
+{% load thumbnail i18n static %}
 
 {% comment %}
 This is only a temporary solution to fit within the dev env. Should be a lot
@@ -15,7 +12,7 @@ TODO    Make configurable and very generic
 {% block base_content %}
 
     <div class="container">
-        <!-- Sidebar Links -->
+
         <div class="col-md-6">
             <ul class="sidebar-nav naked">
             </ul>
@@ -23,9 +20,7 @@ TODO    Make configurable and very generic
             <ul class="sidebar-nav naked">
             </ul>
         </div>
-        <!-- Ende Sidebar links -->
 
-        <!-- Hauptinhalt -->
         <article class="main-content">
             <div class="col-md-18">
                 <h1>Filer Set</h1>
@@ -40,16 +35,18 @@ TODO    Make configurable and very generic
 
                 {% for fitem in fitems %}
                     <div class="fs-item-container">
-                    {% sorl_thumbnail fitem.filer_file.path "845" quality=89 as im %}
+                    {% thumbnail fitem.filer_file 845x0 upscale as im %}
                     <img src="{{ im.url }}"
+                         width="{{ im.width }}"
+                         height="{{ im.height }}"
                          alt=""
                          class="img-responsive" />
-                    {% endthumbnail %}
                     </div>
+
                 {% endfor %}
             </div>
         </article>
-        <!-- Ende: Hauptinhalt -->
+
     </div>
 
     <link href="{% static "filersets/css/filersets.css" %}"
