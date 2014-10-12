@@ -8,11 +8,12 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
 from django.forms.widgets import SelectMultiple
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 from easy_thumbnails.files import get_thumbnailer
 from filer.admin.imageadmin import ImageAdmin
+from filersets.fields import TreeNodeMultipleChoiceField, \
+    TreeNodeCheckboxSelectMultiple
 from filersets.models import Set, Item, Category, Settype, FilemodelExt
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -319,6 +320,9 @@ class ItemAdmin(admin.ModelAdmin):
 class SetForm(ModelForm):
 
     item_sort_positions = forms.Field()
+    category = TreeNodeMultipleChoiceField(
+        queryset=Category.objects.all(),
+        widget=TreeNodeCheckboxSelectMultiple)
 
     class Media:
         """ Provide additional static files for the set admin """
@@ -332,7 +336,6 @@ class SetForm(ModelForm):
 
     class Meta:
         model = Set
-        widgets = {'category': SelectMultiple(attrs={'size': '12'})}
 
         if has_redactor:
             widgets.update({'description': RedactorWidget(editor_options={'lang': 'en'})})  # NOQA
@@ -623,6 +626,7 @@ class SettypeInlineAdmin(admin.StackedInline):
     """
     model = Settype.category.through
     extra = 0
+    max_num = 1
 
 
 # ______________________________________________________________________________

@@ -13,6 +13,7 @@ from django.utils.datetime_safe import datetime
 from django.utils.translation import ugettext_lazy as _, ugettext
 from autoslug import AutoSlugField
 from easy_thumbnails.files import get_thumbnailer
+from filersets.fields import TreeManyToManyField
 from model_utils.choices import Choices
 from treebeard.mp_tree import MP_Node, MP_NodeManager
 from filersets.signals import fset_processed
@@ -714,7 +715,7 @@ class Settype(models.Model):
         default=None,
         null=True)
 
-    category = models.ManyToManyField(
+    category = TreeManyToManyField(
         Category,
         verbose_name=_('categories'),
         related_name='settype_categories',
