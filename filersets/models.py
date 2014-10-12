@@ -3,11 +3,11 @@ from __future__ import absolute_import, unicode_literals
 import inspect
 import logging
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models import Count
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django_extensions.db.models import TimeStampedModel
 from django.utils.datetime_safe import datetime
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -747,17 +747,23 @@ class Settype(models.Model):
         self.category.clear()
         self.category.add(category)
 
-    def delete(self, using=None):
+    @classmethod
+    def on_settype_delete(cls, sender, instance, using, **kwargs):
         """
         Deletes the root category and its descendants when a settype is deleted.
         """
-        # TODO(sthzg) Might not be called on batch creation. Extend w/ signals.
-        Category.delete(self.category.all().first())
-        super(Settype, self).delete(using)
-
+        try:
+            Category.delete(instance.category.all().first())
+        except TypeError:
+            if not instance.category.all().first():
+                pass
+            else:
+                raise
 
     def __unicode__(self):
         return u'{}'.format(self.label)
+
+pre_delete.connect(Settype.on_settype_delete, sender=Settype)
 
 
 # ______________________________________________________________________________
