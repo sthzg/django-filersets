@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models import Count
 from django.dispatch import receiver
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django_extensions.db.models import TimeStampedModel
 from django.utils.datetime_safe import datetime
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -641,8 +641,26 @@ class Category(MP_Node):
         for child in self.get_children():
             child.save(force_update=True)
 
+    @classmethod
+    def on_category_pre_delete(cls, sender, instance, using, **kwargs):
+        # Uses pre_delete to check if user deletes a root category, which
+        # equals deleting a settype. If so prepares an attribute that can
+        # be used on ``post_delete`` to remove the settype. (otherwise
+        # we end up in an infinite loop).
+        if instance.is_root():
+            instance.delete_settype = instance.settype_categories.first()
+
+    @classmethod
+    def on_category_post_delete(cls, sender, instance, using, **kwargs):
+        # See comment above on method on_category_pre_delete.
+        if hasattr(instance, 'delete_settype'):
+            instance.delete_settype.delete()
+
     def __unicode__(self):
         return u'{}'.format(self.name)
+
+pre_delete.connect(Category.on_category_pre_delete, sender=Category)
+post_delete.connect(Category.on_category_post_delete, sender=Category)
 
 
 # ______________________________________________________________________________

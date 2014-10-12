@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.conf.urls import patterns, url
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.core.exceptions import ValidationError
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
 from django.forms.widgets import SelectMultiple
@@ -645,8 +646,26 @@ class SettypeAdmin(admin.ModelAdmin):
 
 # ______________________________________________________________________________
 #                                                                Admin: Category
-class CategoryAdmin(TreeAdmin):
+def category_admin_form_clean(self):
+    """
+    Extends treebeard's ModelForm clean method to make sure that users
+    don't create a category on the root tree level.
+    """
+    super(CategoryAdminForm, self).clean()
 
+    if self.cleaned_data['_ref_node_id'] == 0:
+        msg = _('You may not save a category to the root level.')
+        raise ValidationError(msg)
+
+    return self.cleaned_data
+
+
+# This is treebeard's preferred way of creating a subclass of its ModelForm.
+CategoryAdminForm = movenodeform_factory(Category)
+CategoryAdminForm.clean = category_admin_form_clean
+
+
+class CategoryAdmin(TreeAdmin):
     def watch_online(self, obj):
         """ Display link on change list to the category view on the website """
         cat_url = reverse('filersets:list_view',
@@ -658,7 +677,7 @@ class CategoryAdmin(TreeAdmin):
 
     watch_online.allow_tags = True
 
-    form = movenodeform_factory(Category)
+    form = CategoryAdminForm
     list_display = ('name', 'number_of_sets', 'slug', 'is_active',)
     list_editable = ('is_active',)
     exclude = ('slug_composed', 'path', 'depth', 'numchild', 'parent',)
