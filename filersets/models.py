@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 import inspect
 import logging
 from django.contrib.contenttypes.models import ContentType
@@ -724,6 +724,37 @@ class Settype(models.Model):
         blank=True,
         default=None,
         null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Creates new Category instance on category root level and sets
+        relation to the set.
+        """
+        update = True if self.pk else False
+
+        super(Settype, self).save(*args, **kwargs)
+
+        if update:
+            category = self.category.all().first()
+            category.name = 'Set type: {}'.format(self.label)
+            category.save()
+        else:
+            category = Category()
+            category.name = 'Set type: {}'.format(self.label)
+            category.is_active = True
+            Category.add_root(instance=category)
+
+        self.category.clear()
+        self.category.add(category)
+
+    def delete(self, using=None):
+        """
+        Deletes the root category and its descendants when a settype is deleted.
+        """
+        # TODO(sthzg) Might not be called on batch creation. Extend w/ signals.
+        Category.delete(self.category.all().first())
+        super(Settype, self).delete(using)
+
 
     def __unicode__(self):
         return u'{}'.format(self.label)
