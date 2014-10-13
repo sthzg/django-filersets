@@ -881,12 +881,17 @@
     var set_type_cat_filter = {
 
         init: function() {
-            $('#id_category').find('li').css('display', 'none');
-            $('select#id_settype').on('change', this.on_set_type_change);
+            var $set_type = $('select#id_settype');
+            this._show_categories_for_value($set_type.val());
+            $set_type.on('change', {that: this}, this.on_set_type_change);
         },
 
         on_set_type_change: function(ev) {
-            var val = $(this).val();
+            var that = ev.data.that;
+            that._show_categories_for_value($(this).val());
+        },
+
+        _show_categories_for_value: function(val) {
             var $set_type_categories = $('#id_category');
             $set_type_categories.find('li').css('display', 'none');
             $set_type_categories.find('li[data-root-id="'+val+'"]').css('display', 'block');
