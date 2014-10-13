@@ -23,28 +23,28 @@
 
 // _____________________________________________________________________________
 //                                                                       UI Band
-  /**
-   * UI band
-   * -------
-   * Widget container on the bottom of the screen that can hold arbitrary UI
-   * elements/widgets like the Categorizr.
-   *
-   * The UI band is currently structured as a 3-split-container
-   *
-   * -----------------------------------------------------------------------------
-   * | Widget Icons  |            Widget Display          |   Notification Area  |
-   * -----------------------------------------------------------------------------
-   *
-   * Widget Icons:
-   * Every registered widget is represented by an icon (clickable/tababble).
-   *
-   * Widget Display:
-   * The currently active widget is displayed in this main area.
-   *
-   * Notification Area:
-   * Features a queue in which time-based notifications could be added.
-   *
-   */
+/**
+ * UI band
+ * -------
+ * Widget container on the bottom of the screen that can hold arbitrary UI
+ * elements/widgets like the Categorizr.
+ *
+ * The UI band is currently structured as a 3-split-container
+ *
+ * -----------------------------------------------------------------------------
+ * | Widget Icons  |            Widget Display          |   Notification Area  |
+ * -----------------------------------------------------------------------------
+ *
+ * Widget Icons:
+ * Every registered widget is represented by an icon (clickable/tababble).
+ *
+ * Widget Display:
+ * The currently active widget is displayed in this main area.
+ *
+ * Notification Area:
+ * Features a queue in which time-based notifications could be added.
+ *
+ */
   var fs_uiband = {
 
     current_widget_id: undefined,
@@ -866,8 +866,32 @@
     if ($('body').hasClass('filersets-set') &&
         $('body').hasClass('change-form')) {
       sortr.init();
+      set_type_cat_filter.init();
     }
   });
+
+// _____________________________________________________________________________
+//                                                              SetTypeCatFilter
+    /**
+     * SetTypeCatFilter
+     * ----------------
+     * Reduces category tree to only show categories that belong to chosen
+     * set type.
+     */
+    var set_type_cat_filter = {
+
+        init: function() {
+            $('#id_category').find('li').css('display', 'none');
+            $('select#id_settype').on('change', this.on_set_type_change);
+        },
+
+        on_set_type_change: function(ev) {
+            var val = $(this).val();
+            var $set_type_categories = $('#id_category');
+            $set_type_categories.find('li').css('display', 'none');
+            $set_type_categories.find('li[data-root-id="'+val+'"]').css('display', 'block');
+        }
+    };
 
 // _____________________________________________________________________________
 //                                                                         Sortr
