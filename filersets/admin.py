@@ -641,7 +641,7 @@ class SettypeModelForm(forms.ModelForm):
 #                                                                 Admin: Settype
 class SettypeAdmin(admin.ModelAdmin):
     form = SettypeModelForm
-    list_display = ('label', 'namespace', 'memo',)
+    list_display = ('label', 'memo',)
     exclude = ('category',)
 
 
