@@ -54,8 +54,11 @@ class ListView(View):
     # TODO    Extend to be fully configurable
     # TODO    Extend to make use of paging
     # TODO    Extend to provide sorting
-    def get(self, request, cat_id=None, cat_slug=None):
-        current_app = resolve(request.path).namespace
+    def get(self, request, cat_id=None, cat_slug=None, set_type=None):
+
+        if not set_type:
+            set_type = resolve(request.path).namespace
+
         fset = None
         through_category = False
         list_items = list()
@@ -91,32 +94,35 @@ class ListView(View):
             cat_ids = [
                 cat.pk
                 for cat in Category.objects.filter(
-                    settype_categories__namespace=current_app)]
-            filter_query = {'category__in': cat_ids, 'status': 'published'}
+                    settype_categories__slug=set_type)]
 
-        t_settings = get_template_settings(namespace=current_app)
+            filter_query = {'category__in': cat_ids}
+            if not request.user.has_perm('can_edit'):
+                filter_query.update({'status': 'published'})
+
+        t_settings = get_template_settings(namespace=set_type)
 
         for fset in Set.objects.filter(**filter_query).order_by('-date').distinct():
-            # TODO  Respect order config on individual sets
             fitems = [
                 fitem
                 for fitem in Item.objects.filter(set=fset)
-                                 .order_by(*['-is_cover']+[fset.ordering])]
+                                 .order_by(*['-is_cover']+['item_sort__sort'])]
 
             t = get_template(t_settings['list_item'])
             c = RequestContext(request,
                                {'set': fset,
                                 'items': fitems,
-                                'current_app': current_app})
+                                'set_type': set_type})
             list_items.append(t.render(c))
 
         if through_category:
             canonical_url = reverse('filersets:list_view',
-                                    current_app=current_app,
-                                    kwargs=({'cat_id': cat.pk}))
+                                    current_app=set_type,
+                                    kwargs=({'set_type': set_type,
+                                             'cat_id': cat.pk}))
         else:
             canonical_url = reverse('filersets:list_view',
-                                    current_app=current_app)
+                                    current_app=set_type)
 
         # The Back Base System: Retaining state through sessions
         # ----------------------------------------------------------------------
@@ -136,7 +142,7 @@ class ListView(View):
         # ----------------------------------------------------------------------
         request.session['has_back_base'] = True
         request.session['back_base_url'] = request.get_full_path()
-        request.session['fs_referrer'] = '{}:list_view'.format(current_app)
+        request.session['fs_referrer'] = '{}:list_view'.format(set_type)
 
         # The fs_last_pk cookie enables us to scroll to the list position of
         # the last clicked item (when coming back from a detail view)
@@ -153,7 +159,7 @@ class ListView(View):
                 'fset': fset,
                 'fitems': list_items,
                 'canonical_url': canonical_url,
-                'current_app': current_app})
+                'set_type': set_type})
 
         return response
 
@@ -165,7 +171,7 @@ class SetView(View):
     # TODO Support various predefined ordering options
     # TODO Check for set id or slug
     # TODO Create list and position aware back button handling
-    def get(self, request, set_id=None, set_slug=None):
+    def get(self, request, set_id=None, set_slug=None, set_type=None):
         """
 
         :param set_id: pk of the set
@@ -173,8 +179,10 @@ class SetView(View):
         """
         user = request.user
 
-        current_app = resolve(request.path).namespace
-        request.session['fs_referrer'] = '{}:set_view'.format(current_app)
+        set_type = resolve(request.path).namespace
+        if set_type:
+            set_type = set_type
+        request.session['fs_referrer'] = '{}:set_view'.format(set_type)
 
         if set_id:
             get_query = {'pk': int(set_id)}
@@ -204,7 +212,7 @@ class SetView(View):
                 't_extend': t_settings['base'],
                 'fset': fset,
                 'fitems': fitems,
-                'current_app': current_app})
+                'set_type': set_type})
 
 
 # ______________________________________________________________________________

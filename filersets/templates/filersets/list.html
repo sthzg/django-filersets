@@ -1,5 +1,5 @@
 {% extends t_extends %}
-{% load i18n static %}
+{% load i18n filersets_menutags static %}
 
 {% comment %}
 This is only a temporary solution to fit within the dev env. Should be a lot
@@ -14,7 +14,7 @@ TODO    Make configurable and very generic
     <h1>I Am the Original Template</h1>
 
     <div class="container">
-        <!-- Sidebar Links -->
+
         <div class="col-md-6">
             <ul class="sidebar-nav naked">
             </ul>
@@ -22,9 +22,7 @@ TODO    Make configurable and very generic
             <ul class="sidebar-nav naked">
             </ul>
         </div>
-        <!-- Ende Sidebar links -->
 
-        <!-- Hauptinhalt -->
         {% if fset %}
             <div class="col-md-18">
                 <h1>{{ fset.title }}</h1>
@@ -38,7 +36,9 @@ TODO    Make configurable and very generic
             {# Maybe better to use DB and model translations in this case #}
             <h1>{% trans "There are currently no filersets to display." %}</h1>
         {% endif %}
-        <!-- Ende: Hauptinhalt -->
+
+        {% fs_category_tree %}
+
     </div>
 
     <link href="{% static "filersets/css/filersets.css" %}"

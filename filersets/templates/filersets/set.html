@@ -30,7 +30,7 @@ TODO    Make configurable and very generic
                 <h3>{{ fset.description }}</h3>
 
                 {% if perms.filersets.can_edit %}
-                <a href="{% url "admin:filersets_set_change" fset.pk %}">(edit)</a>
+                    <a href="{% url "admin:filersets_set_change" fset.pk %}">(edit)</a>
                 {% endif %}
 
                 {% for fitem in fitems %}

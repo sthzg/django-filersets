@@ -479,7 +479,9 @@ class SetAdmin(admin.ModelAdmin):
 
         """
         view = 'filersets:set_by_slug_view'
-        return reverse(view, kwargs={'set_slug': obj.slug})
+        return reverse(view, kwargs={
+            'set_type': obj.settype.slug,
+            'set_slug': obj.slug})
 
     def get_cover_item_thumbnail(self, obj):
         """

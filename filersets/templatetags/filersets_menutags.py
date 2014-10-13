@@ -57,7 +57,7 @@ class FSCategoryTree(template.Node):
         """ Renders the category menu tree as HTML """
         root_id = self.root_id
         skip_empty = self.skip_empty
-        current_app = context.get('current_app')
+        set_type = context.get('set_type')
         request = context.get('request')
         t_settings = get_template_settings()
 
@@ -96,16 +96,19 @@ class FSCategoryTree(template.Node):
         for cat in categories:
             cat_classes = list()
             cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
+            cat_set_type = cat.settype_categories.all()[0].slug
 
             cat_slug_url = reverse(
                 'filersets:list_view',
-                kwargs=({'cat_slug': cat.slug_composed}),
-                current_app=current_app)
+                kwargs=({'set_type': cat_set_type,
+                         'cat_slug': cat.slug_composed}),
+                current_app=cat_set_type)
 
             cat_id_url = reverse(
                 'filersets:list_view',
-                kwargs=({'cat_id': cat.pk}),
-                current_app=current_app)
+                kwargs=({'set_type': cat_set_type,
+                         'cat_id': cat.pk}),
+                current_app=cat_set_type)
 
             cur_url = request.get_full_path()
 
@@ -114,17 +117,17 @@ class FSCategoryTree(template.Node):
 
             if has_back_base and back_base_url in (cat_slug_url, cat_id_url):
                 # Prevent marking two cats as active when switching categories
-                if fs_referrer != '{}:list_view'.format(current_app):
+                if fs_referrer != '{}:list_view'.format(set_type):
                     cat_classes.append('active')
 
             t = get_template(t_settings['cat_tree_item'])
             c = Context({'cat': cat,
                          'cat_classes': ' '.join(cat_classes),
-                         'current_app': current_app})
+                         'set_type': cat_set_type})
             litems.append(t.render(c))
 
         t = get_template(t_settings['cat_tree_wrap'])
-        c = Context({'items': litems, 'current_app': current_app})
+        c = Context({'items': litems, 'set_type': set_type})
         return t.render(c)
 
 

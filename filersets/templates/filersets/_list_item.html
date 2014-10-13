@@ -1,5 +1,4 @@
-{% load smart_load %}
-{% load thumbnail from easy_thumbnails as easy_thumbnail %}
+{% load thumbnail %}
 
 {% comment %}
 This is only a temporary solution to fit within the dev env. Should be a lot
@@ -13,7 +12,7 @@ TODO    Make thumb size configurable
 <div class="filer-set-container">
     <p class="date">{{ set.date }}</p>
     <h2>
-        {% url 'filersets:set_by_slug_view' set.slug as set_url %}
+        {% url 'filersets:set_by_slug_view' set_type=set_type set_slug=set.slug as set_url %}
         <a href="{{ set_url }}">
             {{ set.title }}
         </a>
@@ -21,7 +20,7 @@ TODO    Make thumb size configurable
     <h3>{{ set.description }}</h3>
     <div class="items-wrapper">
         {% for item in items %}
-            <img src="{% easy_thumbnail item.filer_file 48x48 crop %}" />
+            <img src="{% thumbnail item.filer_file 48x48 crop %}" />
         {% endfor %}
     </div>
 </div>
