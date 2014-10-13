@@ -2,10 +2,11 @@
 from __future__ import absolute_import, unicode_literals
 from django import forms
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.conf.urls import patterns, url
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseBadRequest
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
 from django.forms.widgets import SelectMultiple
@@ -659,7 +660,6 @@ def category_admin_form_clean(self):
 
     return self.cleaned_data
 
-
 # This is treebeard's preferred way of creating a subclass of its ModelForm.
 CategoryAdminForm = movenodeform_factory(Category)
 CategoryAdminForm.clean = category_admin_form_clean
@@ -676,6 +676,36 @@ class CategoryAdmin(TreeAdmin):
         return link.format(cat_url, extra, label)
 
     watch_online.allow_tags = True
+
+    def try_to_move_node(self, as_child, node, pos, request, target):
+        """
+        Performs additional validation on node move.
+        """
+        # On node move we need to ensure, that...
+
+        # a) ... a root node cannot be moved into a child level.
+        # b) ... a child node cannot be moved into root level.
+        # c) ... te composed slug remains unique within the new position.
+
+        # Check a)
+        if node.is_root():
+            if pos != 'left' or not target.is_root():
+                msg = _('Set type categories need to stay on the root level.')
+                messages.error(request, msg)
+                return HttpResponseBadRequest('Exception raised during move')
+
+        # Check b)
+        if not node.is_root():
+            if target.is_root() and pos == 'left':
+                msg = _('Categories cannot be moved to the root level.')
+                messages.error(request, msg)
+                return HttpResponseBadRequest('Exception raised during move')
+
+        # Check c)
+        # TODO(sthzg) Validate uniqueness of composed slug in target location.
+
+        return super(CategoryAdmin, self).try_to_move_node(
+            as_child, node, pos, request, target)
 
     form = CategoryAdminForm
     list_display = ('name', 'number_of_sets', 'slug', 'is_active',)
