@@ -567,6 +567,14 @@ class Category(MP_Node):
 
     objects = CategoryManager()
 
+    created = models.DateTimeField(
+        _('created'),
+        auto_now_add=True)
+
+    last_modified = models.DateTimeField(
+        _('updated'),
+        auto_now=True)
+
     is_active = models.BooleanField(
         _('is active?'),
         null=False,
@@ -683,6 +691,14 @@ class Settype(models.Model):
     class Meta:
         verbose_name = _('set type')
         verbose_name_plural = _('set types')
+
+    created = models.DateTimeField(
+        _('created'),
+        auto_now_add=True)
+
+    last_modified = models.DateTimeField(
+        _('updated'),
+        auto_now=True)
 
     label = models.CharField(
         _('label'),
