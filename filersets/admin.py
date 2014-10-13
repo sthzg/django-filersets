@@ -685,7 +685,7 @@ class CategoryAdmin(TreeAdmin):
 
         # a) ... a root node cannot be moved into a child level.
         # b) ... a child node cannot be moved into root level.
-        # c) ... te composed slug remains unique within the new position.
+        # c) ... the composed slug remains unique within the new position.
 
         # Check a)
         if node.is_root():
@@ -702,7 +702,28 @@ class CategoryAdmin(TreeAdmin):
                 return HttpResponseBadRequest('Exception raised during move')
 
         # Check c)
-        # TODO(sthzg) Validate uniqueness of composed slug in target location.
+        # Depending on the mouse up target treebeard specifies the target's
+        # position w/ different strings (see treebeard's admin). We need
+        # to account for that when checking if we need to validate c).
+        #
+        # The use case in which we must not validate c) is when re-
+        # ordering an item inside the same level. It then is no duplicated
+        # slug and thus still unique.
+        if 'child' in pos:
+            items = target.get_children()
+            target_depth = target.depth + 1
+        else:
+            items = target.get_siblings()
+            target_depth = target.depth
+
+        cond1 = node.get_root() != target.get_root()
+        cond2 = node.depth != target_depth
+        if cond1 or cond2:
+            for child in items:
+                if child.slug == node.slug:
+                    msg = _('Category already exists on this level.')
+                    messages.error(request, msg)
+                    return HttpResponseBadRequest('Exception raised during move')
 
         return super(CategoryAdmin, self).try_to_move_node(
             as_child, node, pos, request, target)
