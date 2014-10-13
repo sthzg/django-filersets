@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
-from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Django
+from __future__ import absolute_import, unicode_literals
 from django.utils.translation import ugettext_lazy as _
-# ______________________________________________________________________________
-#                                                                        Contrib
 from cms.app_base import CMSApp
 from cms.apphook_pool import apphook_pool
-# ______________________________________________________________________________
-#                                                                        Contrib
-from filersets.menu import FilersetsCategoryMenu
+
+# TODO(sthzg) Refactor Django CMS support to additional app.
+
 
 class FilersetsApphook(CMSApp):
     """
