@@ -95,7 +95,7 @@ class Set(TimeStampedModel):
         ('-title', _('title in set descending')),
         ('filer_file__uploaded_at', _('upload date ascending')),
         ('-filer_file__uploaded_at', _('upload date descending')),
-        ('filer_file__modified_at', _('modfied date ascending')),
+        ('filer_file__modified_at', _('modified date ascending')),
         ('-filer_file__modified_at', _('modified date descending')),
         ('custom', _('custom sort order')), )
 
@@ -181,7 +181,7 @@ class Set(TimeStampedModel):
         default=False,
         null=False)
 
-    category = models.ManyToManyField(
+    category = TreeManyToManyField(
         'Category',
         verbose_name=_('category'),
         related_name='category_set',

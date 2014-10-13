@@ -323,8 +323,9 @@ class SetForm(ModelForm):
 
     item_sort_positions = forms.Field()
     category = TreeNodeMultipleChoiceField(
+        required=False,
         queryset=Category.objects.all(),
-        widget=TreeNodeCheckboxSelectMultiple)
+        widget=TreeNodeCheckboxSelectMultiple())
 
     class Media:
         """ Provide additional static files for the set admin """
@@ -357,10 +358,22 @@ class SetForm(ModelForm):
 
     def clean(self):
         """
-        Checks if we have custom ordering on the set and if so prepares the
-        values for storing.
+        Adds validation to categories and prepares sorting values.
         """
         cleaned_data = super(SetForm, self).clean()
+
+        # Validate that only categories from the current set type are assigned.
+        set_type = cleaned_data['settype']
+        for category in cleaned_data['category']:
+            if category.get_root() != set_type.category.first():
+                msg = _('You may only select categories belonging to this '
+                        'set type.')
+                raise ValidationError(msg)
+
+        # Make sure that root category for set type is checked.
+        if set_type.category.first() not in cleaned_data['category']:
+            cleaned_data['category'] = list(cleaned_data['category']) + \
+                                       [set_type.category.first()]
 
         # We only need to care about this if the user uses custom sorting.
         if cleaned_data.get('ordering') != 'custom':
