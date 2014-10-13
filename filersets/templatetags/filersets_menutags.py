@@ -96,7 +96,11 @@ class FSCategoryTree(template.Node):
         for cat in categories:
             cat_classes = list()
             cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
-            cat_set_type = cat.settype_categories.all()[0].slug
+
+            try:
+                cat_set_type = cat.settype_categories.first().slug
+            except AttributeError:
+                pass
 
             cat_slug_url = reverse(
                 'filersets:list_view',
