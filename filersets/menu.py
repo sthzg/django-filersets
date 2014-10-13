@@ -1,19 +1,13 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
-from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Django
+from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-# ______________________________________________________________________________
-#                                                                            CMS
 from menus.base import NavigationNode
 from menus.menu_pool import menu_pool
 from cms.menu_bases import CMSAttachMenu
-# ______________________________________________________________________________
-#                                                                        Package
 from filersets.models import Category
+
+# TODO(sthzg) Refactor Django CMS support to additional app.
 
 
 class FilersetsCategoryMenu(CMSAttachMenu):
