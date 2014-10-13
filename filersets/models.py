@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import inspect
 import logging
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Count
 from django.dispatch import receiver
@@ -641,6 +641,7 @@ class Category(MP_Node):
         for child in self.get_children():
             child.save(force_update=True)
 
+
     @classmethod
     def on_category_pre_delete(cls, sender, instance, using, **kwargs):
         # Uses pre_delete to check if user deletes a root category, which
@@ -691,6 +692,9 @@ class Settype(models.Model):
         default=None,
         null=False)
 
+    #: Additionally to defining the slug this value is used to build the
+    #: instance namespace of this set type. See http://goo.gl/oIw0g1 for
+    #: documentation on Django url namespaces.
     slug = AutoSlugField(
         _('slug'),
         always_update=True,
@@ -698,15 +702,6 @@ class Settype(models.Model):
         blank=True,
         default=None,
         populate_from='label')
-
-    namespace = models.CharField(
-        _('namespace'),
-        help_text=_('Enter the namespace that will be associated with this '
-                    'particular set type.'),
-        max_length=30,
-        blank=True,
-        default=None,
-        null=True)
 
     base_folder = FilerFolderField(
         verbose_name=_('base folder'),
@@ -754,11 +749,11 @@ class Settype(models.Model):
 
         if update:
             category = self.category.all().first()
-            category.name = 'Set type: {}'.format(self.label)
+            category.name = '{}'.format(self.label)
             category.save()
         else:
             category = Category()
-            category.name = 'Set type: {}'.format(self.label)
+            category.name = '{}'.format(self.label)
             category.is_active = True
             Category.add_root(instance=category)
 
