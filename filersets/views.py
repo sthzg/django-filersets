@@ -1,38 +1,28 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
 from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Django
 from django.contrib import messages
-from django.shortcuts import render, render_to_response
-from django.utils.html import strip_tags
-from django.http.response import HttpResponseRedirect, Http404, HttpResponse
-from django.template.loader import get_template
 from django.core.exceptions import ObjectDoesNotExist
-from django.template.context import Context, RequestContext
 from django.core.urlresolvers import reverse, resolve
-from django.views.generic.base import View
+from django.http.response import HttpResponseRedirect, Http404
+from django.shortcuts import render
+from django.template.context import RequestContext
+from django.template.loader import get_template
+from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
-# ______________________________________________________________________________
-#                                                                        Contrib
-from rest_framework import viewsets
+from django.views.generic.base import View
 from filer.models import File
-# ______________________________________________________________________________
-#                                                                        Package
-from filersets.config import get_template_settings
-from filersets.models import Set, Item, Category, FilemodelExt
-from filersets.serializers import (CategorySerializer,
-                                   ItemSerializer,
-                                   FileSerializer,
-                                   FilemodelExtSerializer, FilersetSerializer)
+from rest_framework import viewsets
+from .config import get_template_settings
+from .models import Set, Item, Category, FilemodelExt
+from .serializers import (CategorySerializer,
+                          ItemSerializer,
+                          FileSerializer,
+                          FilemodelExtSerializer,
+                          FilersetSerializer)
 
 
 # ______________________________________________________________________________
 #                                                                     View: List
-from rest_framework.decorators import api_view
-
-
 class ListView(View):
     """ Show a list of sets using the configured templates.
 
