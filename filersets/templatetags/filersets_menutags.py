@@ -96,11 +96,7 @@ class FSCategoryTree(template.Node):
         for cat in categories:
             cat_classes = list()
             cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
-
-            try:
-                cat_set_type = cat.settype_categories.first().slug
-            except AttributeError:
-                pass
+            cat_set_type = cat.get_root().slug
 
             cat_slug_url = reverse(
                 'filersets:list_view',
@@ -121,7 +117,7 @@ class FSCategoryTree(template.Node):
 
             if has_back_base and back_base_url in (cat_slug_url, cat_id_url):
                 # Prevent marking two cats as active when switching categories
-                if fs_referrer != '{}:list_view'.format(set_type):
+                if fs_referrer != '{}:list_view'.format(cat_set_type):
                     cat_classes.append('active')
 
             t = get_template(t_settings['cat_tree_item'])
