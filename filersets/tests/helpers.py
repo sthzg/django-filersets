@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*.
-# ______________________________________________________________________________
-#                                                                         Future
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Django
-from django.db import transaction
+
 
 try:
     from django.contrib.auth import get_user_model

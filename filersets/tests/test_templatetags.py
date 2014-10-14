@@ -1,24 +1,16 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
 from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Python
 import re
-# ______________________________________________________________________________
-#                                                                         Django
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
+from django.template import Template, Context
 from django.template.loader import get_template
 from django.test.client import RequestFactory
-from django.utils import translation
 from django.test.testcases import TestCase
-# ______________________________________________________________________________
-#                                                                        Package
-from django.template import Template, Context
+from django.utils import translation
 from filersets.models import Category
-from filersets.tests.helpers import (
-    create_superuser, create_categories, create_controlled_categories)
+from filersets.tests.helpers import (create_superuser,
+                                     create_controlled_categories)
 
 class FilersetsMenutagsTemplateTagsTests(TestCase):
 

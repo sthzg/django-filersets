@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
 from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Django
 from django.utils import translation
-# ______________________________________________________________________________
-#                                                                        Contrib
-from filer.models import File
-# ______________________________________________________________________________
-#                                                                        Package
 from django.test.testcases import TestCase
-from filersets.tests.helpers import create_superuser, create_controlled_categories
+from filer.models import File
 from filersets.models import Category
+from filersets.tests.helpers import create_superuser, create_controlled_categories
 
 
 class SetModelTests(TestCase):

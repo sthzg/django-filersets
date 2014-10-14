@@ -1,23 +1,12 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
-from __future__ import absolute_import
-from __future__ import print_function
-# ______________________________________________________________________________
-#                                                                         Python
+from __future__ import absolute_import, print_function
 import os
-# ______________________________________________________________________________
-#                                                                         Django
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.core.files import File as DjangoFile
+from django.test import TestCase
 from django.utils import translation
 from django.utils.timezone import now
-# ______________________________________________________________________________
-#                                                                        Contrib
 from filer.models import File, Image, Folder
-# ______________________________________________________________________________
-#                                                                        Package
 from filersets.models import Set, Category
 from filersets.tests.helpers import create_superuser, create_categories
 
