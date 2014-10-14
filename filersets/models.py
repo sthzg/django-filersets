@@ -300,6 +300,18 @@ class Set(TimeStampedModel):
 
         return "&".join(ret)
 
+    def get_set_type(self):
+        """
+        Returns the set type that this filerset belongs to.
+        """
+        return self.category.first().get_root()
+
+    def get_set_type_slug(self):
+        """
+        Returns the slug of the set type that this filerset belongs to.
+        """
+        return self.category.first().get_root().slug
+
     def save_item_sort(self, custom=None):
         """
         Traverses all items on the set and saves their sort position.
@@ -753,6 +765,21 @@ class Settype(models.Model):
         blank=True,
         default=None,
         null=True)
+
+    #: Available template options can be configured in the project settings.
+    #: This field holds a reference to the dictionary key or 'default'.
+    template_conf = models.CharField(
+        _('templates'),
+        max_length=60,
+        blank=True,
+        null=False,
+        default='default')
+
+    def get_root_category(self):
+        """
+        Returns Category instance of connected root category.
+        """
+        return self.category.first()
 
     def save(self, *args, **kwargs):
         """
