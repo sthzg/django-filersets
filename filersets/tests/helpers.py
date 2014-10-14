@@ -23,7 +23,7 @@ def create_superuser():
 def create_categories(depth=1, sibling=1, parent=None, cat_conf=None):
     """
     This method creates a category structure of the specified depths. ***It is
-    in large parts taken from the original filer tests package***
+    in large parts taken from the original filer tests package.***
 
     :param depth: integer of levels to create for categories
     :param sibling: integer of siblings to created
@@ -43,17 +43,14 @@ def create_categories(depth=1, sibling=1, parent=None, cat_conf=None):
                         is_active=True,
                         name=name,
                         description='',
-                        parent=parent
-                    )
+                        parent=parent)
                 else:
                     cat = parent.add_child(
                         is_active=True,
                         name=name,
                         description='',
-                        parent=parent
-                    )
+                        parent=parent)
 
-                # print cat.slug_composed
                 create_categories(depth=d-1, sibling=sibling, parent=cat)
 
 def create_controlled_categories():

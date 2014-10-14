@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.utils import translation
 from django.utils.timezone import now
 from filer.models import File, Image, Folder
-from filersets.models import Set, Category
+from filersets.models import Set, Category, Settype
 from filersets.tests.helpers import create_superuser, create_categories
 
 
@@ -16,6 +16,14 @@ from filersets.tests.helpers import create_superuser, create_categories
 #       As long as this is not ready (low priority) the tests will explicitly
 #       use settings without CMS installed
 
+
+def create_set_type():
+    """
+    Creates a SetType instance, which automatically creates a root category.
+    """
+    set_type = Settype(label='A set type')
+    set_type.save()
+    return set_type
 
 def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
                set_name='Filerset Tests', media_types=None,
@@ -33,7 +41,7 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
 
     :param filer_root: the root folder for our operations in filer
     :param filerdir_name: the name of the directory in filer that is created
-    :param set_name: the name of the set to be creted in the test
+    :param set_name: the name of the set to be created in the test
     :param media_types: a list of configurable file types to add to the set
     :param do_categorize: flag whether to assign the set to a category or not
     :param cat_config: config-object to specify structure of categories
@@ -42,10 +50,14 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
         media_types = [{'all'}]
 
     category = None
+    set_type = create_set_type()
+
     if do_categorize:
         if cat_config is None:
-            create_categories(1, 1)
-            category = Category.objects.all()[0]
+            create_categories(1, 1, parent=set_type.get_root_category())
+            # We take the first child category beneath the auto-generated set
+            # type category.
+            category = Category.objects.all()[1]
 
     folder_root = Folder(name='Filerset Tests', parent=None)
     folder_root.save()
@@ -82,13 +94,13 @@ def create_set(self, filer_root=None, filerdir_name='Filerset Tests',
             file.folder_id = parent.pk
             file.save()
 
-    fset = Set.objects.create( title=set_name, description='', date=now(),
-                               folder=folder_set, status='published')
+    fset = Set.objects.create(title=set_name, description='', date=now(),
+                              folder=folder_set, status='published')
     if do_categorize:
         fset.category.add(category)
         fset.save()
 
-    Set.objects.create_or_update_set(fset.pk)
+    fset.create_or_update_set()
     return fset
 
 
@@ -111,8 +123,12 @@ class SetViewTests(TestCase):
         existing set.
         """
         fset = create_set(self, 'Foobar', 'My Foobar', do_categorize=True)
-        response = self.client.get(reverse('filersets:set_by_id_view',
-                                           kwargs={'set_id': fset.pk}))
+
+        response = self.client.get(
+            reverse('filersets:set_by_id_view',
+                    kwargs={'set_type': fset.get_set_type_slug(),
+                            'set_id': fset.pk}))
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, fset.title)
 
@@ -121,9 +137,14 @@ class SetViewTests(TestCase):
         Check that we get a 404 when hitting the URL of a set that does not
         exist
         """
+        set_type = create_set_type()
         id_404 = Set.objects.all().count()
-        response = self.client.get(reverse('filersets:set_by_id_view',
-                                           kwargs={'set_id': id_404}))
+
+        response = self.client.get(
+            reverse('filersets:set_by_id_view',
+                    kwargs={'set_type': set_type.slug,
+                            'set_id': id_404}))
+
         self.assertEqual(response.status_code, 404)
 
     def test_set_view_with_valid_set_slug_200(self):
@@ -131,9 +152,12 @@ class SetViewTests(TestCase):
         Check that we get a successful response when hitting the URL of an
         existing with usage of the slug parameter.
         """
-        fset = create_set(self, 'Foobar', 'My Foobar')
-        response = self.client.get(reverse('filersets:set_by_slug_view',
-                                           kwargs={'set_slug': fset.slug}))
+        fset = create_set(self, 'Foobar', 'My Foobar', do_categorize=True)
+        response = self.client.get(
+            reverse('filersets:set_by_slug_view',
+                    kwargs={'set_type': fset.get_set_type_slug(),
+                            'set_slug': fset.slug}))
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, fset.title)
 
@@ -142,10 +166,19 @@ class SetViewTests(TestCase):
         Check that we get a 404 when hitting the URL of a set with a slug
         parameter that does not exist
         """
-        slug_404 = 'foo_-_bar_-_baz'  # Big-ups if you name your set like that
-        response = self.client.get(reverse('filersets:set_by_slug_view',
-                                           kwargs={'set_slug': slug_404}))
+        set_type = create_set_type()
+        slug_404 = 'foo_-_bar_-_baz'
+
+        response = self.client.get(
+            reverse('filersets:set_by_slug_view',
+                    kwargs={'set_type': set_type.slug,
+                            'set_slug': slug_404}))
+
         self.assertEqual(response.status_code, 404)
+
+
+    # TODO(sthzg) Test that set is only displayed if set type and slug match.
+    # TODO(sthzg) Test that set is only displayed if set type and id match.
 
 
 class ListViewTests(TestCase):
@@ -217,11 +250,18 @@ class CategoryListViewTests(TestCase):
         fset = create_set(self, do_categorize=True)
         cat_slug = fset.category.all()[0].slug_composed
         cat_id = fset.category.all()[0].pk
+        set_type_slug  = fset.get_set_type_slug()
 
-        url_slug = reverse('filersets:list_view', kwargs={'cat_slug': cat_slug})
-        url_id = reverse('filersets:list_view', kwargs={'cat_id': cat_id})
+        url_slug = reverse(
+            'filersets:list_view', kwargs={'set_type': set_type_slug,
+                                           'cat_slug': cat_slug})
+        url_id = reverse(
+            'filersets:list_view', kwargs={'set_type': set_type_slug,
+                                           'cat_id': cat_id})
+
         response = self.client.get(url_slug)
         self.assertEqual(response.status_code, 200, "200 by slug failed")
+
         response = self.client.get(url_id)
         self.assertEqual(response.status_code, 200, "200 by id failed")
 
@@ -229,11 +269,19 @@ class CategoryListViewTests(TestCase):
         """
         Check 404 when hitting a category list view with a non-existent category
         """
-        url_slug = reverse('filersets:list_view', kwargs={'cat_slug': 'foo/'})
+        set_type = create_set_type()
+
+        url_slug = reverse(
+            'filersets:list_view', kwargs={'set_type': set_type.slug,
+                                           'cat_slug': 'foo/'})
+
         response = self.client.get(url_slug)
         self.assertEqual(response.status_code, 404, "404 by slug failed")
 
-        url_id = reverse('filersets:list_view', kwargs={'cat_id': 1})
+        url_id = reverse(
+            'filersets:list_view', kwargs={'set_type': set_type.slug,
+                                           'cat_id': 1})
+
         response = self.client.get(url_id)
         self.assertEqual(response.status_code, 404, "404 by id failed")
 
