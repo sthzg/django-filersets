@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 # ______________________________________________________________________________
 #                                                                        Package
-from filersets.models import Category
+from filersets.models import Category, Settype
 from filersets.config import get_template_settings
 
 register = template.Library()
@@ -58,8 +58,14 @@ class FSCategoryTree(template.Node):
         root_id = self.root_id
         skip_empty = self.skip_empty
         set_type = context.get('set_type')
+        if not set_type or set_type == 'default':
+            template_conf = 'default'
+        else:
+            set_type_instance = Settype.objects.get(slug=set_type)
+            template_conf = set_type_instance.template_conf
+
         request = context.get('request')
-        t_settings = get_template_settings()
+        t_settings = get_template_settings(template_conf=template_conf)
 
         # We support root id as value and as variable
         try:

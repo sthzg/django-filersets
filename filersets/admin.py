@@ -14,9 +14,11 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 from easy_thumbnails.files import get_thumbnailer
 from filer.admin.imageadmin import ImageAdmin
+from filersets.config import get_template_settings
 from filersets.fields import TreeNodeMultipleChoiceField, \
     TreeNodeCheckboxSelectMultiple
 from filersets.models import Set, Item, Category, Settype, FilemodelExt
+from model_utils.choices import Choices
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 try:
@@ -654,6 +656,17 @@ class SettypeInlineAdmin(admin.StackedInline):
 class SettypeModelForm(forms.ModelForm):
     class Meta:
         model = Settype
+
+    def __init__(self, *args, **kwargs):
+        """
+        Provides available filerset template configurations in Select widget.
+        """
+        super(SettypeModelForm, self).__init__(*args, **kwargs)
+
+        t_settings = get_template_settings()
+        choices = [(key, t_settings[key]['display_name']) for key in t_settings]
+
+        self.fields['template_conf'].widget = forms.Select(choices=choices)
 
 # ______________________________________________________________________________
 #                                                                 Admin: Settype

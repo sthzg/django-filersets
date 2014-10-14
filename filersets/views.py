@@ -11,6 +11,7 @@ from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 from filer.models import File
+from filersets.models import Settype
 from rest_framework import viewsets
 from .config import get_template_settings
 from .models import Set, Item, Category, FilemodelExt
@@ -24,21 +25,8 @@ from .serializers import (CategorySerializer,
 # ______________________________________________________________________________
 #                                                                     View: List
 class ListView(View):
-    """ Show a list of sets using the configured templates.
-
-    Global settings:
-    You can configure the templates with these options in your settings:
-
-    FILERSETS_TEMPLATES = {
-        'base': '`path_to/another_base.html',
-        'set': 'path_to/another_set.html',
-        'list': 'path_to/another_list.html',
-        'list_item': 'path_to/another_list_item.html',
-        '<my_instance_namespace': {
-            'list': 'path_to/another_list.html',
-            'list_item': 'path_to/another_list_item.html',
-        }
-    }
+    """
+    Show a list of sets using the configured templates.
     """
     # TODO    Use a view parameter to determine use specific templates
     # TODO    Extend to be fully configurable
@@ -47,7 +35,11 @@ class ListView(View):
     def get(self, request, cat_id=None, cat_slug=None, set_type=None):
 
         if not set_type:
-            set_type = resolve(request.path).namespace
+            set_type = 'default'
+            template_conf = 'default'
+        else:
+            set_type_instance = Settype.objects.get(slug=set_type)
+            template_conf = set_type_instance.template_conf
 
         fset = None
         through_category = False
@@ -90,7 +82,7 @@ class ListView(View):
             if not request.user.has_perm('can_edit'):
                 filter_query.update({'status': 'published'})
 
-        t_settings = get_template_settings(namespace=set_type)
+        t_settings = get_template_settings(template_conf=template_conf)
 
         for fset in Set.objects.filter(**filter_query).order_by('-date').distinct():
             fitems = [
@@ -169,9 +161,14 @@ class SetView(View):
         """
         user = request.user
 
-        set_type = resolve(request.path).namespace
         if set_type:
             set_type = set_type
+            set_type_instance = Settype.objects.get(slug=set_type)
+            template_conf = set_type_instance.template_conf
+        else:
+            set_type = 'default'
+            template_conf = 'default'
+
         request.session['fs_referrer'] = '{}:set_view'.format(set_type)
 
         if set_id:
@@ -187,14 +184,13 @@ class SetView(View):
         except ObjectDoesNotExist:
             raise Http404
 
-        t_settings = get_template_settings()
+        t_settings = get_template_settings(template_conf=template_conf)
 
         # TODO  Make ordering options available on set edit form
         fitems = (
             fitem
             for fitem in Item.objects.filter(set=fset)
-                                     .order_by('item_sort__sort')
-        )
+                                     .order_by('item_sort__sort'))
 
         return render(
             request,
