@@ -317,3 +317,8 @@ div.field-item_sort_positions {
 .uib-notice-container i.fa-check-circle {
   color: #4682b4;
 }
+a i {
+  font-size: 12px;
+  color: #3c3c3c;
+  text-align: center;
+}

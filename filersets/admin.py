@@ -340,8 +340,8 @@ class SetForm(ModelForm):
     class Meta:
         model = Set
 
-        if has_redactor:
-            widgets.update({'description': RedactorWidget(editor_options={'lang': 'en'})})  # NOQA
+        # if has_redactor:
+        #     widgets.update({'description': RedactorWidget(editor_options={'lang': 'en'})})  # NOQA
 
     def __init__(self, *args, **kwargs):
         """
@@ -425,6 +425,9 @@ class SetAdmin(admin.ModelAdmin):
         Provide additional static files for the set admin
         """
         js = ("filersets/js/filersets.js",)
+        css = {'all': [
+            'filersets/css/filersets_admin.css',
+            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}  # NOQA
 
     #                                                               ____________
     #                                                               Save Formset
@@ -475,7 +478,7 @@ class SetAdmin(admin.ModelAdmin):
         fset_url = self.get_fset_url(obj)
         label = ugettext('Watch online')
         link = '<a href="{}">' \
-               '<span class="icon-eye-open icon-alpha75" title="{}"></span>' \
+               '<i class="fa fa-eye" title="{}"></i>' \
                '</a>'
 
         return link.format(fset_url, label)
@@ -527,7 +530,7 @@ class SetAdmin(admin.ModelAdmin):
         query = '?redirect={}'.format(self.current_url)
         label = ugettext('Process set')
         link = '<a href="{0}{1}">' \
-               '<span class="icon-refresh icon-alpha75" title="{2}"></span>' \
+               '<i class="fa fa-refresh" title="{2}"></span>' \
                '</a>'
         return link.format(set_url, query, label)
 
