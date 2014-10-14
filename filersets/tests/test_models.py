@@ -70,14 +70,19 @@ class CategoryModelTests(TestCase):
         root_cat = Category.get_root_nodes()[0]
         self.assertEqual(root_cat.get_level_compensation(), int(0))
 
-        lvl1_cat = root_cat.get_last_child()
+        lvl1_cat = Category.objects.get(slug_composed='a-set-type/cat-01-02/')
         self.assertEqual(lvl1_cat.get_level_compensation(), int(1))
 
         lvl2_cat = lvl1_cat.get_first_child()
         self.assertEqual(lvl2_cat.get_level_compensation(), int(2))
 
 
-    # TODO  Test creation of slug_composed for a child item
-    # TODO  Test creation of slug_composed for an item with parents and children
-    # TODO  Test creation of slug_composed for an item with many children
-    # TODO  Test creation of slug_composed with exceeding URL length
+    # TODO  Test creation of slug_composed for child item.
+    # TODO  Test creation of slug_composed for item with parents and children.
+    # TODO  Test creation of slug_composed for item with many children.
+    # TODO  Test creation of slug_composed with exceeding URL length.
+    # TODO  Test creation of set type creates connected category.
+    # TODO  Test deletion of set type deletes connected category tree.
+    # TODO  Test child categories cannot be moved to root level.
+    # TODO  Test root category cannot be moved to child level.
+    # TODO  Test unique constraints on category slug.
