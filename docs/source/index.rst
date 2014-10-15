@@ -75,28 +75,28 @@ Item
 	Items can be of any file type, structured in arbitrary sub folders and
 	sorted per set in the admin.
 
-	In the future it is planned to support 'virtual' file objects like 
+	In the future it is planned to support non-file objects like 
 	database records and aliased files.
 
 
 Set
 	Sets are containers to bundle a number of items. E.g. an image gallery 
-	bundles all images contained in it. The design goal is to make the set 
+	bundles all images contained within. The design goal is to make the set 
 	a very flexible entity with support for nested sets and theming down to 
 	any level.
 
 	Sets can span any type of files and in the future should also be able 
 	to contain non-file-like objects, e.g. database records.
 
-	A set is tied to one filer base folder. All files and (and optionally 
+	A set is tied to one filer base folder. All files (and optionally 
 	folders) are part of the set. Sets might have sub folders that 
-	can be used to achieve a) further organization and b) a richt set of 
+	can be used to achieve a) further organization and b) a rich set of 
 	templating choices (e.g. rendering media within a subfolder as 
 	slideshows, etc.).
 
 
 Set type
-	Set types are used to create different *kinds* of sets. E.g., we might 
+	Set types are used to create different *kinds* of sets. We might 
 	wish to use ``filersets`` to manage all sorts of file collctions, e.g. 
 	galleries, photo stories, press releases, downloads, blog posts, ...
 
@@ -105,13 +105,18 @@ Set type
 	system level, we will want
 
 	– each of them to be available at different urls endpoints.
-	– none/one/some of them as partials (e.g. blocks or streams)
+
+	– none/one/some of them as partials (e.g. blocks or streams).
+
 	– none/one/some of them to provide additional fields like body text.
+
 	– none/one/some of them have different categorization systems.
+
 	– to proivde different templates.
+
 	– to require differen permissions.
 
-	All these aspect are enabled by grouping sets into different set types.
+	All of these aspects are enabled by grouping sets into different set types.
 
 
 Category
@@ -134,6 +139,7 @@ Media stream
 	manage sets of media. Additionally she might want to ... 
 
 	– select some of the media to be shown in a block, on home, etc.
+	
 	– assign tags, categories, stock portal links (really any kind of meta 
 	data) in batch and independently from their location in different sets.
 
