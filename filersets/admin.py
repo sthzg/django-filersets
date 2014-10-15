@@ -658,10 +658,10 @@ class SettypeModelForm(forms.ModelForm):
         """
         super(SettypeModelForm, self).__init__(*args, **kwargs)
 
-        t_settings = get_template_settings()
-        choices = [(key, t_settings[key]['display_name']) for key in t_settings]
+        if 'template_conf' not in self.Meta.exclude:
+            choices = self.t_choices  # Populated in SettypeAdmin.get_form()
+            self.fields['template_conf'].widget = forms.Select(choices=choices)
 
-        self.fields['template_conf'].widget = forms.Select(choices=choices)
 
 # ______________________________________________________________________________
 #                                                                 Admin: Settype
@@ -669,6 +669,20 @@ class SettypeAdmin(admin.ModelAdmin):
     form = SettypeModelForm
     list_display = ('label', 'memo',)
     exclude = ('category',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Populates ``form.t_choices`` w/ available template choices and
+        excludes the ``template_conf`` field if only one template is available.
+        """
+        t_settings = get_template_settings()
+        choices = [(key, t_settings[key]['display_name']) for key in t_settings]
+        self.form.t_choices = choices
+
+        if len(choices) <= 1:
+            self.exclude = list(self.exclude) + ['template_conf']
+
+        return super(SettypeAdmin, self).get_form(request, obj, **kwargs)
 
 
 # ______________________________________________________________________________
