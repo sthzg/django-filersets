@@ -81,13 +81,13 @@ class ItemInlineAdmin(admin.TabularInline):
         'title',
         'description',
         'is_cover',
-        'is_locked',
-    )
+        'is_locked',)
+
     readonly_fields = (
         'get_sort_position',
         'get_item_thumb',
-        'get_original_filename',
-    )
+        'get_original_filename',)
+
     model = Item
     extra = 0
     list_per_page = 30
@@ -102,13 +102,9 @@ class ItemAdmin(admin.ModelAdmin):
         """
         Provides additional static files for the set admin.
         """
-        css = {'all': [
-            'filersets/css/filersets_admin.css',
-            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
-        ]}
-        js = [
-            'filersets/js/filersets_admin.js'
-        ]
+        js = ['filersets/js/filersets_admin.js']
+        css = {'all': ['filersets/css/filersets_admin.css',
+                       '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}
 
     #                                                                ___________
     #                                                                Custom URLs
@@ -231,8 +227,8 @@ class ItemAdmin(admin.ModelAdmin):
         'title',
         'description',
         'created',
-        'get_is_timeline',
-    )
+        'get_is_timeline',)
+
     readonly_fields = ('get_is_timeline',)
     list_editable = ('title', 'description',)
     list_filter = ['set',
@@ -241,6 +237,7 @@ class ItemAdmin(admin.ModelAdmin):
                    'created',
                    'modified',
                    TimelineFilter]
+
     list_display_links = ('item_thumb',)
     list_per_page = 25
     fields = ('filer_file', 'title', 'description',)
@@ -421,9 +418,8 @@ class SetAdmin(admin.ModelAdmin):
         Provide additional static files for the set admin
         """
         js = ("filersets/js/filersets.js",)
-        css = {'all': [
-            'filersets/css/filersets_admin.css',
-            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}  # NOQA
+        css = {'all': ['filersets/css/filersets_admin.css',
+                       '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}  # NOQA
 
     #                                                               ____________
     #                                                               Save Formset
@@ -781,20 +777,15 @@ class FilemodelExtForm(ModelForm):
 
     class Media:
         """ Provide additional static files for the set admin """
-        css = {'all': [
-            'filersets/css/filersets_admin.css',
-            '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'
-        ]}
-        js = [
-            'filersets/vendor/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js',
-            'filersets/js/filersets_admin.js'
-        ]
+        js = ['filersets/vendor/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js',
+              'filersets/js/filersets_admin.js']
+
+        css = {'all': ['filersets/css/filersets_admin.css',
+                       '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}
 
     class Meta:
         model = FilemodelExt
-        widgets = {
-            'category': SelectMultiple(attrs={'size': '9'}),
-        }
+        widgets = {'category': SelectMultiple(attrs={'size': '9'})}
 
 
 class FilemodelExtInline(admin.StackedInline):
