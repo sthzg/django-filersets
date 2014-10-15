@@ -164,7 +164,7 @@ class Set(TimeStampedModel):
 
     recursive = models.BooleanField(
         verbose_name=_('include sub-folders?'),
-        help_text=_('If checked, items from all subfolders will be included '
+        help_text=_('If checked, items from all sub folders will be included '
                     'into the set as well.'),
         blank=True,
         default=False,
@@ -316,7 +316,6 @@ class Set(TimeStampedModel):
         """
         Traverses all items on the set and saves their sort position.
         """
-
         sort_by = self.ordering
 
         if sort_by == 'custom' and custom is None:
@@ -377,9 +376,8 @@ class Set(TimeStampedModel):
 #                                                                    Model: Item
 class Item(TimeStampedModel):
     """
-    The item model holds items that are contained within a Set.
+    Holds items that are contained within a Set.
     """
-
     class Meta:
         verbose_name = _('item')
         verbose_name_plural = _('items')
@@ -570,9 +568,18 @@ class SetItemSort(models.Model):
 #                                                                Model: Category
 class Category(MP_Node):
     """
+    Associates categories with set instances.
 
+    Categories in root level behave in a special way. Every time a new
+    ``Settype`` instance is created, a category in root level is automatically
+    created and linked to this set type.
+
+    Users are not allowed to ...
+
+    a) create categories in root level
+    b) move root level categories to child levels
+    c) move child level categories to root level
     """
-    # TODO Docstring.
     class Meta:
         verbose_name = _('category')
         verbose_name_plural = _('categories')
@@ -631,13 +638,13 @@ class Category(MP_Node):
 
     def number_of_sets(self):
         """
-        Returns the number of sets contained in current category
+        Returns the number of sets contained in current category.
         """
         return Set.objects.filter(category=self, status='published').count()
 
     def get_level_compensation(self, compensate_to=None):
         """
-        Returns the offset to the root level as int
+        Returns the offset to the root level as int.
         """
         # TODO  Implement compensate_to functionality
         return self.get_depth() - 1
@@ -756,12 +763,12 @@ class Settype(models.Model):
         default=None,
         null=True)
 
+    #: When creating a new set type, a category on root level is automatically
+    #: created and referenced in ``category``.
     category = TreeManyToManyField(
         Category,
         verbose_name=_('categories'),
         related_name='settype_categories',
-        help_text=_('Pick the category/ies you wish to include in list '
-                    'displays of filersets associated with this set type.'),
         blank=True,
         default=None,
         null=True)
