@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import collections
 import copy
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 def get_filersets_conf():
     """
@@ -84,6 +85,7 @@ def _get_filersets_defaults(key=None):
     defaults = {
         'FILERSETS_TEMPLATES': {
             'default': {
+                'display_name': _('default'),
                 'base': 'filersets/base.html',
                 'set': 'filersets/set.html',
                 'list': 'filersets/list.html',
