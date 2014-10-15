@@ -4,6 +4,17 @@ import collections
 import copy
 from django.conf import settings
 
+def get_filersets_conf():
+    """
+    Returns filersets config dictionary or an empty dict.
+    """
+    try:
+        conf = settings.FILERSETS_CONF
+    except AttributeError:
+        conf = dict()
+
+    return conf
+
 
 def get_template_settings(overrides=None, template_conf=None):
     """

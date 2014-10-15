@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from django import forms
-from django.conf import settings
 from django.contrib import admin, messages
 from django.conf.urls import patterns, url
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -14,38 +13,33 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 from easy_thumbnails.files import get_thumbnailer
 from filer.admin.imageadmin import ImageAdmin
-from filersets.config import get_template_settings
-from filersets.fields import TreeNodeMultipleChoiceField, \
-    TreeNodeCheckboxSelectMultiple
+from filersets.config import get_template_settings, get_filersets_conf
+from filersets.fields import (TreeNodeMultipleChoiceField,
+                              TreeNodeCheckboxSelectMultiple)
 from filersets.models import Set, Item, Category, Settype, FilemodelExt
-from model_utils.choices import Choices
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
+
+# TODO(sthzg) Refactor django-suit support to addon-app.
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
     from suit.widgets import AutosizedTextarea, LinkedSelect
     has_suit = True
 except ImportError:
     has_suit = False
+
 try:
     from suit_redactor.widgets import RedactorWidget
     has_redactor = True
 except ImportError:
     has_redactor = False
+
 try:
     from django_select2 import AutoSelect2MultipleField, Select2MultipleWidget
     has_select2 = True
 except ImportError:
     has_select2 = False
 
-
-try:
-    FILERSETS_CONF = settings.FILERSETS_CONF
-except AttributeError:
-    FILERSETS_CONF = dict()
-
-
-# TODO  Try to make any use of third party packages like suit and cms optional
 
 # ______________________________________________________________________________
 #                                                              InlineAdmin: Item
@@ -624,6 +618,7 @@ class SetAdmin(admin.ModelAdmin):
             'classes': ('suit-tab suit-tab-writing', 'full-width',),
             'fields': ['description']})]
 
+    FILERSETS_CONF = get_filersets_conf()
     if FILERSETS_CONF.get('no_categories', False):
         fieldsets[0][1]['fields'].remove('category')
 
