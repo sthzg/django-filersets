@@ -788,6 +788,15 @@ class Settype(models.Model):
         """
         return self.category.first()
 
+    def get_root_category_slug(self, default=None):
+        """
+        Returns slug of root category or ``default``.
+        """
+        try:
+            return self.get_root_category().slug
+        except AttributeError:
+            return default
+
     def save(self, *args, **kwargs):
         """
         Creates new Category instance on category root level and sets
