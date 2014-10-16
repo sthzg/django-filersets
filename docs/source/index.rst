@@ -36,8 +36,8 @@ Optionally supported
 
 URL patterns
 ------------
-* flersets_api: url(r'^filersets/api/', include('filersets.api_urls', namespace='filersets_api')),
-* filersets: url(r'^filersets/', include('filersets.urls', namespace='filersets')),
+* ``flersets_api: url(r'^filersets/api/', include('filersets.api_urls', namespace='filersets_api'))``
+* ``filersets: url(r'^filersets/', include('filersets.urls', namespace='filersets'))``
 
 
 Configuration options
@@ -68,7 +68,7 @@ Glossary
 --------
 
 Item
-	Items are the smallest entity and (currently) directectly related to 
+	Items are the smallest entity and (currently) directly related to
 	a ``filer_file`` object. Thus they have access to all the (meta) data 
 	provided by the ``filer_file`` and ``file`` object itself.
 
@@ -91,42 +91,42 @@ Set
 	A set is tied to one filer base folder. All files (and optionally 
 	folders) are part of the set. Sets might have sub folders that 
 	can be used to achieve a) further organization and b) a rich set of 
-	templating choices (e.g. rendering media within a subfolder as 
+	templating choices (e.g. rendering media within a sub folder as
 	slideshows, etc.).
 
 
 Set type
 	Set types are used to create different *kinds* of sets. We might 
-	wish to use ``filersets`` to manage all sorts of file collctions, e.g. 
+	wish to use ``filersets`` to manage all sorts of file collections, e.g.
 	galleries, photo stories, press releases, downloads, blog posts, ...
 
 	While all of these sets share their nature as being a collection of 
-	(file) objects, they carry semanitcally different content. On a 
+	(file) objects, they carry semantically different content. On a
 	system level, we will want
 
-	– each of them to be available at different urls endpoints.
+	* each of them to be available at different url endpoints.
 
-	– none/one/some of them as partials (e.g. blocks or streams).
+	* none/one/some of them as partials (e.g. blocks or streams).
 
-	– none/one/some of them to provide additional fields like body text.
+	* none/one/some of them to provide additional fields like body text.
 
-	– none/one/some of them have different categorization systems.
+	* none/one/some of them have different categorization systems.
 
-	– to proivde different templates.
+	* to provide different templates.
 
-	– to require differen permissions.
+	* to require different permissions.
 
 	All of these aspects are enabled by grouping sets into different set types.
 
 
 Category
-	Categories proivde the opportunity of an extended categorization layer. 
+	Categories provide the opportunity of an extended categorization layer.
 	Downloads, for example, might fall into the category of logos, 
 	photos, press material, business reports, etc.
 
 	This can be achieved by using categories. Each category is a child of 
 	its particular set type root category, which makes it possible to have 
-	completely different and unrelated categories for set types.
+	completely different and unrelated category trees for set types.
 
 
 Media stream
@@ -138,15 +138,15 @@ Media stream
 	A photographer for example might use a set type 'galleries' to 
 	manage sets of media. Additionally she might want to ... 
 
-	– select some of the media to be shown in a block, on home, etc.
+	* select some of the media to be shown in a block, on home, etc.
 	
-	– assign tags, categories, stock portal links (really any kind of meta 
+	* assign tags, categories, stock portal links (really any kind of meta
 	data) in batch and independently from their location in different sets.
 
 
 Timeline
 	The timeline is a collection of items marked with a check on their 
-	is_timeline checkbox. It enables devleopers to show a stream of items 
+	``is_timeline`` field. It enables developers to show a stream of items
 	that are manually selected by the content editor(s) to be visible on 
 	this stream.
 
