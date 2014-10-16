@@ -1,47 +1,16 @@
-{% extends t_extends %}
+{% extends base_extends %}
 {% load i18n filersets_menutags static %}
 
-{% comment %}
-This is only a temporary solution to fit within the dev env. Should be a lot
-more generic and reasonably configurable
+{% block filersets_list_content %}
 
-TODO    Integrate with I18N
-TODO    Make configurable and very generic
-{% endcomment %}
+    {% if fset %}
+        {% for fitem in fitems %}
+            {{ fitem }}
+        {% endfor %}
+    {% else %}
+        <h1>{% trans "There are currently no filersets to display." %}</h1>
+    {% endif %}
 
-{% block base_content %}
-
-    <h1>I Am the Original Template</h1>
-
-    <div class="container">
-
-        <div class="col-md-6">
-            <ul class="sidebar-nav naked">
-            </ul>
-
-            <ul class="sidebar-nav naked">
-            </ul>
-        </div>
-
-        {% if fset %}
-            <div class="col-md-18">
-                <h1>{{ fset.title }}</h1>
-                {% for fitem in fitems %}
-                    {{ fitem }}
-                {% endfor %}
-            </div>
-        {% else %}
-            {# TODO Make all strings configurable #}
-            {# TODO What's the translation workflow when User changes text? #}
-            {# Maybe better to use DB and model translations in this case #}
-            <h1>{% trans "There are currently no filersets to display." %}</h1>
-        {% endif %}
-
-        {% fs_category_tree %}
-
-    </div>
-
-    <link href="{% static "filersets/css/filersets.css" %}"
-            type="text/css" rel="stylesheet" />
+    <link href="{% static "filersets/css/filersets.css" %}" type="text/css" rel="stylesheet"/>
 
 {% endblock %}
