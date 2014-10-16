@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.template.context import RequestContext
@@ -22,18 +22,13 @@ from .serializers import (CategorySerializer,
                           FilersetSerializer)
 
 
-# ______________________________________________________________________________
-#                                                                     View: List
 class ListView(View):
-    """
-    Show a list of sets using the configured templates.
-    """
+    """Show a list of sets using the configured templates."""
     # TODO    Use a view parameter to determine use specific templates
     # TODO    Extend to be fully configurable
     # TODO    Extend to make use of paging
     # TODO    Extend to provide sorting
     def get(self, request, cat_id=None, cat_slug=None, set_type=None):
-
         if not set_type:
             set_type = 'default'
             template_conf = 'default'
@@ -146,19 +141,12 @@ class ListView(View):
         return response
 
 
-# ______________________________________________________________________________
-#                                                                      View: Set
 class SetView(View):
     """ Show a detail page for a set. """
     # TODO Support various predefined ordering options
     # TODO Check for set id or slug
     # TODO Create list and position aware back button handling
     def get(self, request, set_id=None, set_slug=None, set_type=None):
-        """
-
-        :param set_id: pk of the set
-        :param set_slug: slug of the set
-        """
         user = request.user
 
         if set_type:
@@ -201,19 +189,16 @@ class SetView(View):
                 'set_type': set_type})
 
 
-# ______________________________________________________________________________
-#                                                              View: Process Set
 class ProcessSetView(View):
-
     def get(self, request, set_id=None):
-        """ Process a set with the given set_id
+        """
+        Process a set with the given set_id
 
         Certain GET query parameters can be given:
         ?redirect=<url> If set, redirects to this url and sets a message
 
         :param set_id: pk of the set
         """
-
         try:
             fset = Set.objects.get(pk=int(set_id))
             op_stats = fset.create_or_update_set()
@@ -233,49 +218,31 @@ class ProcessSetView(View):
             {'op_stats': op_stats})
 
 
-# ______________________________________________________________________________
-#                                                             API View: Category
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows categories to be viewed
-    """
+    """API endpoint that allows categories to be viewed."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-# ______________________________________________________________________________
-#                                                                 API View: Item
 class ItemViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows categories to be viewed and modified.
-    """
+    """API endpoint that allows categories to be viewed and modified."""
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
 
-# ______________________________________________________________________________
-#                                                         API View: FilemodelExt
 class FilemodelExtViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows Filemodel Extensions to be viewed and modified.
-    """
+    """API endpoint to view and modify filemodel extensions."""
     queryset = FilemodelExt.objects.all()
     serializer_class = FilemodelExtSerializer
 
 
-# ______________________________________________________________________________
-#                                                                 API View: File
 class FileViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows Filemodel Extensions to be viewed and modified.
-    """
+    """API endpoint to view and modify file model instances.."""
     queryset = File.objects.all()
     serializer_class = FileSerializer
 
 
 class FilersetViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows retrieving filerset instances.
-    """
+    """API endpoint that allows retrieving filerset instances."""
     queryset = Set.objects.all()
     serializer_class = FilersetSerializer
