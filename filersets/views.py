@@ -137,7 +137,7 @@ class ListView(View):
         response = render(
             request,
             t_settings['list'], {
-                't_extends': t_settings['base'],
+                'base_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': list_items,
                 'canonical_url': canonical_url,
@@ -195,7 +195,7 @@ class SetView(View):
         return render(
             request,
             t_settings['set'], {
-                't_extend': t_settings['base'],
+                'base_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': fitems,
                 'set_type': set_type})
