@@ -106,7 +106,7 @@ Set type
 
 	* each of them to be available at different url endpoints.
 
-	* none/one/some of them as partials (e.g. blocks or streams).
+	* none/one/some of them as partials (e.g. blocks or streams).
 
 	* none/one/some of them to provide additional fields like body text.
 
@@ -114,7 +114,7 @@ Set type
 
 	* to provide different templates.
 
-	* to require different permissions.
+	* to require different permissions.
 
 	All of these aspects are enabled by grouping sets into different set types.
 
@@ -140,7 +140,7 @@ Media stream
 
 	* select some of the media to be shown in a block, on home, etc.
 	
-	* assign tags, categories, stock portal links (really any kind of meta
+	* assign tags, categories, stock portal links (really any kind of meta
 	data) in batch and independently from their location in different sets.
 
 
