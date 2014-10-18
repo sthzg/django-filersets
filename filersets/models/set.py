@@ -310,6 +310,10 @@ class Set(TimeStampedModel):
             pass
 
     def save(self, *args, **kwargs):
+        # Make sure we have a date if user clears value in DateTimeField.
+        if not self.date:
+            self.date = datetime.now()
+
         super(Set, self).save(*args, **kwargs)
 
     def __unicode__(self):
