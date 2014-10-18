@@ -3,11 +3,15 @@ from __future__ import absolute_import, unicode_literals
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from filer.fields.file import FilerFileField
-from taggit.managers import TaggableManager
+
+try:
+    from taggit_autosuggest_select2.managers import TaggableManager
+except ImportError:
+    from taggit.managers import TaggableManager
 
 
 class FilemodelExt(models.Model):
-    """Deprecated: Functionality will be part of separate filerstram app."""
+    """Deprecated: Functionality will be part of separate filerstream app."""
     class Meta:
         app_label = 'filersets'
         verbose_name = _('file model extension')
