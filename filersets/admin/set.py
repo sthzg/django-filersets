@@ -47,7 +47,6 @@ class SetForm(ModelForm):
         css = {'all': [CSS_FILERSETS_ADMIN, CSS_FONTAWESOME]}
         js = [JS_JQUERY_UI, JS_JQ_AUTOSIZE, JS_FILERSETS_ADMIN]
 
-
     class Meta:
         model = Set
 
@@ -57,8 +56,10 @@ class SetForm(ModelForm):
     def __init__(self, *args, **kwargs):
         """Adds HiddenInput for sorting and populates it w/ current value."""
         super(SetForm, self).__init__(*args, **kwargs)
+
         self.fields['item_sort_positions'] = forms.CharField(widget=forms.HiddenInput())  # NOQA
         self.fields['item_sort_positions'].required = False
+
         if 'instance' in kwargs.keys():
             self.fields['item_sort_positions'].initial = Set.objects.get(
                 pk=kwargs['instance'].pk).get_items_sorted_pks_serialized()
@@ -124,9 +125,8 @@ class SetAdmin(admin.ModelAdmin):
     form = SetForm
 
     class Media:
-        js = ("filersets/js/filersets.js",)
-        css = {'all': ['filersets/css/filersets_admin.css',
-                       '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css']}  # NOQA
+        js = (JS_FILERSETS_ADMIN,)
+        css = {'all': [CSS_FILERSETS_ADMIN, CSS_FONTAWESOME]}
 
     def save_formset(self, request, form, formset, change):
         formset.save(commit=True)
@@ -159,10 +159,7 @@ class SetAdmin(admin.ModelAdmin):
             form.instance.save_item_sort(item_pks)
 
     def create_or_update_filerset(self, request, queryset):
-        """
-        This action triggers the creation or update process for selected sets
-        It displays in the admin change list.
-        """
+        """Action triggers the creation or update process for selected sets."""
         for fset in queryset:
             Set.objects.create_or_update_set(fset.id)
 
@@ -278,7 +275,7 @@ class SetAdmin(admin.ModelAdmin):
     inlines = (ItemInlineAdmin,)
     actions = [create_or_update_filerset]
     readonly_fields = ('get_cover_item_thumbnail', 'is_processed',)
-    list_filter = ('date', 'is_processed', 'status',)
+    list_filter = ('date', 'is_processed', 'status', 'settype',)
     list_display = ('get_cover_item_thumbnail', 'title', 'date', 'status',
                     'is_processed', 'watch_online', 'process_set',
                     'is_autoupdate',)
