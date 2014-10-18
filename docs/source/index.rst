@@ -70,7 +70,7 @@ Glossary
 Item
 	Items are the smallest entity and (currently) directly related to
 	a ``filer_file`` object. Thus they have access to all the (meta) data 
-	provided by the ``filer_file`` and ``file`` object itself.
+	provided by the ``filer_file`` object itself.
 
 	Items can be of any file type, structured in arbitrary sub folders and
 	sorted per set in the admin.
