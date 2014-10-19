@@ -49,7 +49,7 @@ class ConfigTests(TestCase):
         """
         t_conf = get_template_settings(template_conf='default')
         self.assertEqual(type(t_conf), type(dict()))
-        self.assertEqual(len(t_conf), int(7))
+        self.assertEqual(len(t_conf), int(8))
         self.assertTrue('base' in t_conf)
         self.assertTrue('set' in t_conf)
         self.assertTrue('list' in t_conf)
@@ -73,7 +73,7 @@ class ConfigTests(TestCase):
     def test_override_partial_default_template_by_global_settings(self):
         t_conf = get_template_settings(template_conf='default')
         self.assertEqual(type(t_conf), type(dict()))
-        self.assertEqual(len(t_conf), int(7))
+        self.assertEqual(len(t_conf), int(8))
         self.assertTrue('base' in t_conf)
         self.assertTrue('set' in t_conf)
         self.assertTrue('list' in t_conf)
@@ -96,7 +96,7 @@ class ConfigTests(TestCase):
     def test_override_partial_global_template_by_namespaced_settings(self):
         t_conf = get_template_settings(template_conf='my_namespace')
         self.assertEqual(type(t_conf), type(dict()))
-        self.assertEqual(len(t_conf), int(7))
+        self.assertEqual(len(t_conf), int(8))
         self.assertTrue('base' in t_conf)
         self.assertTrue('set' in t_conf)
         self.assertTrue('list' in t_conf)

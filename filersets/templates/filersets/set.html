@@ -1,5 +1,5 @@
 {% extends base_extends %}
-{% load thumbnail i18n static %}
+{% load filersets_setcategories i18n static thumbnail%}
 
 {% block filersets_set_content %}
 
@@ -26,6 +26,8 @@
             </div>
 
         {% endfor %}
+
+        {% fs_setcategories fset %}
 
     </article>
 

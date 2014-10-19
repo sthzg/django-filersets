@@ -84,6 +84,7 @@ def _get_filersets_defaults(key=None):
                 'set': 'filersets/set.html',
                 'list': 'filersets/list.html',
                 'list_item': 'filersets/_list_item.html',
+                'set_categories': 'filersets/templatetags/_set_categories.html',
                 'cat_tree_wrap': 'filersets/templatetags/_category_tree.html',
                 'cat_tree_item': 'filersets/templatetags/_category_tree_item.html'}},}
 

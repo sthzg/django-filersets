@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^(?P<set_type>[\w-]+)/category/(?P<cat_id>\d+)/$', views.ListView.as_view(), name='list_view'),
 
     # Show a category list page referenced by its slug
-    url(r'^(?P<set_type>[\w-]+)/category/(?P<cat_slug>.+?/)$', views.ListView.as_view(), name='list_view'),
+    url(r'^(?P<set_type>[\w-]+)/category/(?P<cat_slug>[\w\-/]+)$', views.ListView.as_view(), name='list_view'),
 
     # Show the detail page of a set referenced by its set_id
     url( r'^(?P<set_type>[\w-]+)/set/(?P<set_id>\d+)/$', views.SetView.as_view(), name='set_by_id_view'),

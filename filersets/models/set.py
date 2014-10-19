@@ -258,6 +258,11 @@ class Set(TimeStampedModel):
         """Returns the slug of the set type that this filerset belongs to."""
         return self.category.first().get_root().slug
 
+    def get_categories(self):
+        """Returns a list of ``Category`` instances assigned to this set."""
+        return self.category.filter(is_active=True).order_by('name')
+
+
     def save_item_sort(self, custom=None):
         """Traverses all items on the set and saves their sort position."""
         sort_by = self.ordering

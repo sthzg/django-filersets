@@ -1,0 +1,11 @@
+{% load i18n %}{% spaceless %}
+<p>{% trans 'In categories:' %}</p>
+<ul>
+    {% for category in categories %}
+        <li>
+            <a href="{% url 'filersets:list_view' set_type=fset.settype.slug cat_slug=category.slug_composed %}">
+                {{ category.name }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>{% endspaceless %}
