@@ -8,8 +8,13 @@ register = template.Library()
 
 def do_category_tree(parser, token):
     """
-    If called without parameters, the whole category tree will be rendered.
-    Optionally you can pass the pk of the category you wish to start with.
+    Supported arguments:
+
+    ``root_id``:
+        Primary key of category to start rendering of the tree.
+
+    ``skip_empty``:
+        Flag indicates whether to render categories that have no set assigned.
     """
     root_id = int(-1)
     skip_empty = False
@@ -19,7 +24,7 @@ def do_category_tree(parser, token):
     if len(tokens) == 2:
         root_id = tokens[1].replace('"', '').replace("'", "")
     if len(tokens) == 3:
-        skip_empty = bool(tokens[2].replace('"', '').replace("'", ""))
+        skip_empty = bool(tokens[2].replace('"', '').replace("'", "").replace("False", ""))
 
     return FSCategoryTree(root_id, skip_empty)
 
