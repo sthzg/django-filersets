@@ -8,16 +8,14 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 
-#                                                                        _______
-#                                                                        Widgets
 class TreeNodeCheckboxFieldRenderer(widgets.ChoiceFieldRenderer):
     choice_input_class = widgets.CheckboxChoiceInput
 
     def render(self):
-        """
-        Outputs a <ul> for this set of choice fields and extends default
-        behavior by rendering class attributes specific to the underlying
-        tree structure.
+        """Outputs a <ul> for this set of choice fields.
+
+        Extends default behavior by rendering class attributes specific to
+        the underlying tree structure.
         """
         id_ = self.attrs.get('id', None)
         start_tag = format_html('<ul class="fs_list-unstyled" id="{0}">', id_) if id_ else '<ul>'
@@ -39,11 +37,8 @@ class TreeNodeCheckboxSelectMultiple(widgets.CheckboxSelectMultiple):
     _empty_value = []
 
 
-#                                                                         ______
-#                                                                         Fields
 class CustomModelChoiceIterator(forms.models.ModelChoiceIterator):
-    """
-    Adds the model instance for each choice to the choice tuple.
+    """Adds the model instance for each choice to the choice tuple.
 
     This is used on the renderer to create appropriate css class names for
     the choices in the rendered html.
@@ -55,9 +50,7 @@ class CustomModelChoiceIterator(forms.models.ModelChoiceIterator):
 
 
 class TreeNodeMultipleChoiceField(forms.ModelMultipleChoiceField):
-    """
-    A ModelMultipleChoiceField for tree nodes.
-    """
+    """A ModelMultipleChoiceField for tree nodes."""
     def _get_choices(self):
         if hasattr(self, '_choices'):
             return self._choices
@@ -67,12 +60,8 @@ class TreeNodeMultipleChoiceField(forms.ModelMultipleChoiceField):
     choices = property(_get_choices, forms.ModelChoiceField._set_choices)
 
 
-#                                                                    ___________
-#                                                                    ModelFields
 class TreeManyToManyField(models.ManyToManyField):
-    """
-    Model field for M2M fields that relate to instances of Treebeard models.
-    """
+    """Model field for M2M fields that relate to treebeard instances."""
     def formfield(self, **kwargs):
         defaults = {
             'form_class': TreeNodeMultipleChoiceField,

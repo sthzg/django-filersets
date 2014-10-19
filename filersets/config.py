@@ -5,10 +5,9 @@ import copy
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+
 def get_filersets_conf():
-    """
-    Returns filersets config dictionary or an empty dict.
-    """
+    """Returns filersets config dictionary or an empty dict."""
     try:
         conf = settings.FILERSETS_CONF
     except AttributeError:
@@ -18,8 +17,7 @@ def get_filersets_conf():
 
 
 def get_template_settings(overrides=None, template_conf=None):
-    """
-    Returns a dictionary with template settings
+    """Returns a dictionary with template settings.
 
     Currently there are three layers for settings, two of them can be overridden
     by users. (but only default and global settings are currently implemented)
@@ -69,19 +67,15 @@ def get_template_settings(overrides=None, template_conf=None):
 
 
 def _get_filersets_defaults(key=None):
-    """
-    Return default settings for the given key
+    """Returns default settings for the given key.
 
     :param key: string of the required key or None for all settings
     :type key: None or string
     :rtype: dict
     """
-
     # !!!
-    # CAUTION:
     # Each time default settings are changed don't forget to update the
     # ConfigTests in filersets.tests.tests_config
-    # !!!
     defaults = {
         'FILERSETS_TEMPLATES': {
             'default': {
@@ -103,8 +97,7 @@ def _get_filersets_defaults(key=None):
 
 
 def _get_filersets_globals(key=None):
-    """
-    Returns filerset settings from settings module by key
+    """Returns filerset settings from settings module by key.
 
     :param key: name of the setting as used in settings.py
     :type key: string
@@ -118,9 +111,7 @@ def _get_filersets_globals(key=None):
 
 # Thanks to Alex Martelli @ http://stackoverflow.com/a/3233356/870769.
 def update(d, u):
-    """
-    Updates a dictionary recursively.
-    """
+    """Updates a dictionary recursively."""
     for k, v in u.iteritems():
         if isinstance(v, collections.Mapping):
             r = update(d.get(k, {}), v)

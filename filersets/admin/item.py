@@ -223,7 +223,10 @@ class ItemAdmin(admin.ModelAdmin):
         return link.format(url, obj.set.title)
 
     def current_categories(self, obj):
-        """Returns a string of currently assign categories to one item."""
+        """Returns currently assigned categories of an item as string.
+
+        Deprecated: functionality will be provided in django-filerstreams.
+        """
         try:
             span = '<span class="label cat">{} ' \
                    '<a class="cat-del" data-catpk="{}" data-filepk="{}">x</a>' \
