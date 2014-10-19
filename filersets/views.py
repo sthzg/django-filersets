@@ -222,14 +222,12 @@ class CategoryMenuPartial(View):
     """Renders the category menu tree as HTML.
 
     This view can be utilized by backend code to get the rendered HTML
-    for a category menu tree as HTML. For an implementation example
-    see the ``fs_categorytree`` template tag.
+    for a category menu tree. For an implementation example see the
+    ``fs_categorytree`` template tag.
     """
-    def get(self, request, set_type_slug='default', root_id=0, skip_empty=False):
-
-        if set_type_slug == 'default':
-            template_conf = 'default'
-        else:
+    def get(self, request, set_type_slug='default', root_id=-1, skip_empty=False):
+        template_conf = 'default'
+        if not set_type_slug == 'default':
             set_type_instance = Settype.objects.get(slug=set_type_slug)
             template_conf = set_type_instance.template_conf
 
@@ -275,7 +273,7 @@ class CategoryMenuPartial(View):
                 cat_classes.append('active')
 
             if has_back_base and back_base_url in (cat_slug_url, cat_id_url):
-                # Prevent marking two cats as active when switching categories
+                # Prevent marking two cats as active when switching categories.
                 if fs_referrer != '{}:list_view'.format(cat_set_type):
                     cat_classes.append('active')
 
@@ -283,14 +281,13 @@ class CategoryMenuPartial(View):
             c = Context({'cat': cat,
                          'cat_classes': ' '.join(cat_classes),
                          'set_type': cat_set_type})
-            
+
             litems.append(t.render(c))
 
         t = get_template(t_settings['cat_tree_wrap'])
         c = Context({'items': litems, 'set_type': set_type_slug})
 
         return t.render(c)
-
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
