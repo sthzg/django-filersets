@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
-from django.template.context import RequestContext
+from django.template.context import RequestContext, Context
 from django.template.loader import get_template
 from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
@@ -216,6 +216,81 @@ class ProcessSetView(View):
             request,
             'filersets/process_set.html',
             {'op_stats': op_stats})
+
+
+class CategoryMenuPartial(View):
+    """Renders the category menu tree as HTML.
+
+    This view can be utilized by backend code to get the rendered HTML
+    for a category menu tree as HTML. For an implementation example
+    see the ``fs_categorytree`` template tag.
+    """
+    def get(self, request, set_type_slug='default', root_id=0, skip_empty=False):
+
+        if set_type_slug == 'default':
+            template_conf = 'default'
+        else:
+            set_type_instance = Settype.objects.get(slug=set_type_slug)
+            template_conf = set_type_instance.template_conf
+
+        t_settings = get_template_settings(template_conf=template_conf)
+
+        if root_id < 0:
+            categories = Category.objects.get_categories_by_level(
+                skip_empty=skip_empty)
+            lvl_compensate = int(0)
+        else:
+            try:
+                root_cat = Category.objects.get(pk=root_id)
+                lvl_compensate = root_cat.get_level_compensation()
+                categories = root_cat.get_descendants()
+            except Category.DoesNotExist:
+                # TODO Templatize the no categories display
+                return _('<p>No categories available</p>')
+
+        # Check back base system, see views.py for documentation
+        fs_referrer = request.session.get('fs_referrer', None)
+        back_base_url = request.session.get('back_base_url', None)
+        has_back_base = request.session.get('has_back_base', False)
+
+        litems = list()
+        for cat in categories:
+            cat_classes = list()
+            cat_classes.append('cat-level-{}'.format(cat.depth-lvl_compensate))
+            cat_set_type = cat.get_root().slug
+
+            cat_slug_url = reverse(
+                'filersets:list_view',
+                kwargs=({'set_type': cat_set_type, 'cat_slug': cat.slug_composed}),
+                current_app=cat_set_type)
+
+            cat_id_url = reverse(
+                'filersets:list_view',
+                kwargs=({'set_type': cat_set_type, 'cat_id': cat.pk}),
+                current_app=cat_set_type)
+
+            cur_url = request.get_full_path()
+
+            if cur_url in (cat_slug_url, cat_id_url):
+                cat_classes.append('active')
+
+            if has_back_base and back_base_url in (cat_slug_url, cat_id_url):
+                # Prevent marking two cats as active when switching categories
+                if fs_referrer != '{}:list_view'.format(cat_set_type):
+                    cat_classes.append('active')
+
+            t = get_template(t_settings['cat_tree_item'])
+            c = Context({'cat': cat,
+                         'cat_classes': ' '.join(cat_classes),
+                         'set_type': cat_set_type})
+            
+            litems.append(t.render(c))
+
+        t = get_template(t_settings['cat_tree_wrap'])
+        c = Context({'items': litems, 'set_type': set_type_slug})
+
+        return t.render(c)
+
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):

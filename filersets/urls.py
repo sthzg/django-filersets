@@ -26,4 +26,8 @@ urlpatterns = patterns('',
     # Show the detail page of a set referenced by its slug
     url(r'^(?P<set_type>[\w-]+)/set/(?P<set_slug>[\w-]+)/$', views.SetView.as_view(), name='set_by_slug_view'),
 
+    # Partials
+    # Category tree
+    url(r'^partials/categorymenu/$', views.CategoryMenuPartial.as_view(), name='partial_categorymenu'),
+
 )
