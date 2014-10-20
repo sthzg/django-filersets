@@ -6,7 +6,6 @@ from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from filer.fields.folder import FilerFolderField
 from filersets.fields import TreeManyToManyField
-from filersets.models import Category
 
 
 class Settype(models.Model):
@@ -77,7 +76,7 @@ class Settype(models.Model):
     #: When creating a new set type, a category on root level is automatically
     #: created and referenced in ``category``.
     category = TreeManyToManyField(
-        Category,
+        'Category',
         verbose_name=_('categories'),
         related_name='settype_categories',
         blank=True,
@@ -106,6 +105,8 @@ class Settype(models.Model):
 
     def save(self, *args, **kwargs):
         """Creates new category on category root level and sets relation."""
+        from .category import Category
+
         update = True if self.pk else False
 
         super(Settype, self).save(*args, **kwargs)
@@ -126,6 +127,8 @@ class Settype(models.Model):
     @classmethod
     def on_settype_delete(cls, sender, instance, using, **kwargs):
         """Deletes the root category and its descendants."""
+        from .category import Category
+
         try:
             Category.delete(instance.category.all().first())
         except TypeError:

@@ -16,6 +16,7 @@ from filersets.fields import TreeManyToManyField
 from filersets.signals import fset_processed
 from .item import Item
 from .setitemsort import SetItemSort
+from .settype import Settype
 
 try:
     from taggit_autosuggest_select2.managers import TaggableManager
@@ -318,6 +319,11 @@ class Set(TimeStampedModel):
         # Make sure we have a date if user clears value in DateTimeField.
         if not self.date:
             self.date = datetime.now()
+
+        try:
+            self.settype
+        except Settype.DoesNotExist:
+            self.settype = Settype.objects.all().first()
 
         super(Set, self).save(*args, **kwargs)
 
