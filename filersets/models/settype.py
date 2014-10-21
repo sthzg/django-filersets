@@ -92,6 +92,24 @@ class Settype(models.Model):
         null=False,
         default='default')
 
+    show_categories = models.BooleanField(
+        _('show categories?'),
+        help_text=_('If you don\'t need a categorization system for this '
+                    'set type you can uncheck this checkbox.'),
+        default=True)
+
+    show_set_date = models.BooleanField(
+        _('show set date?'),
+        help_text=_('If you don\'t want to define a date for each set '
+                    'explicitly you can uncheck this checkbox.'),
+        default=True)
+
+    show_description = models.BooleanField(
+        _('show description?'),
+        help_text=_('If you don\'t a textfield for descriptions for sets '
+                    'of this type you can uncheck this checkbox.'),
+        default=True)
+
     def get_root_category(self):
         """Returns Category instance of connected root category."""
         return self.category.first()
