@@ -58,8 +58,8 @@ class SetForm(ModelForm):
             'description': forms.Textarea(attrs={'class': 'vLargeTextField show_description'})
         }
 
-        # if has_redactor:
-        #     widgets.update({'description': RedactorWidget(editor_options={'lang': 'en'})})  # NOQA
+        if has_redactor:
+            widgets.update({'description': RedactorWidget(editor_options={'lang': 'en'})})  # NOQA
 
     def __init__(self, *args, **kwargs):
         """Adds HiddenInput for sorting and populates it w/ current value."""
@@ -239,6 +239,14 @@ class SetAdmin(admin.ModelAdmin):
         return super(SetAdmin, self).changelist_view(
             request, extra_context=extra_context)
 
+    def add_view(self, request, form_url='', extra_context=None):
+        """Provides configuration for JsSettings object on add view."""
+        settype_config = Settype.objects.get_settype_config_dict()
+        jss = JsSettings(request)
+        jss.set_jssetting('filersets.setconfig', settype_config)
+
+        return super(SetAdmin, self).add_view(request, form_url, extra_context)
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """Provides additional context to the admin change page template."""
         try:
@@ -281,6 +289,7 @@ class SetAdmin(admin.ModelAdmin):
         if Settype.objects.all().count() < 2:
             try:
                 fieldsets[0][1]['fields'].remove('settype')
+
             except ValueError:
                 pass
 

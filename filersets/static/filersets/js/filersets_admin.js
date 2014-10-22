@@ -882,9 +882,13 @@
     var set_type_cat_filter = {
 
         init: function() {
-            var $set_type = $('select#id_settype');
-            this._show_categories_for_value($set_type.val());
-            $set_type.on('change', {that: this}, this.on_set_type_change);
+            if(typeof jss.filersets.setconfig.single_settype_pk == 'undefined') {
+                var $set_type = $('select#id_settype');
+                this._show_categories_for_value($set_type.val());
+                $set_type.on('change', {that: this}, this.on_set_type_change);
+            } else {
+                this._show_categories_for_value(jss.filersets.setconfig.single_settype_pk);
+            }
         },
 
         on_set_type_change: function(ev) {
@@ -892,11 +896,12 @@
             that._show_categories_for_value($(this).val());
         },
 
-        _show_categories_for_value: function(val) {
+        _show_categories_for_value: function(settype_id) {
             var $set_type_categories = $('#id_category');
             $set_type_categories.find('li').css('display', 'none');
-            $set_type_categories.find('li[data-root-id="'+val+'"]').css('display', 'block');
+            $set_type_categories.find('li[data-settype-id="'+settype_id+'"]').css('display', 'block');
         }
+        
     };
 
     /**
@@ -905,6 +910,7 @@
      * Hides all input elements that according to the set type instance
      * configuration should not be visible for the selected set type.
      */
+    // TODO(sthzg) Trigger events and let addon packages do their cleanup.
     var set_type_field_config = {
 
         init: function() {
@@ -920,7 +926,6 @@
 
         _show_inputs_for_set_type: function(val) {
             var config = window.jss.filersets.setconfig['settype_'+val];
-
             // Iterates through all object properties and shows / hides
             // elements according to their boolean value.
             for (var property in config) {
@@ -937,7 +942,11 @@
                 }
             }
 
-            // Now we check if fieldsets are empty/no more empty now.
+            // Check if fieldsets are empty/no more empty.
+            // TODO(sthzg) Solution to support empty fieldsets in Suit tabs.
+            if($('#suit_form_tabs').length > 0 )
+                { return; }
+
             $.each($('fieldset'), function() {
                 if($(this).find('.form-row').not('.hidden').length < 1)
                     { $(this).css('display', 'none'); }

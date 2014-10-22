@@ -22,10 +22,11 @@ class TreeNodeCheckboxFieldRenderer(widgets.ChoiceFieldRenderer):
         output = [start_tag]
         for idx, widget in enumerate(self):
             category = self.choices[idx][2]
-            output.append(format_html('<li class="{}" data-is-root="{}" data-root-id="{}" data-level="{}">{}</li>',
+            output.append(format_html('<li class="{}" data-is-root="{}" data-root-id="{}" data-settype-id="{}" data-level="{}">{}</li>',
                                       category.slug_composed,
                                       'true' if len(category.get_ancestors()) == int(0) else 'false',
                                       category.get_root().id,
+                                      category.get_root().settype_categories.first().pk,
                                       len(category.get_ancestors()),
                                       force_text(widget)))
         output.append('</ul>')

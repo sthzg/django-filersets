@@ -20,6 +20,9 @@ class SettypeManager(models.Manager):
             config[settype_label]['show_categories'] = settype.show_categories
             config[settype_label]['show_set_date'] = settype.show_set_date
 
+        if self.all().count() == 1:
+            config['single_settype_pk'] = self.all().first().pk
+
         return config
 
 
