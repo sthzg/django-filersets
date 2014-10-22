@@ -925,10 +925,15 @@
             // elements according to their boolean value.
             for (var property in config) {
                 if (config.hasOwnProperty(property)) {
-                    if(!config[property])
-                        { $('.'+property).parents('.form-row').css('display', 'none').addClass('hidden'); }
-                    else
-                        { $('.'+property).parents('.form-row').css('display', 'block').removeClass('hidden'); }
+                    if(!config[property]) {
+                        $('.'+property).parents('.form-row').css('display', 'none').addClass('hidden');
+                        // Hide django-suit tabs if necessary.
+                        $('.nav-tabs-suit a[href="#'+property+'"]').parents('li').css('display', 'none');
+                    } else {
+                        $('.'+property).parents('.form-row').css('display', 'block').removeClass('hidden');
+                        // Show django-suit tabs if necessary.
+                        $('.nav-tabs-suit a[href="#'+property+'"]').parents('li').css('display', 'inline-block');
+                    }
                 }
             }
 

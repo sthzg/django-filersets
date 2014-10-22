@@ -313,11 +313,11 @@ class SetAdmin(admin.ModelAdmin):
                        'folder', 'recursive', 'is_autoupdate', 'category',
                        'is_processed', 'item_sort_positions']}),
         ('Description', {
-            'classes': ('show_description suit-tab suit-tab-writing full-width',),
+            'classes': ('show_description suit-tab suit-tab-show_description full-width',),
             'fields': ['description']})]
 
     if has_suit:
         suit_form_tabs = (
             ('general', _('Info')),
-            ('writing', _('Text')),
+            ('show_description', _('Text')),
             ('items', _('Set media')))
