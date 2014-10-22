@@ -8,6 +8,20 @@ from filer.fields.folder import FilerFolderField
 from filersets.fields import TreeManyToManyField
 
 
+class SettypeManager(models.Manager):
+    """Provides table-wide helper methods."""
+    def get_settype_config_dict(self):
+        """Returns a dictionary with set type instance settings."""
+        config = dict()
+        for settype in self.all():
+            config[settype.label] = dict()
+            config[settype.label]['show_description'] = settype.show_description
+            config[settype.label]['show_categories'] = settype.show_categories
+            config[settype.label]['show_set_date'] = settype.show_set_date
+
+        return config
+
+
 class Settype(models.Model):
     """Enables users to configure different types of sets.
 
@@ -20,6 +34,8 @@ class Settype(models.Model):
         app_label = 'filersets'
         verbose_name = _('set type')
         verbose_name_plural = _('set types')
+
+    objects = SettypeManager()
 
     created = models.DateTimeField(
         _('created'),
@@ -106,7 +122,7 @@ class Settype(models.Model):
 
     show_description = models.BooleanField(
         _('show description?'),
-        help_text=_('If you don\'t a textfield for descriptions for sets '
+        help_text=_('If you don\'t want a textfield for descriptions for sets '
                     'of this type you can uncheck this checkbox.'),
         default=True)
 
