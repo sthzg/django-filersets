@@ -2,20 +2,23 @@
 from __future__ import absolute_import, unicode_literals
 from django import forms
 from django.contrib import admin
+from django.contrib.admin.widgets import AdminDateWidget
 from django.core.exceptions import ValidationError
 from django.http.request import QueryDict
 from django.forms.models import ModelForm
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 from easy_thumbnails.files import get_thumbnailer
-from filersets.config import get_filersets_conf
 from filersets.fields import (TreeNodeMultipleChoiceField,
                               TreeNodeCheckboxSelectMultiple)
 from filersets.models import Set, Item, Category, Settype
+from jssettings.jssettings import JsSettings
 from .constants import *
 from .item import ItemInlineAdmin
 
 # TODO(sthzg) Refactor django-suit support to addon-app.
+
+
 try:
     from suit.admin import SortableModelAdmin, SortableTabularInline
     from suit.widgets import AutosizedTextarea, LinkedSelect
@@ -41,7 +44,7 @@ class SetForm(ModelForm):
     category = TreeNodeMultipleChoiceField(
         required=False,
         queryset=Category.objects.all(),
-        widget=TreeNodeCheckboxSelectMultiple())
+        widget=TreeNodeCheckboxSelectMultiple(attrs={'class': 'show_categories'}))
 
     class Media:
         css = {'all': [CSS_FILERSETS_ADMIN, CSS_FONTAWESOME]}
@@ -49,6 +52,11 @@ class SetForm(ModelForm):
 
     class Meta:
         model = Set
+
+        widgets = {
+            'date': AdminDateWidget(attrs={'class': 'vDateField show_set_date'}),
+            'description': forms.Textarea(attrs={'class': 'vLargeTextField show_description'})
+        }
 
         # if has_redactor:
         #     widgets.update({'description': RedactorWidget(editor_options={'lang': 'en'})})  # NOQA
@@ -131,7 +139,7 @@ class SetAdmin(admin.ModelAdmin):
     form = SetForm
 
     class Media:
-        js = (JS_FILERSETS_ADMIN,)
+        js = (JS_JQUERY_UI, JS_FILERSETS_ADMIN,)
         css = {'all': [CSS_FILERSETS_ADMIN, CSS_FONTAWESOME]}
 
     def save_formset(self, request, form, formset, change):
@@ -233,9 +241,6 @@ class SetAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """Provides additional context to the admin change page template."""
-        if not extra_context:
-            extra_context = dict()
-
         try:
             fset = Set.objects.get(pk=object_id)
             is_processed = fset.is_processed
@@ -251,6 +256,16 @@ class SetAdmin(admin.ModelAdmin):
             sffid = -1
             is_processed = False
 
+        # To enhance the admin forms we hide certain input fields depending
+        # on the set type instance configuration. To enable this in admin,
+        # we need to pass the configuration settings to Javascript.
+        settype_config = Settype.objects.get_settype_config_dict()
+        jss = JsSettings(request)
+        jss.set_jssetting('filersets.setconfig', settype_config)
+
+        if not extra_context:
+            extra_context = dict()
+
         extra_context['set_url'] = fset_url
         extra_context['set_filer_folder_id'] = sffid
         extra_context['set_is_processed'] = is_processed
@@ -259,13 +274,16 @@ class SetAdmin(admin.ModelAdmin):
             request, object_id, form_url, extra_context=extra_context)
 
     def get_fieldsets(self, request, obj=None):
-        """Removes settype field if only one set type is configured."""
+        """Alters fieldsets depending on actual data and set type settings."""
         fieldsets = super(SetAdmin, self).get_fieldsets(request, obj)
+
+        # Removes settype field if only one set type is configured.
         if Settype.objects.all().count() < 2:
             try:
                 fieldsets[0][1]['fields'].remove('settype')
             except ValueError:
                 pass
+
         return fieldsets
 
     create_or_update_filerset.short_description = _('Create/Update filerset')
@@ -295,18 +313,8 @@ class SetAdmin(admin.ModelAdmin):
                        'folder', 'recursive', 'is_autoupdate', 'category',
                        'is_processed', 'item_sort_positions']}),
         ('Description', {
-            'classes': ('suit-tab suit-tab-writing', 'full-width',),
+            'classes': ('show_description suit-tab suit-tab-writing full-width',),
             'fields': ['description']})]
-
-    FILERSETS_CONF = get_filersets_conf()
-    if FILERSETS_CONF.get('no_categories', False):
-        fieldsets[0][1]['fields'].remove('category')
-
-    if FILERSETS_CONF.get('no_date', False):
-        fieldsets[0][1]['fields'].remove('date')
-
-    if FILERSETS_CONF.get('no_description', False):
-        del fieldsets[1]
 
     if has_suit:
         suit_form_tabs = (

@@ -867,6 +867,7 @@
         $('body').hasClass('change-form')) {
       sortr.init();
       set_type_cat_filter.init();
+      set_type_field_config.init();
     }
   });
 
@@ -896,6 +897,50 @@
             $set_type_categories.find('li').css('display', 'none');
             $set_type_categories.find('li[data-root-id="'+val+'"]').css('display', 'block');
         }
+    };
+
+    /**
+     * SetTypeFieldConfig
+     * ------------------
+     * Hides all input elements that according to the set type instance
+     * configuration should not be visible for the selected set type.
+     */
+    var set_type_field_config = {
+
+        init: function() {
+            var $set_type = $('select#id_settype');
+            this._show_inputs_for_set_type($set_type.val());
+            $set_type.on('change', {that: this}, this.on_set_type_change);
+        },
+
+        on_set_type_change: function(ev) {
+            var that = ev.data.that;
+            that._show_inputs_for_set_type($(this).val());
+        },
+
+        _show_inputs_for_set_type: function(val) {
+            var config = window.jss.filersets.setconfig['settype_'+val];
+
+            // Iterates through all object properties and shows / hides
+            // elements according to their boolean value.
+            for (var property in config) {
+                if (config.hasOwnProperty(property)) {
+                    if(!config[property])
+                        { $('.'+property).parents('.form-row').css('display', 'none').addClass('hidden'); }
+                    else
+                        { $('.'+property).parents('.form-row').css('display', 'block').removeClass('hidden'); }
+                }
+            }
+
+            // Now we check if fieldsets are empty/no more empty now.
+            $.each($('fieldset'), function() {
+                if($(this).find('.form-row').not('.hidden').length < 1)
+                    { $(this).css('display', 'none'); }
+                else
+                    { $(this).css('display', 'block'); }
+            });
+        }
+
     };
 
 // _____________________________________________________________________________

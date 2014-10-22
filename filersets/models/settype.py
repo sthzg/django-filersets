@@ -14,10 +14,11 @@ class SettypeManager(models.Manager):
         """Returns a dictionary with set type instance settings."""
         config = dict()
         for settype in self.all():
-            config[settype.label] = dict()
-            config[settype.label]['show_description'] = settype.show_description
-            config[settype.label]['show_categories'] = settype.show_categories
-            config[settype.label]['show_set_date'] = settype.show_set_date
+            settype_label = 'settype_{}'.format(settype.pk)
+            config[settype_label] = dict()
+            config[settype_label]['show_description'] = settype.show_description
+            config[settype_label]['show_categories'] = settype.show_categories
+            config[settype_label]['show_set_date'] = settype.show_set_date
 
         return config
 

@@ -1,6 +1,13 @@
 {% extends 'admin/change_form.html' %}
-{% load i18n %}
+{% load i18n jssettings %}
 {% load filersets_extras %}
+
+    {% block extrahead %}
+        {{ block.super }}
+        <script type="text/javascript">
+            window.jss = {% jss_settings request %};
+        </script>
+    {% endblock %}
 
     {# STYLING FOR THE REGULAR ADMIN #}
     {% block object-tools-items %}

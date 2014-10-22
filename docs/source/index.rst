@@ -25,6 +25,7 @@ Dependencies
 * django-autoslug
 * django-model-utils
 * django-taggit
+* django-jssettings
 
 
 Optionally supported
