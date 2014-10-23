@@ -154,8 +154,34 @@ class Set(TimeStampedModel):
         _('processed?'),
         null=False,
         blank=True,
-        default=False
-    )
+        default=False)
+
+    def check_dirty(self):
+        """Returns True if set has unprocessed changes."""
+        if self.recursive:
+            folder_ids = self.folder.get_descendants(include_self=True)
+            filter_query = {'folder_id__in': [f.id for f in folder_ids]}
+        else:
+            filter_query = {'folder_id': self.folder.id}
+
+        files_in_db = [it.filer_file.id for it
+                       in Item.objects.filter(set=self, is_locked=False)]
+
+        files_in_folders = [f.id for f in File.objects.filter(**filter_query)]
+
+        diff = set(files_in_db) - set(files_in_folders)
+
+        if len(diff) != 0:
+            return True
+
+        for f in File.objects.filter(**filter_query):
+            try:
+                Item.objects.get(set=self.pk, filer_file__id=f.id)
+            except ObjectDoesNotExist:
+               return True
+
+        return False
+
 
     #                                                          _________________
     #                                                          Create/Update Set

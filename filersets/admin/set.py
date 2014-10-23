@@ -224,14 +224,23 @@ class SetAdmin(admin.ModelAdmin):
 
     def process_set(self, obj):
         """Extra field for change list displays a link to process a set."""
+        is_dirty = obj.check_dirty()
+
         set_url = reverse('filersets_api:set_process_view',
                           kwargs={'set_id': obj.pk})
         query = '?redirect={}'.format(self.current_url)
         label = ugettext('Process set')
-        link = '<a href="{0}{1}">' \
-               '<i class="fa fa-refresh" title="{2}"></span>' \
-               '</a>'
-        return link.format(set_url, query, label)
+
+        if is_dirty:
+            link = '<a href="{0}{1}">' \
+                   '<i class="fa fa-refresh" title="{2}"></span>' \
+                   '</a>'
+            ret = link.format(set_url, query, label)
+
+        else:
+            ret = '<i class="fa fa-refresh" title="{2}" style="opacity: .3"></span>'
+
+        return ret
 
     def changelist_view(self, request, extra_context=None):
         """Provides current_url parameter to the change list."""
@@ -274,6 +283,7 @@ class SetAdmin(admin.ModelAdmin):
         if not extra_context:
             extra_context = dict()
 
+        extra_context['set_is_dirty'] = fset.check_dirty()
         extra_context['set_url'] = fset_url
         extra_context['set_filer_folder_id'] = sffid
         extra_context['set_is_processed'] = is_processed

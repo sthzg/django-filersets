@@ -22,12 +22,14 @@
                 </a>
             </li>
             {% endif %}
-            <li>
-                <a href="{% url 'filersets_api:set_process_view' object_id  %}?redirect={{ request.get_full_path }}">
-                    <i class="icon-refresh icon-alpha75"></i>
-                    {% trans "Process set" %}
-                </a>
-            </li>
+            {% if set_is_dirty %}
+                <li>
+                    <a href="{% url 'filersets_api:set_process_view' object_id  %}?redirect={{ request.get_full_path }}">
+                        <i class="icon-refresh icon-alpha75"></i>
+                        {% trans "Process set" %}
+                    </a>
+                </li>
+            {% endif %}
             {% if set_filer_folder_id > -1 %}
             <li>
                 <a href="/admin/filer/folder/{{ set_filer_folder_id }}/list/?_popup=1"
@@ -57,12 +59,14 @@
                     </a>
                 </li>
                 {% endif %}
-                <li>
-                    <a href="{% url 'filersets_api:set_process_view' object_id  %}?redirect={{ request.get_full_path }}">
-                        <i class="icon-refresh icon-alpha75"></i>
-                        {% trans "Process set" %}
-                    </a>
-                </li>
+                {% if set_is_dirty %}
+                    <li>
+                        <a href="{% url 'filersets_api:set_process_view' object_id  %}?redirect={{ request.get_full_path }}">
+                            <i class="icon-refresh icon-alpha75"></i>
+                            {% trans "Process set" %}
+                        </a>
+                    </li>
+                {% endif %}
                 {% if set_filer_folder_id > -1 %}
                 <li>
                     <a href="/admin/filer/folder/{{ set_filer_folder_id }}/list/?_popup=1"
