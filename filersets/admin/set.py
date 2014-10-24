@@ -232,7 +232,7 @@ class SetAdmin(admin.ModelAdmin):
         label = ugettext('Process set')
 
         if is_dirty:
-            link = '<a href="{0}{1}">' \
+            link = '<a href="{0}{1}" data-behavior="lock_on_click">' \
                    '<i class="fa fa-refresh" title="{2}"></span>' \
                    '</a>'
             ret = link.format(set_url, query, label)
