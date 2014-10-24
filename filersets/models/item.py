@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+from django.db.models.signals import post_delete
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -128,6 +129,13 @@ class Item(TimeStampedModel):
 
         super(Item, self).save(*args, **kwargs)
 
+    @classmethod
+    def on_item_post_delete(cls, sender, instance, using, **kwargs):
+        """Deletes the associated file from filer.."""
+        instance.filer_file.delete()
+
     def __unicode__(self):
         return u'{}'.format(self.filer_file.original_filename)
         # return u'Set: {}'.format(self.set.title)
+
+post_delete.connect(Item.on_item_post_delete, sender=Item)
