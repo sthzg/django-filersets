@@ -131,7 +131,7 @@ class Item(TimeStampedModel):
 
     @classmethod
     def on_item_post_delete(cls, sender, instance, using, **kwargs):
-        """Deletes the associated file from filer.."""
+        """Deletes the associated file from filer."""
         instance.filer_file.delete()
 
     def __unicode__(self):
