@@ -13,9 +13,9 @@ class CategoryManager(MP_NodeManager):
     def get_categories_by_level(self, level_start=0, depth=0, skip_empty=False):
         """Retrieve a queryset with categories.
 
-        :param level_start: defines at which level to start
-        :param depth: defines how many child levels to deliver (0 = All)
-        :param skip_empty: flag, deliver categories without entries or not
+        :param level_start: Defines at which level to start.
+        :param depth: Defines how many child levels to deliver (0 = All).
+        :param skip_empty: Flag, deliver categories without entries or not.
         :rtype: queryset
         """
         q_filter = dict()

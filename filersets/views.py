@@ -29,10 +29,8 @@ class ListView(View):
     # TODO    Extend to make use of paging
     # TODO    Extend to provide sorting
     def get(self, request, cat_id=None, cat_slug=None, set_type=None):
-        if not set_type:
-            set_type = 'default'
-            template_conf = 'default'
-        else:
+        template_conf = 'default'
+        if set_type:
             set_type_instance = Settype.objects.get(slug=set_type)
             template_conf = set_type_instance.template_conf
 

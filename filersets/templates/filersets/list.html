@@ -1,5 +1,5 @@
 {% extends base_extends %}
-{% load i18n filersets_menutags static %}
+{% load i18n filersets_listtags filersets_menutags static %}
 
 {% block filersets_list_content %}
 
@@ -10,6 +10,13 @@
     {% else %}
         <h1>{% trans "There are currently no filersets to display." %}</h1>
     {% endif %}
+
+    {% fs_equal_height_cols fitems "4" %}
+    {% autoescape off %}
+        {% for row in set_rows %}
+            {{ row }}
+        {% endfor %}
+    {% endautoescape %}
 
     <link href="{% static "filersets/css/filersets.css" %}" type="text/css" rel="stylesheet"/>
 

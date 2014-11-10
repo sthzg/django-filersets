@@ -1,29 +1,23 @@
 # -*- coding: utf-8 -*-
-# ______________________________________________________________________________
-#                                                                         Future
 from __future__ import absolute_import
-# ______________________________________________________________________________
-#                                                                         Python
 from math import ceil, floor
-# ______________________________________________________________________________
-#                                                                         Django
 from django import template
 from django.conf import settings
 from django.template.context import Context
 from django.template.loader import get_template
+from filersets.config import get_template_settings
 
 register = template.Library()
 
 
-# ______________________________________________________________________________
-#                                                              Equal Height Cols
-#                                                                       ________
-#                                                                       Compiler
 def do_equal_height_cols(parser, token):
-    """
-    This template tag takes a list of items and an integer as parameter and
-    renders a grid of list item displays with the given number of sets per
-    row.
+    """Renders a grid of list item displays w/ number of sets per row.
+
+    ``fitems``
+        Sets to display.
+
+    ``num_cols``
+        Number of cols to fit into one row.
     """
 
     try:
@@ -40,23 +34,19 @@ def do_equal_height_cols(parser, token):
     return FSEqualHeightColsNode(fitems, num_cols[1:-1])
 
 
-#                                                                       ________
-#                                                                       Renderer
 class FSEqualHeightColsNode(template.Node):
-    """ Node class for equal height set rendering """
+    """Node class for equal height set rendering."""
     def __init__(self, fitems, num_cols):
         self.fitems = template.Variable(fitems)
         self.num_cols = num_cols
 
     def render(self, context):
-        """
-        Calculates how many list displays fit in a row and renders all given
-        fitems accordingly.
-        """
+        """Renders a grid of list item displays w/ number of sets per row."""
         fitems = self.fitems.resolve(context)
         num_cols = int(self.num_cols)
-        rows = int(ceil(len(fitems)/float(num_cols)))
+        rows = int(ceil(len(fitems) / float(num_cols)))
         col_width = int(floor(settings.FILERSETS_GRID_TOTAL_COLS / num_cols))
+
         output = list()
         for idx in range(rows):
             start = idx * num_cols
@@ -71,7 +61,8 @@ class FSEqualHeightColsNode(template.Node):
                 fitems += fill_up
 
             # TODO  Template needs to be configurable
-            t = get_template('filersets/templatetags/_equal_height_cols_row.html')
+            t_settings = get_template_settings(template_conf='default')
+            t = get_template(t_settings['equalheightcols'])
             c = Context({
                 'idx_start': start,
                 'idx_end': end,
@@ -89,6 +80,4 @@ class FSEqualHeightColsNode(template.Node):
         return ''
 
 
-# ______________________________________________________________________________
-#                                                                   Registration
 register.tag('fs_equal_height_cols', do_equal_height_cols)

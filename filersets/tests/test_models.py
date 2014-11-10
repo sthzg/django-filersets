@@ -14,7 +14,10 @@ class SetModelTests(TestCase):
     # TODO  Test creation of multiple unprocessed sets
     # TODO  Test update of multiple already processed but unchanged sets
     # TODO  Test update of multiple already processed and changed sets
-    pass
+
+    def test_get_categories(self):
+        """Returns the correct Category instances."""
+        pass
 
 
 class CategoryModelTests(TestCase):
@@ -65,7 +68,7 @@ class CategoryModelTests(TestCase):
         self.assertEqual(cat.slug_composed, u'bazbam/')
 
     def test_custom_field__get_level_compensation(self):
-        """ The compensation value for different levels is correct """
+        """The compensation value for different levels is correct."""
         create_controlled_categories()
         root_cat = Category.get_root_nodes()[0]
         self.assertEqual(root_cat.get_level_compensation(), int(0))
