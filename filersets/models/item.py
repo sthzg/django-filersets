@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_delete
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -132,7 +133,10 @@ class Item(TimeStampedModel):
     @classmethod
     def on_item_post_delete(cls, sender, instance, using, **kwargs):
         """Deletes the associated file from filer."""
-        instance.filer_file.delete()
+        try:
+            instance.filer_file.delete()
+        except ObjectDoesNotExist:
+            pass
 
     def __unicode__(self):
         return u'{}'.format(self.filer_file.original_filename)
