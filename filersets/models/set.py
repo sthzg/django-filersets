@@ -165,7 +165,8 @@ class Set(TimeStampedModel):
             filter_query = {'folder_id': self.folder.id}
 
         files_in_db = [it.filer_file.id for it
-                       in Item.objects.filter(set=self, is_locked=False)]
+                       in Item.objects.filter(set=self, is_locked=False)
+                       if it.filer_file]
 
         files_in_folders = [f.id for f in File.objects.filter(**filter_query)]
 
@@ -178,10 +179,9 @@ class Set(TimeStampedModel):
             try:
                 Item.objects.get(set=self.pk, filer_file__id=f.id)
             except ObjectDoesNotExist:
-               return True
+                return True
 
         return False
-
 
     #                                                          _________________
     #                                                          Create/Update Set

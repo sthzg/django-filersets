@@ -1,10 +1,11 @@
-##
+# -*- coding: utf-8 -*-
 # Thanks to zalew @ http://stackoverflow.com/a/3177142/870769
-##
+from __future__ import absolute_import, unicode_literals
 from django.utils import translation
 from django.utils.translation import ugettext
 from django.template import Library, Node,  Variable, TemplateSyntaxError
 register = Library()
+
 
 class TransNode(Node):
     def __init__(self, value, lc):

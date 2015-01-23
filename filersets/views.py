@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.template.context import RequestContext, Context
@@ -29,10 +29,20 @@ class ListView(View):
     # TODO    Extend to make use of paging
     # TODO    Extend to provide sorting
     def get(self, request, cat_id=None, cat_slug=None, set_type=None):
-        template_conf = 'default'
+        current_app = resolve(request.path).namespace
+
         if set_type:
-            set_type_instance = Settype.objects.get(slug=set_type)
-            template_conf = set_type_instance.template_conf
+            set_type_inst = Settype.objects.get(slug=set_type)
+            template_conf = set_type_inst.template_conf
+        else:
+            try:
+                # If we don't receive a set_type parameter with the slug we
+                # try if the current app's namespace resolves to a set type.
+                set_type_inst = Settype.objects.get(template_conf=current_app)
+                set_type = set_type_inst.slug
+                template_conf = current_app
+            except Settype.DoesNotExist:
+                template_conf = 'default'
 
         fset = None
         through_category = False
@@ -46,9 +56,11 @@ class ListView(View):
             except ObjectDoesNotExist:
                 raise Http404
 
-            filter_query = {'category': cat,
-                            'category__is_active': True,
-                            'status': 'published'}
+            filter_query = {
+                'category': cat,
+                'category__is_active': True,
+                'status': 'published'
+            }
 
         # Fetch sets by slug
         elif cat_slug:
@@ -59,9 +71,11 @@ class ListView(View):
             except IndexError:
                 raise Http404
 
-            filter_query = {'category': cat,
-                            'category__is_active': True,
-                            'status': 'published'}
+            filter_query = {
+                'category': cat,
+                'category__is_active': True,
+                'status': 'published'
+            }
 
         # Fetch sets that are affiliated with the current instance namespace
         # See the Settype model in models.py for more information.
@@ -69,7 +83,9 @@ class ListView(View):
             cat_ids = [
                 cat.pk
                 for cat in Category.objects.filter(
-                    settype_categories__slug=set_type)]
+                    settype_categories__slug=set_type
+                )
+            ]
 
             filter_query = {'category__in': cat_ids}
             if not request.user.has_perm('can_edit'):
@@ -81,13 +97,19 @@ class ListView(View):
             fitems = [
                 fitem
                 for fitem in Item.objects.filter(set=fset)
-                                 .order_by(*['-is_cover']+['item_sort__sort'])]
+                                 .order_by(*['-is_cover']+['item_sort__sort'])
+            ]
 
             t = get_template(t_settings['list_item'])
-            c = RequestContext(request,
-                               {'set': fset,
-                                'items': fitems,
-                                'set_type': set_type})
+            c = RequestContext(
+                request,
+                {
+                    'set': fset,
+                    'items': fitems,
+                    'set_type': set_type,
+                    'current_app': current_app,
+                }
+            )
             list_items.append(t.render(c))
 
         if through_category:
@@ -134,14 +156,16 @@ class ListView(View):
                 'fset': fset,
                 'fitems': list_items,
                 'canonical_url': canonical_url,
-                'set_type': set_type})
+                'set_type': set_type,
+                'current_app': current_app,
+            }
+        )
 
         return response
 
 
 class SetView(View):
     """ Show a detail page for a set. """
-    # TODO Support various predefined ordering options
     # TODO Check for set id or slug
     # TODO Create list and position aware back button handling
     def get(self, request, set_id=None, set_slug=None, set_type=None):
@@ -167,12 +191,11 @@ class SetView(View):
             fset = Set.objects.get(**get_query)
             if fset.status != 'published' and not user.has_perm('can_edit'):
                 raise ObjectDoesNotExist
-        except ObjectDoesNotExist:
+        except Set.DoesNotExist:
             raise Http404
 
         t_settings = get_template_settings(template_conf=template_conf)
 
-        # TODO  Make ordering options available on set edit form
         fitems = (
             fitem
             for fitem in Item.objects.filter(set=fset)
@@ -223,11 +246,20 @@ class CategoryMenuPartial(View):
     for a category menu tree. For an implementation example see the
     ``fs_categorytree`` template tag.
     """
-    def get(self, request, set_type_slug='default', root_id=-1, skip_empty=False):
-        template_conf = 'default'
-        if not set_type_slug == 'default':
-            set_type_instance = Settype.objects.get(slug=set_type_slug)
-            template_conf = set_type_instance.template_conf
+    def get(self, request, set_type_slug=None, root_id=-1, skip_empty=False):
+        current_app = resolve(request.path).namespace
+
+        if set_type_slug:
+            set_type_inst = Settype.objects.get(slug=set_type_slug)
+            template_conf = set_type_inst.template_conf
+        else:
+            try:
+                # If we don't receive a set_type parameter with the slug we
+                # try if the current app's namespace resolves to a set type.
+                Settype.objects.get(template_conf=current_app)
+                template_conf = current_app
+            except Settype.DoesNotExist:
+                template_conf = 'default'
 
         t_settings = get_template_settings(template_conf=template_conf)
 
@@ -276,14 +308,22 @@ class CategoryMenuPartial(View):
                     cat_classes.append('active')
 
             t = get_template(t_settings['cat_tree_item'])
-            c = Context({'cat': cat,
-                         'cat_classes': ' '.join(cat_classes),
-                         'set_type': cat_set_type})
+            c = Context(
+                {
+                    'cat': cat,
+                    'cat_classes': ' '.join(cat_classes),
+                    'set_type': cat_set_type,
+                    'current_app': current_app,
+                }
+            )
 
             litems.append(t.render(c))
 
         t = get_template(t_settings['cat_tree_wrap'])
-        c = Context({'items': litems, 'set_type': set_type_slug})
+        c = Context({
+            'items': litems,
+            'set_type': set_type_slug
+        })
 
         return t.render(c)
 

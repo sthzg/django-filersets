@@ -8,6 +8,7 @@ from django.http.request import QueryDict
 from django.forms.models import ModelForm
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
+from easy_thumbnails.exceptions import InvalidImageFormatError
 from easy_thumbnails.files import get_thumbnailer
 from filersets.fields import (TreeNodeMultipleChoiceField,
                               TreeNodeCheckboxSelectMultiple)
@@ -215,10 +216,13 @@ class SetAdmin(admin.ModelAdmin):
 
             if cover_item.ct.name == u'image':
                 options = {'size': (50, 0), 'crop': True}
-                thumb_url = get_thumbnailer(
-                    cover_item.filer_file).get_thumbnail(options).url
-                output = '<img class="" src="{}"  data-filepk="{}">'
-                output = output.format(thumb_url, cover_item.filer_file.id)
+                try:
+                    thumb_url = get_thumbnailer(
+                        cover_item.filer_file).get_thumbnail(options).url
+                    output = '<img class="" src="{}"  data-filepk="{}">'
+                    output = output.format(thumb_url, cover_item.filer_file.id)
+                except InvalidImageFormatError:
+                    output = 'No image file'
 
         return output
 
@@ -297,6 +301,7 @@ class SetAdmin(admin.ModelAdmin):
 
         # Removes settype field if only one set type is configured.
         if Settype.objects.all().count() < 2:
+            # TODO(sthzg) This needs to run dynamically on any request!
             try:
                 fieldsets[0][1]['fields'].remove('settype')
 
