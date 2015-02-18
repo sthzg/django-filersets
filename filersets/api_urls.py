@@ -9,7 +9,7 @@ urlpatterns = patterns('',
 
     url(  # Process set with given set_id
         r'^(?P<set_id>\d+)/process/$',
-        permission_required('filersets.can_add', 'filersets.can_edit')
+        permission_required('filersets.add_set', 'filersets.change_set')
         (views.ProcessSetView.as_view()),
         name='set_process_view'
     ),
