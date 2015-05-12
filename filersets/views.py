@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, resolve
@@ -66,8 +66,10 @@ class ListView(View):
         elif cat_slug:
             through_category = True
             cat_slug = strip_tags(cat_slug)
+            slug = '/'.join([set_type, cat_slug])
+            slug = '{}/'.format(slug) if slug[-1] != '/' else slug
             try:
-                cat = Category.objects.filter(slug_composed=cat_slug)[0]
+                cat = Category.objects.filter(slug_composed=slug)[0]
             except IndexError:
                 raise Http404
 
@@ -197,17 +199,22 @@ class SetView(View):
         t_settings = get_template_settings(template_conf=template_conf)
 
         fitems = (
-            fitem
-            for fitem in Item.objects.filter(set=fset)
-                                     .order_by('item_sort__sort'))
+            fitem for fitem in Item.objects.filter(
+                set=fset
+            ).order_by('item_sort__sort')
+        )
 
         return render(
             request,
-            t_settings['set'], {
+            t_settings['set'],
+            {
+                # 't_extend': t_settings['base'],
                 'base_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': fitems,
-                'set_type': set_type})
+                'set_type': set_type
+            }
+        )
 
 
 class ProcessSetView(View):
