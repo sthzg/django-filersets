@@ -174,7 +174,6 @@ class SetView(View):
         user = request.user
 
         if set_type:
-            set_type = set_type
             set_type_instance = Settype.objects.get(slug=set_type)
             template_conf = set_type_instance.template_conf
         else:
@@ -208,13 +207,105 @@ class SetView(View):
             request,
             t_settings['set'],
             {
-                # 't_extend': t_settings['base'],
                 'base_extends': t_settings['base'],
                 'fset': fset,
                 'fitems': fitems,
-                'set_type': set_type
+                'set_type': set_type,
+                'set_slug': set_slug,
             }
         )
+
+
+class MediaView(View):
+    """ Show a detail page for a set. """
+    # TODO Check for set id or slug
+    # TODO Create list and position aware back button handling
+    def get(self, request, set_id=None, set_slug=None, set_type=None, media_id=None, media_slug=None):
+        user = request.user
+
+        if set_type:
+            set_type_instance = Settype.objects.get(slug=set_type)
+            template_conf = set_type_instance.template_conf
+        else:
+            set_type = 'default'
+            template_conf = 'default'
+
+        request.session['fs_referrer'] = '{}:set_view'.format(set_type)
+
+        if set_id:
+            get_query = {'pk': int(set_id)}
+
+        if set_slug:
+            get_query = {'slug': set_slug}
+
+        try:
+            fset = Set.objects.get(**get_query)
+            if fset.status != 'published' and not user.has_perm('can_edit'):
+                raise ObjectDoesNotExist
+        except Set.DoesNotExist:
+            raise Http404
+
+        t_settings = get_template_settings(template_conf=template_conf)
+
+        fitems = (
+            fitem for fitem in Item.objects.filter(
+                set=fset
+            ).order_by('item_sort__sort')
+        )
+
+        if not media_id and not media_slug:
+            return Http404
+
+        try:
+            fitem = Item.objects.get(pk=media_id)
+        except Item.DoesNotExist:
+            return Http404
+
+        xmp = fitem.filer_file.file_xmpbase
+
+        # Title
+        title = 'Untitled'
+        if fitem.title:
+            title = fitem.title
+        elif xmp.xmp_title:
+            title = xmp.xmp_title
+
+        # Description
+        description = None
+        if fitem.description:
+            description = fitem.description
+        elif xmp.xmp_description:
+            description = xmp.xmp_description
+
+        # Keywords
+        # TODO(sthzg) check if overridden on item level
+        tags = xmp.xmp_keywords.all()
+
+        # Categories
+        categories = fitem.filer_file.filemodelext_file.all()[0].category.all()
+
+        # Stock links
+        stock_items = fitem.filer_file.file_stocklinks.all()
+
+        return render(
+            request,
+            t_settings['media'],
+            {
+                'base_extends': t_settings['base'],
+                'fset': fset,
+                'fitems': fitems,
+                'set_type': set_type,
+                'set_slug': set_slug,
+                'media': fitem,
+                'xmp': xmp,
+                'title': title,
+                'description': description,
+                'tags': tags,
+                'stock_items': stock_items,
+                'categories': categories,
+            }
+        )
+
 
 
 class ProcessSetView(View):

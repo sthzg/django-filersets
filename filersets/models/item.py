@@ -24,29 +24,33 @@ class Item(TimeStampedModel):
         related_name='filer_set',
         null=False,
         default=None,
-        blank=None)
+        blank=None
+    )
 
-    # TODO:   Name the content type field as suggested in the django docs
+    # TODO: Name the content type field as suggested in the django docs
     ct = models.ForeignKey(
         ContentType,
         verbose_name=_('content type'),
         related_name='contenttype',
         null=False,
         default=None,
-        blank=False)
+        blank=False
+    )
 
     is_cover = models.BooleanField(
         _('cover item?'),
         null=False,
         blank=True,
-        default=False)
+        default=False
+    )
 
     filer_file = FilerFileField(
         related_name='filer_file_obj',
         verbose_name=_('Filer file'),
         null=True,
         default=None,
-        blank=True)
+        blank=True
+    )
 
     title = models.CharField(
         _('title'),
@@ -56,13 +60,15 @@ class Item(TimeStampedModel):
         max_length=150,
         blank=True,
         default=None,
-        null=True)
+        null=True
+    )
 
     description = models.TextField(
         _('description'),
         blank=True,
         default=None,
-        null=True)
+        null=True
+    )
 
     is_locked = models.BooleanField(
         _('locked?'),
@@ -72,7 +78,8 @@ class Item(TimeStampedModel):
                     'set even though it is reported as an orphan.'),
         blank=False,
         default=False,
-        null=False)
+        null=False
+    )
 
     def get_item_thumb(self):
         """Returns a thumbnail representation of the current item."""
