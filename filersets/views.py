@@ -220,6 +220,7 @@ class MediaView(View):
     """ Show a detail page for a set. """
     # TODO Check for set id or slug
     # TODO Create list and position aware back button handling
+    # TODO(sthzg) Share code with set view
     def get(self, request, set_id=None, set_slug=None, set_type=None, media_id=None, media_slug=None):
         user = request.user
 
@@ -256,6 +257,7 @@ class MediaView(View):
         if not media_id and not media_slug:
             return Http404
 
+        # Get the item.
         try:
             fitem = Item.objects.get(pk=media_id)
         except Item.DoesNotExist:
@@ -297,6 +299,8 @@ class MediaView(View):
                 'set_type': set_type,
                 'set_slug': set_slug,
                 'media': fitem,
+                'next': fitem.get_next(),
+                'previous': fitem.get_previous(),
                 'xmp': xmp,
                 'title': title,
                 'description': description,

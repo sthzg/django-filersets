@@ -112,6 +112,34 @@ class Item(TimeStampedModel):
 
     get_sort_position.short_description = 'Pos'
 
+    def get_next(self, circle=True):
+        """ Return next item in set or None.
+
+        :param circle: whether to return the last item if current is the first
+        :type circle: bool
+        """
+        pos = self.get_sort_position()
+        sorted_items = self.set.get_items_sorted()
+
+        try:
+            return self.set.get_items_sorted()[pos + 1]
+        except IndexError:
+            return sorted_items[0] if circle else None
+
+    def get_previous(self, circle=True):
+        """ Return next item in set or None.
+
+        :param circle: whether to return the last item if current is the first
+        :type circle: bool
+        """
+        pos = self.get_sort_position()
+        sorted_items = self.set.get_items_sorted()
+
+        if circle:
+            return sorted_items[pos - 1]
+        else:
+            return None if pos == int(0) else sorted_items[pos - 1]
+
     def is_timeline(self):
         """Check is_timeline flag on the file and return True or False."""
         is_timeline = False
