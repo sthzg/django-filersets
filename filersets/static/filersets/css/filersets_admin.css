@@ -228,6 +228,12 @@ div.field-item_sort_positions {
   margin: 2px;
   padding: 0;
 }
+.uib-uiband li select,
+.uib-uiband li input {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 .uib-uiband li.fs-feature-title {
   margin-right: 12px;
   color: #e6e6e6;
