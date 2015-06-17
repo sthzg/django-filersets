@@ -1,0 +1,55 @@
+{% extends t_extend %}
+{% load thumbnail i18n static %}
+
+{% comment %}
+This is only a temporary solution to fit within the dev env. Should be a lot
+more generic and reasonably configurable
+
+TODO    Integrate with I18N
+TODO    Make configurable and very generic
+{% endcomment %}
+
+{% block base_content %}
+
+    <div class="container">
+
+        <div class="col-md-6">
+            <ul class="sidebar-nav naked">
+            </ul>
+
+            <ul class="sidebar-nav naked">
+            </ul>
+        </div>
+
+        <article class="main-content">
+            <div class="col-md-18">
+                <h1>Filer Set</h1>
+
+                <p class="date">{{ fset.date }}</p>
+                <h2>{{ fset.title }}</h2>
+                <h3>{{ fset.description }}</h3>
+
+                {% if perms.filersets.can_edit %}
+                    <a href="{% url "admin:filersets_set_change" fset.pk %}">(edit)</a>
+                {% endif %}
+
+                {% for fitem in fitems %}
+                    <div class="fs-item-container">
+                    {% thumbnail fitem.filer_file 845x0 crop="smart" as im %}
+                    <img src="{{ im.url }}"
+                         width="{{ im.width }}"
+                         height="{{ im.height }}"
+                         alt=""
+                         class="img-responsive" />
+                    </div>
+
+                {% endfor %}
+            </div>
+        </article>
+
+    </div>
+
+    <link href="{% static "filersets/css/filersets.css" %}"
+            type="text/css" rel="stylesheet" />
+
+{% endblock base_content %}

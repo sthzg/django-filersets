@@ -15,11 +15,13 @@ from filersets.models import Settype
 from rest_framework import viewsets
 from .config import get_template_settings
 from .models import Set, Item, Category, FilemodelExt
-from .serializers import (CategorySerializer,
-                          ItemSerializer,
-                          FileSerializer,
-                          FilemodelExtSerializer,
-                          FilersetSerializer)
+from .serializers import (
+    CategorySerializer,
+    ItemSerializer,
+    FileSerializer,
+    FilemodelExtSerializer,
+    FilersetSerializer
+)
 
 
 class ListView(View):
@@ -218,8 +220,8 @@ class SetView(View):
 
 class MediaView(View):
     """ Show a detail page for a set. """
-    # TODO Check for set id or slug
-    # TODO Create list and position aware back button handling
+    # TODO(sthzg) Check for set id or slug
+    # TODO(sthzg) Create list and position aware back button handling
     # TODO(sthzg) Share code with set view
     def get(self, request, set_id=None, set_slug=None, set_type=None, media_id=None, media_slug=None):
         user = request.user
@@ -257,12 +259,12 @@ class MediaView(View):
         if not media_id and not media_slug:
             return Http404
 
-        # Get the item.
         try:
             fitem = Item.objects.get(pk=media_id)
         except Item.DoesNotExist:
             return Http404
 
+        # TODO(sthzg) remove tight coupling from django-filerxmp
         xmp = fitem.filer_file.file_xmpbase
 
         # Title
@@ -281,7 +283,7 @@ class MediaView(View):
 
         # Keywords
         # TODO(sthzg) check if overridden on item level
-        tags = xmp.xmp_keywords.all()
+        tags = xmp.xmpimage.xmp_keywords.all()
 
         # Categories
         categories = fitem.filer_file.filemodelext_file.all()[0].category.all()
@@ -435,6 +437,16 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+    def get_queryset(self):
+        """Provides ability to filter results with query params."""
+        queryset = Category.objects.all()
+        slug_contains = self.request.QUERY_PARAMS.get('slug_starts_with', None)
+        if slug_contains is not None:
+            regex = r'^{}.'.format(slug_contains)
+            queryset = queryset.filter(slug_composed__regex=regex)
+        return queryset
+
+
 
 class ItemViewSet(viewsets.ModelViewSet):
     """API endpoint that allows categories to be viewed and modified."""
@@ -456,5 +468,5 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
 
 class FilersetViewSet(viewsets.ModelViewSet):
     """API endpoint that allows retrieving filerset instances."""
-    queryset = Set.objects.all()
+    queryset = Set.objects.all().order_by('title')
     serializer_class = FilersetSerializer

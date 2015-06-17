@@ -10,9 +10,10 @@ TODO    Make thumb size configurable
 {% endcomment %}
 
 <div class="filer-set-container">
+    <p>Set type two</p>
     <p class="date">{{ set.date }}</p>
     <h2>
-        {% url current_app|add:':set_by_slug_view' set_type=set_type set_slug=set.slug as set_url %}
+        {% url 'filersets:set_by_slug_view' set_type=set_type set_slug=set.slug as set_url %}
         <a href="{{ set_url }}">
             {{ set.title }}
         </a>

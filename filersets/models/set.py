@@ -289,7 +289,6 @@ class Set(TimeStampedModel):
         """Returns a list of ``Category`` instances assigned to this set."""
         return self.category.filter(is_active=True).order_by('name')
 
-
     def save_item_sort(self, custom=None):
         """Traverses all items on the set and saves their sort position."""
         sort_by = self.ordering
