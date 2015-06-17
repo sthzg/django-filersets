@@ -67,6 +67,12 @@ class Category(MP_Node):
         default=False,
         blank=True)
 
+    is_group = models.BooleanField(
+        _('is group'),
+        blank=True,
+        default=False,
+    )
+
     name = models.CharField(
         _('category name'),
         max_length=140,

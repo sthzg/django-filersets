@@ -7,7 +7,7 @@ from rest_framework import serializers
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'slug_composed')
+        fields = ('id', 'is_active', 'is_group', 'name', 'slug_composed')
 
 
 class ItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -34,4 +34,4 @@ class FilemodelExtSerializer(serializers.HyperlinkedModelSerializer):
 class FilersetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Set
-        fields = ('id', 'description')
+        fields = ('id', 'title', 'description',)
